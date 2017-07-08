@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.jajac.geowarfare">
+    package="rs.elfak.jajac.geowarfare">
 
     <application
         android:allowBackup="true"
@@ -9,12 +9,31 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LauncherActivity">
+        <activity
+            android:name="rs.elfak.jajac.geowarfare.LauncherActivity"
+            android:theme="@android:style/Theme.NoDisplay">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="rs.elfak.jajac.geowarfare.LoginActivity"
+            android:label="@string/login_title"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="rs.elfak.jajac.geowarfare.ProfileActivity"
+            android:label="@string/profile_title"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="rs.elfak.jajac.geowarfare.RegisterActivity"
+            android:label="@string/register_title"
+            android:parentActivityName="rs.elfak.jajac.geowarfare.LoginActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="rs.elfak.jajac.geowarfare.LoginActivity" />
         </activity>
     </application>
 

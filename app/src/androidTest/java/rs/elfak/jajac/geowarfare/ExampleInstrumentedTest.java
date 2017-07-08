@@ -1,4 +1,4 @@
-package com.example.jajac.geowarfare;
+package rs.elfak.jajac.geowarfare;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.example.jajac.geowarfare", appContext.getPackageName());
+        assertEquals("rs.elfak.jajac.geowarfare", appContext.getPackageName());
     }
 }

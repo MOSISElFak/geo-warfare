@@ -1,4 +1,4 @@
-package com.example.jajac.geowarfare;
+package rs.elfak.jajac.geowarfare;
 
 import org.junit.Test;
 

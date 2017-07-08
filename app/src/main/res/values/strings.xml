@@ -1,3 +1,20 @@
 <resources>
     <string name="app_name">GeoWarfare</string>
+
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="repeat_password_hint">Repeat password</string>
+
+    <string name="login_title">Login</string>
+    <string name="login_button">Login</string>
+    <string name="login_no_account_button"><u>Create account</u></string>
+
+    <string name="register_title">Register</string>
+    <string name="register_display_name_hint">Display name</string>
+    <string name="register_full_name_hint">Full name</string>
+    <string name="register_phone_number_hint">Phone number</string>
+    <string name="register_avatar_choose_image">Choose avatar</string>
+    <string name="register_button">Register</string>
+
+    <string name="profile_title">Profile</string>
 </resources>
