@@ -1,14 +1,21 @@
 <resources>
     <string name="app_name">GeoWarfare</string>
 
+    <!-- Shared among Register and Login activities -->
     <string name="email_hint">Email</string>
     <string name="password_hint">Password</string>
     <string name="repeat_password_hint">Repeat password</string>
 
+    <string name="required_field_error">Required field.</string>
+    <string name="email_bad_format_error">Invalid email format.</string>
+    <string name="password_bad_format_error">Minimum 8 alphanumeric characters. At least one letter and one number.</string>
+
+    <!-- Login Activity-->
     <string name="login_title">Login</string>
     <string name="login_button">Login</string>
     <string name="login_no_account_button"><u>Create account</u></string>
 
+    <!-- Register Activity -->
     <string name="register_title">Register</string>
     <string name="register_display_name_hint">Display name</string>
     <string name="register_full_name_hint">Full name</string>
