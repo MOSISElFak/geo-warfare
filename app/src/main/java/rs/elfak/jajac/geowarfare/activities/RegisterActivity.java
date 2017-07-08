@@ -1,8 +1,14 @@
 package rs.elfak.jajac.geowarfare.activities;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -18,11 +24,18 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.utils.Validator;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnFocusChangeListener {
+
+    private static final int REQUEST_CHOOSE_IMAGE = 1;
 
     private EditText mEmail;
     private EditText mPassword;
@@ -35,6 +48,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
+
+    private String mImagePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +109,56 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
     }
 
     public void onAddImageClick(View v) {
+        mAvatarError.setError(null);
 
+        Intent  galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        galleryIntent.setType("image/*");
+
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        // If there's a camera activity, we let the user choose Gallery or Camera
+        if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+            // Create a file to internally store the new camera image
+            File imageFile = null;
+            try {
+                imageFile = createImageFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            // Continue only if the File was successfully created
+            if (imageFile != null) {
+                Uri imageUri = FileProvider.getUriForFile(
+                        this,
+                        "rs.elfak.jajac.geowarfare.fileprovider",
+                        imageFile
+                );
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+
+                Intent chooseIntent = Intent.createChooser(galleryIntent, "Select image");
+                chooseIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {cameraIntent});
+
+                startActivityForResult(chooseIntent, REQUEST_CHOOSE_IMAGE);
+            }
+        } else {
+            startActivityForResult(galleryIntent, REQUEST_CHOOSE_IMAGE);
+        }
+
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CHOOSE_IMAGE && resultCode == Activity.RESULT_OK) {
+            Uri imageUri = data.getData();
+            // If an Uri is not found in getData(), then we fetch the new camera image
+            if (imageUri == null) {
+                File file = new File(mImagePath);
+                imageUri = Uri.fromFile(file);
+            }
+
+            mAvatar.setImageURI(imageUri);
+        }
     }
 
     private boolean allFieldsValid() {
@@ -155,5 +219,15 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
 
     public void onAvatarClick(View view) {
         mAvatarError.requestFocus();
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+
+        mImagePath = image.getAbsolutePath();
+        return image;
     }
 }
