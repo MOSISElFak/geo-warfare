@@ -15,7 +15,7 @@
     <string name="login_button">Login</string>
     <string name="login_no_account_button"><u>Create account</u></string>
 
-    <string name="login_progress_dialog_message">Logging in...</string>
+    <string name="login_progress_dialog_message">Logging in…</string>
 
     <!-- Register Activity -->
     <string name="register_title">Register</string>
@@ -30,7 +30,7 @@
     <string name="register_full_name_format_error">Must contain from 2 to 30 characters. Letters and spaces allowed.</string>
     <string name="register_phone_format_error">Must contain 9 to 12 digits, optionally preceded with a "+".</string>
 
-    <string name="register_progress_dialog_message">Registering...</string>
+    <string name="register_progress_dialog_message">Registering…</string>
 
 
     <string name="profile_title">Profile</string>

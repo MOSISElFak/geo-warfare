@@ -13,8 +13,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.utils.Validator;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnFocusChangeListener {
@@ -27,6 +30,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
     private EditText mPhone;
 
     private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +55,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
         mPhone.setOnFocusChangeListener(this);
 
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
     }
 
     @Override
@@ -101,6 +106,16 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
                 mPhone.length() > 0 && mPhone.getError() == null;
     }
 
+    private UserModel getUserModel(String newUserId) {
+        return new UserModel(
+                newUserId,
+                mEmail.getText().toString().trim(),
+                mDisplayName.getText().toString().trim(),
+                mFullName.getText().toString().trim(),
+                mPhone.getText().toString().trim()
+        );
+    }
+
     public void onRegisterClick(View v) {
         if (!allFieldsValid()) return;
 
@@ -118,7 +133,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         progressDialog.hide();
                         if (task.isSuccessful()) {
-                            Toast.makeText(RegisterActivity.this, "Successful!", Toast.LENGTH_LONG).show();
+                            String newUserId = mAuth.getCurrentUser().getUid();
+                            UserModel newUser = getUserModel(newUserId);
+                            mDatabase.child("users").child(newUserId).setValue(newUser);
                         } else {
                             Toast.makeText(RegisterActivity.this, "FAILED!", Toast.LENGTH_LONG).show();
                         }
