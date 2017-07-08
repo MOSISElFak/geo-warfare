@@ -1,4 +1,4 @@
-package rs.elfak.jajac.geowarfare;
+package rs.elfak.jajac.geowarfare.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,9 +6,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
 
+import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.utils.Validator;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements View.OnFocusChangeListener {
 
     private EditText mEmail;
     private EditText mPassword;
@@ -21,19 +22,25 @@ public class LoginActivity extends AppCompatActivity {
         mEmail = (EditText) findViewById(R.id.login_email_text);
         mPassword = (EditText) findViewById(R.id.login_password_text);
 
-        mEmail.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean hasFocus) {
-                if (!hasFocus) Validator.validateEmail((EditText) view);
-            }
-        });
+        mEmail.setOnFocusChangeListener(this);
+        mPassword.setOnFocusChangeListener(this);
+    }
 
-        mPassword.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean hasFocus) {
-                if (!hasFocus) Validator.validatePassword((EditText) view);
+    @Override
+    public void onFocusChange(View view, boolean hasFocus) {
+        if (!hasFocus) {
+            EditText editText = (EditText) view;
+            int editTextId = editText.getId();
+
+            switch (editTextId) {
+                case R.id.login_email_text:
+                    Validator.validateEmail(editText);
+                    break;
+                case R.id.login_password_text:
+                    Validator.validatePassword(editText);
+                    break;
             }
-        });
+        }
     }
 
     private boolean allFieldsValid() {

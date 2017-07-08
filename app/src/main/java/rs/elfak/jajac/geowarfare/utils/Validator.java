@@ -35,4 +35,59 @@ public class Validator {
         }
     }
 
+    public static void validateRepeatPassword(EditText passwordEt, EditText repeatPasswordEt) {
+        String password = passwordEt.getText().toString().trim();
+        String repeatPassword = repeatPasswordEt.getText().toString().trim();
+
+        if (repeatPassword.isEmpty()) {
+            repeatPasswordEt.setError(App.getContext().getString(R.string.required_field_error));
+        } else if (!password.equals(repeatPassword)) {
+            repeatPasswordEt.setError(App.getContext().getString(R.string.register_repeat_password_error));
+        } else {
+            repeatPasswordEt.setError(null);
+        }
+    }
+
+    public static void validateDisplayName(EditText displayNameEt) {
+        String displayName = displayNameEt.getText().toString().trim();
+        // From 2 to 12 alphanumeric characters, must begin with a letter
+        String pattern = "^[A-Za-z][A-Za-z0-9]{1,11}$";
+
+        if (displayName.isEmpty()) {
+            displayNameEt.setError(App.getContext().getString(R.string.required_field_error));
+        } else if (!displayName.matches(pattern)) {
+            displayNameEt.setError(App.getContext().getString(R.string.register_display_name_format_error));
+        } else {
+            displayNameEt.setError(null);
+        }
+    }
+
+    public static void validateFullName(EditText fullNameEt) {
+        String fullName = fullNameEt.getText().toString().trim();
+        // From 2 to 30 letter characters, must begin with a letter, spaces allowed
+        String pattern = "^[A-Za-z][A-Za-z ]{1,29}$";
+
+        if (fullName.isEmpty()) {
+            fullNameEt.setError(App.getContext().getString(R.string.required_field_error));
+        } else if (!fullName.matches(pattern)) {
+            fullNameEt.setError(App.getContext().getString(R.string.register_full_name_format_error));
+        } else {
+            fullNameEt.setError(null);
+        }
+    }
+
+    public static void validatePhone(EditText phoneEt) {
+        String phone = phoneEt.getText().toString().trim();
+        // Optionary "+" sign followed by 9 to 12 digits
+        String pattern = "^\\+?[0-9]{9,12}$";
+
+        if (phone.isEmpty()) {
+            phoneEt.setError(App.getContext().getString(R.string.required_field_error));
+        } else if (!phone.matches(pattern)) {
+            phoneEt.setError(App.getContext().getString(R.string.register_phone_format_error));
+        } else {
+            phoneEt.setError(null);
+        }
+    }
+
 }

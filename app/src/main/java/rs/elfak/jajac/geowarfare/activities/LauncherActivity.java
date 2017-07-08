@@ -1,4 +1,4 @@
-package rs.elfak.jajac.geowarfare;
+package rs.elfak.jajac.geowarfare.activities;
 
 import android.content.Context;
 import android.content.Intent;
