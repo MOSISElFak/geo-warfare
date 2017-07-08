@@ -109,8 +109,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
     }
 
     public void onAddImageClick(View v) {
-        mAvatarError.setError(null);
-
         Intent  galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
         galleryIntent.setType("image/*");
 
@@ -134,12 +132,13 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
                 );
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
 
-                Intent chooseIntent = Intent.createChooser(galleryIntent, "Select image");
+                Intent chooseIntent = Intent.createChooser(galleryIntent, "Select image from");
                 chooseIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {cameraIntent});
 
                 startActivityForResult(chooseIntent, REQUEST_CHOOSE_IMAGE);
             }
         } else {
+            // If no Camera available, choose from gallery only
             startActivityForResult(galleryIntent, REQUEST_CHOOSE_IMAGE);
         }
 
@@ -158,6 +157,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
             }
 
             mAvatar.setImageURI(imageUri);
+            mAvatarError.setError(null);
         }
     }
 
