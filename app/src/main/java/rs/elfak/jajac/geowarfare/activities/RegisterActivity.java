@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -28,6 +30,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
     private EditText mDisplayName;
     private EditText mFullName;
     private EditText mPhone;
+    private ImageView mAvatar;
+    private TextView mAvatarError;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
@@ -46,6 +50,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
         mDisplayName = (EditText) findViewById(R.id.register_display_name_text);
         mFullName = (EditText) findViewById(R.id.register_full_name_text);
         mPhone = (EditText) findViewById(R.id.register_phone_text);
+        mAvatar = (ImageView) findViewById(R.id.avatar_image);
+        mAvatarError = (TextView) findViewById(R.id.avatar_tv);
 
         mEmail.setOnFocusChangeListener(this);
         mPassword.setOnFocusChangeListener(this);
@@ -98,12 +104,15 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
         Validator.validateDisplayName(mDisplayName);
         Validator.validateFullName(mFullName);
         Validator.validatePhone(mPhone);
+        Validator.validateAvatar(mAvatar, mAvatarError);
+
         return mEmail.length() > 0 && mEmail.getError() == null &&
                 mPassword.length() > 0 && mPassword.getError() == null &&
                 mRepeatPassword.length() > 0 && mRepeatPassword.getError() == null &&
                 mDisplayName.length() > 0 && mDisplayName.getError() == null &&
                 mFullName.length() > 0 && mFullName.getError() == null &&
-                mPhone.length() > 0 && mPhone.getError() == null;
+                mPhone.length() > 0 && mPhone.getError() == null &&
+                mAvatar.getDrawable() != null && mAvatarError.getError() == null;
     }
 
     private UserModel getUserModel(String newUserId) {
@@ -144,4 +153,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
 
     }
 
+    public void onAvatarClick(View view) {
+        mAvatarError.requestFocus();
+    }
 }

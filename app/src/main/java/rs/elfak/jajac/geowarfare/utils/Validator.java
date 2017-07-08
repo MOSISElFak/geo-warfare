@@ -1,6 +1,8 @@
 package rs.elfak.jajac.geowarfare.utils;
 
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import org.apache.commons.validator.routines.EmailValidator;
 
@@ -87,6 +89,14 @@ public class Validator {
             phoneEt.setError(App.getContext().getString(R.string.register_phone_format_error));
         } else {
             phoneEt.setError(null);
+        }
+    }
+
+    public static void validateAvatar(ImageView avatar, TextView errorTv) {
+        if (avatar.getDrawable() == null) {
+            errorTv.setError(App.getContext().getString(R.string.register_avatar_error));
+        } else {
+            errorTv.setError(null);
         }
     }
 

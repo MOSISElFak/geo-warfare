@@ -83,17 +83,30 @@
         android:layout_marginTop="@dimen/login_field_top_margin"
         app:layout_constraintTop_toBottomOf="@+id/register_phone_text"
         app:layout_constraintLeft_toLeftOf="@+id/register_phone_text"
-        android:background="@drawable/default_avatar" />
+        android:background="@drawable/default_avatar"
+        android:clickable="true"
+        android:onClick="onAvatarClick" />
 
     <Button
         android:id="@+id/add_avatar_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/register_avatar_choose_image"
-        app:layout_constraintTop_toBottomOf="@+id/register_phone_text"
+        android:text="@string/register_avatar_choose_button"
+        app:layout_constraintTop_toTopOf="@+id/avatar_image"
         app:layout_constraintRight_toRightOf="@+id/register_phone_text"
-        app:layout_constraintBottom_toTopOf="@+id/register_btn"
         android:onClick="onAddImageClick" />
+
+    <TextView
+        android:id="@+id/avatar_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        app:layout_constraintBottom_toBottomOf="@+id/avatar_image"
+        app:layout_constraintTop_toTopOf="@+id/avatar_image"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toRightOf="@+id/avatar_image" />
 
     <Button
         android:id="@+id/register_btn"
