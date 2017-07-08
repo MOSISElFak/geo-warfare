@@ -58,7 +58,7 @@
         android:id="@+id/register_full_name_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:inputType="text"
+        android:inputType="textPersonName"
         android:hint="@string/register_full_name_hint"
         android:layout_marginTop="@dimen/login_field_top_margin"
         app:layout_constraintTop_toBottomOf="@+id/register_display_name_text"

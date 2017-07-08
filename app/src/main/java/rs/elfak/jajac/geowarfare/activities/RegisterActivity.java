@@ -1,10 +1,18 @@
 package rs.elfak.jajac.geowarfare.activities;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.utils.Validator;
@@ -17,6 +25,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
     private EditText mDisplayName;
     private EditText mFullName;
     private EditText mPhone;
+
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +49,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
         mDisplayName.setOnFocusChangeListener(this);
         mFullName.setOnFocusChangeListener(this);
         mPhone.setOnFocusChangeListener(this);
+
+        mAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -74,7 +86,44 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
 
     }
 
+    private boolean allFieldsValid() {
+        Validator.validateEmail(mEmail);
+        Validator.validatePassword(mPassword);
+        Validator.validateRepeatPassword(mPassword, mRepeatPassword);
+        Validator.validateDisplayName(mDisplayName);
+        Validator.validateFullName(mFullName);
+        Validator.validatePhone(mPhone);
+        return mEmail.length() > 0 && mEmail.getError() == null &&
+                mPassword.length() > 0 && mPassword.getError() == null &&
+                mRepeatPassword.length() > 0 && mRepeatPassword.getError() == null &&
+                mDisplayName.length() > 0 && mDisplayName.getError() == null &&
+                mFullName.length() > 0 && mFullName.getError() == null &&
+                mPhone.length() > 0 && mPhone.getError() == null;
+    }
+
     public void onRegisterClick(View v) {
+        if (!allFieldsValid()) return;
+
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(getString(R.string.register_progress_dialog_message));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        String email = mEmail.getText().toString().trim();
+        String password = mPassword.getText().toString().trim();
+
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        progressDialog.hide();
+                        if (task.isSuccessful()) {
+                            Toast.makeText(RegisterActivity.this, "Successful!", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(RegisterActivity.this, "FAILED!", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
 
     }
 
