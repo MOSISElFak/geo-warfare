@@ -1,10 +1,18 @@
 package rs.elfak.jajac.geowarfare.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.utils.Validator;
@@ -13,6 +21,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnFocusChan
 
     private EditText mEmail;
     private EditText mPassword;
+
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +34,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnFocusChan
 
         mEmail.setOnFocusChangeListener(this);
         mPassword.setOnFocusChangeListener(this);
+
+        mAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -51,9 +63,28 @@ public class LoginActivity extends AppCompatActivity implements View.OnFocusChan
     }
 
     public void onLoginClick(View view) {
-        if (allFieldsValid()) {
+        if (!allFieldsValid()) return;
 
-        }
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(getString(R.string.login_progress_dialog_message));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        String email = mEmail.getText().toString().trim();
+        String password = mPassword.getText().toString().trim();
+
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        progressDialog.hide();
+                        if (task.isSuccessful()) {
+                            Toast.makeText(LoginActivity.this, "Successful!", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(LoginActivity.this, "FAILED!", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
     }
 
     public void onNoAccountClick(View v) {
