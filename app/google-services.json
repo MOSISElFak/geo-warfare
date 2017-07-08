@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "368145637079",
+    "firebase_url": "https://geowarfare-c55d6.firebaseio.com",
+    "project_id": "geowarfare-c55d6",
+    "storage_bucket": "geowarfare-c55d6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:368145637079:android:2c4f2ab3d1a20247",
+        "android_client_info": {
+          "package_name": "rs.elfak.jajac.geowarfare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "368145637079-bdne5c0ka703iqn7f84u1mlevhlcjaiq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "rs.elfak.jajac.geowarfare",
+            "certificate_hash": "4ddad7d698ce680d7a4b57fb75a2b9df470c89fc"
+          }
+        },
+        {
+          "client_id": "368145637079-ne2ujvrducgl1lo09phkpfq79tesj57k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATX5lofytDmUVh_80bVQK0zDgMyY94SYc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "368145637079-ne2ujvrducgl1lo09phkpfq79tesj57k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
