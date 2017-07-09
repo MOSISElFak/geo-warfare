@@ -7,6 +7,7 @@ public class UserModel {
     public String displayName;
     public String fullName;
     public String phone;
+    public String avatarUrl;
 
     public UserModel() {
         // Default constructor required for calls to DataSnapshot.getValue(UserModel.class)

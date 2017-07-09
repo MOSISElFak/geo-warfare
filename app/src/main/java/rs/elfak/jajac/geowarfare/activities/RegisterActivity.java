@@ -18,11 +18,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +55,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
+    private StorageReference mStorage;
 
     private String mImagePath;
 
@@ -77,6 +85,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
 
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        mStorage = FirebaseStorage.getInstance().getReference();
     }
 
     @Override
@@ -102,14 +111,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
                     Validator.validateFullName(editText);
                     break;
                 case R.id.register_phone_text:
-                    Validator.validateFullName(editText);
+                    Validator.validatePhone(editText);
                     break;
             }
         }
     }
 
     public void onAddImageClick(View v) {
-        Intent  galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
         galleryIntent.setType("image/*");
 
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -133,7 +142,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
 
                 Intent chooseIntent = Intent.createChooser(galleryIntent, "Select image from");
-                chooseIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {cameraIntent});
+                chooseIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{cameraIntent});
 
                 startActivityForResult(chooseIntent, REQUEST_CHOOSE_IMAGE);
             }
@@ -200,17 +209,48 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
         String email = mEmail.getText().toString().trim();
         String password = mPassword.getText().toString().trim();
 
+        // First we create the user in realtime database so he/she's authenticated
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         progressDialog.hide();
+                        // Then we store the avatar in Storage and get its downloadUrl
+                        // from the snapshot, and save all user data in realtime database
                         if (task.isSuccessful()) {
-                            String newUserId = mAuth.getCurrentUser().getUid();
-                            UserModel newUser = getUserModel(newUserId);
-                            mDatabase.child("users").child(newUserId).setValue(newUser);
+                            StorageReference avatarsRef = mStorage.child("avatars").child(mImagePath);
+                            avatarsRef.putFile(Uri.fromFile(new File(mImagePath)))
+                                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                        @Override
+                                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                            String newUserId = mAuth.getCurrentUser().getUid();
+                                            String storageImageUrl = taskSnapshot.getDownloadUrl().toString();
+                                            UserModel newUser = getUserModel(newUserId);
+                                            newUser.avatarUrl = storageImageUrl;
+                                            mDatabase.child("users").child(newUserId).setValue(newUser);
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(RegisterActivity.this, getString(R.string
+                                                    .register_failed_message), Toast.LENGTH_LONG);
+                                        }
+                                    });
+
                         } else {
-                            Toast.makeText(RegisterActivity.this, "FAILED!", Toast.LENGTH_LONG).show();
+                            try {
+                                throw task.getException();
+                            } catch (FirebaseAuthInvalidCredentialsException e) {
+                                mEmail.setError(getString(R.string.email_bad_format_error));
+                                mEmail.requestFocus();
+                            } catch (FirebaseAuthUserCollisionException e) {
+                                mEmail.setError(getString(R.string.register_email_exists_error));
+                                mEmail.requestFocus();
+                            } catch (Exception e) {
+                                Toast.makeText(RegisterActivity.this, "Exception: " + e.getMessage(),
+                                        Toast.LENGTH_LONG).show();
+                            }
                         }
                     }
                 });
