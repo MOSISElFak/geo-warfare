@@ -214,7 +214,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        progressDialog.hide();
                         // Then we store the avatar in Storage and get its downloadUrl
                         // from the snapshot, and save all user data in realtime database
                         if (task.isSuccessful()) {
@@ -228,13 +227,15 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
                                             UserModel newUser = getUserModel(newUserId);
                                             newUser.avatarUrl = storageImageUrl;
                                             mDatabase.child("users").child(newUserId).setValue(newUser);
+
+                                            progressDialog.hide();
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
                                             Toast.makeText(RegisterActivity.this, getString(R.string
-                                                    .register_failed_message), Toast.LENGTH_LONG);
+                                                    .register_failed_message), Toast.LENGTH_LONG).show();
                                         }
                                     });
 
