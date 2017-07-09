@@ -95,7 +95,8 @@
         android:text="@string/register_avatar_choose_button"
         app:layout_constraintTop_toTopOf="@+id/avatar_image"
         app:layout_constraintRight_toRightOf="@+id/register_phone_text"
-        android:onClick="onAddImageClick" />
+        android:onClick="onAddImageClick"
+        android:theme="@style/PrimaryButton" />
 
     <TextView
         android:id="@+id/avatar_tv"
@@ -111,13 +112,14 @@
 
     <Button
         android:id="@+id/register_btn"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/register_button"
         android:layout_marginTop="@dimen/login_field_top_margin"
         app:layout_constraintTop_toBottomOf="@+id/avatar_image"
         app:layout_constraintLeft_toLeftOf="@+id/avatar_image"
         app:layout_constraintRight_toRightOf="@+id/add_avatar_btn"
-        android:onClick="onRegisterClick" />
+        android:onClick="onRegisterClick"
+        android:theme="@style/PrimaryButton" />
 
 </android.support.constraint.ConstraintLayout>

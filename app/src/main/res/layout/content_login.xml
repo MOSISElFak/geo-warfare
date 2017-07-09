@@ -49,14 +49,15 @@
 
     <Button
         android:id="@+id/login_btn"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/login_button"
         android:layout_marginTop="@dimen/login_field_top_margin"
         app:layout_constraintTop_toBottomOf="@+id/login_password_text"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:onClick="onLoginClick" />
+        app:layout_constraintLeft_toLeftOf="@id/login_password_text"
+        app:layout_constraintRight_toRightOf="@id/login_password_text"
+        android:onClick="onLoginClick"
+        android:theme="@style/PrimaryButton" />
 
     <TextView
         android:id="@+id/no_account_tv"
