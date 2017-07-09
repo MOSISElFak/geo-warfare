@@ -25,7 +25,7 @@
     <string name="register_display_name_hint">Display name</string>
     <string name="register_full_name_hint">Full name</string>
     <string name="register_phone_number_hint">Phone number</string>
-    <string name="register_avatar_choose_button">Choose avatar</string>
+    <string name="register_avatar_choose_button">Add image</string>
     <string name="register_button">Register</string>
 
     <string name="register_email_exists_error">This email is already in use by another account.</string>
