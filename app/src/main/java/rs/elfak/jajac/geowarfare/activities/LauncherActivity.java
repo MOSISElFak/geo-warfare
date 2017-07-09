@@ -19,7 +19,7 @@ public class LauncherActivity extends AppCompatActivity {
         if (!loggedIn) {
             startActivity(new Intent(LauncherActivity.this, LoginActivity.class));
         } else {
-            startActivity(new Intent(LauncherActivity.this, ProfileActivity.class));
+            startActivity(new Intent(LauncherActivity.this, MainActivity.class));
         }
         finish();
     }

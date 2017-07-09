@@ -21,4 +21,10 @@
         <item name="colorButtonNormal">@color/colorPrimary</item>
     </style>
 
+    <style name="BottomNavigation">
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="itemIconTint">@drawable/navigation_active_item_selector</item>
+        <item name="itemTextColor">@drawable/navigation_active_item_selector</item>
+    </style>
+
 </resources>

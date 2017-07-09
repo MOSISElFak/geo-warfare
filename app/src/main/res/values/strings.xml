@@ -38,6 +38,8 @@
     <string name="register_progress_dialog_message">Registering…</string>
     <string name="register_failed_message">Unable to register at the moment.</string>
 
-
-    <string name="profile_title">Profile</string>
+    <string name="main_title">MainActivity</string>
+    <string name="navigation_world">World</string>
+    <string name="navigation_profile">Profile</string>
+    <string name="navigation_rankings">Rankings</string>
 </resources>
