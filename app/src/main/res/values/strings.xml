@@ -43,4 +43,9 @@
     <string name="navigation_world">World</string>
     <string name="navigation_profile">Profile</string>
     <string name="navigation_rankings">Rankings</string>
+
+    <!-- MapFragment -->
+    <string name="location_permission_title">Location required</string>
+    <string name="location_permission_message">In order to see your position on the map, build structures
+        and interact with other players, you must allow this app to access your location.</string>
 </resources>

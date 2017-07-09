@@ -1,24 +1,83 @@
 package rs.elfak.jajac.geowarfare.fragments;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentSender;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, View.OnClickListener {
 
+    public static final int REQUEST_CHECK_SETTINGS = 1;
+
+    private static final int REQUEST_LOCATION_PERMISSION = 1;
+
     private GoogleMap mGoogleMap;
     private MapView mMapView;
+
+    private LocationRequest mLocationRequest;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private LocationCallback mLocationCallback;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
+
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(5000);
+        mLocationRequest.setFastestInterval(3000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                onNewLocation(locationResult);
+            }
+        };
+    }
 
     @Nullable
     @Override
@@ -43,16 +102,146 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
         mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
     }
 
+    // Check if the user's location SETTINGS (not permissions) are satisfying for our LocationRequest
+    private void checkLocationSettings() {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(mLocationRequest);
+
+        SettingsClient settingsClient = LocationServices.getSettingsClient(getContext());
+        settingsClient.checkLocationSettings(builder.build())
+                .addOnSuccessListener(getActivity(), new OnSuccessListener<LocationSettingsResponse>() {
+                    @Override
+                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                        onLocationSettingsSatisfied();
+                    }
+                })
+                .addOnFailureListener(getActivity(), new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        int statusCode = ((ApiException) e).getStatusCode();
+                        switch (statusCode) {
+                            case CommonStatusCodes.RESOLUTION_REQUIRED:
+                                // Location settings are not satisfied, but this can be fixed
+                                // by showing the user a dialog to change them.
+                                try {
+                                    ResolvableApiException resolvable = (ResolvableApiException) e;
+                                    resolvable.startResolutionForResult(getActivity(), REQUEST_CHECK_SETTINGS);
+                                } catch (IntentSender.SendIntentException sendEx) {
+                                    // Ignore the error.
+                                }
+                                break;
+                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                // Location settings are not satisfied. However, we have no way
+                                // to fix the settings so we won't show the dialog.
+                                onLocationSettingsUnsatisfied();
+                                break;
+                        }
+                    }
+                });
+    }
+
+    private void onLocationSettingsSatisfied() {
+        // If all location settings are satisfied, we proceed to check/ask permission.
+        checkLocationPermission();
+    }
+
+    private void onLocationSettingsUnsatisfied() {
+        // TODO: Tell user the app might not perform as expected.
+    }
+
+    private void checkLocationPermission() {
+        final String locationPermission = Manifest.permission.ACCESS_FINE_LOCATION;
+        int userPermission = ContextCompat.checkSelfPermission(getContext(), locationPermission);
+        boolean permissionGranted = userPermission == PackageManager.PERMISSION_GRANTED;
+
+        if (!permissionGranted) {
+            // Explain the user why the app requires location permission and then ask for it
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), locationPermission)) {
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(getString(R.string.location_permission_title))
+                        .setMessage(getString(R.string.location_permission_message))
+                        .setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                requestPermissions(new String[]{locationPermission}, REQUEST_LOCATION_PERMISSION);
+                            }
+                        }).create().show();
+            } else {
+                // User checked "never ask again", show explanation and switch to profile view
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(getString(R.string.location_permission_title))
+                        .setMessage(getString(R.string.location_permission_message))
+                        .setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // TODO: redirect to profile view or to app settings activity
+                            }
+                        }).create().show();
+            }
+        } else {
+            onLocationPermissionGranted();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_LOCATION_PERMISSION: {
+                // If request is granted, the result arrays won't be empty
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    onLocationPermissionGranted();
+                } else {
+                    onLocationPermissionDenied();
+                }
+                return;
+            }
+        }
+    }
+
+    private void onLocationPermissionGranted() {
+        try {
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
+        } catch (SecurityException e) {
+            // We're not handling the exception here because this won't be called without permission anyway.
+            e.printStackTrace();
+        }
+    }
+
+    private void onLocationPermissionDenied() {
+        // TODO: Handle the map somehow when the user denies location access
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CHECK_SETTINGS && resultCode == Activity.RESULT_OK) {
+            onLocationSettingsSatisfied();
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         mMapView.onResume();
+
+        checkLocationSettings();
+    }
+
+    private void onNewLocation(LocationResult locationResult) {
+        Location latestLocation = locationResult.getLastLocation();
+        Toast.makeText(getContext(), latestLocation.toString(), Toast.LENGTH_LONG);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mMapView.onPause();
+
+        stopLocationUpdates();
+    }
+
+    private void stopLocationUpdates() {
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
 
     @Override

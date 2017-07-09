@@ -1,5 +1,6 @@
 package rs.elfak.jajac.geowarfare.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -12,6 +13,8 @@ import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.fragments.MapFragment;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+
+    private MapFragment mMapFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +39,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.navigation_world:
-                replaceFragment(new MapFragment());
+                mMapFragment = new MapFragment();
+                replaceFragment(mMapFragment);
                 return true;
             case R.id.navigation_profile:
                 return true;
@@ -44,5 +48,14 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 return true;
         }
         return false;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Since Activity catches result before Fragment does, we pass it along
+        if (requestCode == MapFragment.REQUEST_CHECK_SETTINGS) {
+            mMapFragment.onActivityResult(requestCode, resultCode, data);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
