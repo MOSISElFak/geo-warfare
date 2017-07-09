@@ -17,6 +17,9 @@
 
     <string name="login_progress_dialog_message">Logging in…</string>
 
+    <string name="login_email_not_exist_error">A user with that email does not exist.</string>
+    <string name="login_wrong_password_error">Incorrect password.</string>
+
     <!-- Register Activity -->
     <string name="register_title">Register</string>
     <string name="register_display_name_hint">Display name</string>

@@ -13,6 +13,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.utils.Validator;
@@ -79,9 +82,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnFocusChan
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         progressDialog.hide();
                         if (task.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this, "Successful!", Toast.LENGTH_LONG).show();
+                            Intent profileIntent = new Intent(LoginActivity.this, ProfileActivity.class);
+                            startActivity(profileIntent);
+                            finish();
                         } else {
-                            Toast.makeText(LoginActivity.this, "FAILED!", Toast.LENGTH_LONG).show();
+                            try {
+                                throw task.getException();
+                            } catch (FirebaseAuthInvalidUserException ex) {
+                                mEmail.setError(getString(R.string.login_email_not_exist_error));
+                            } catch (FirebaseAuthInvalidCredentialsException ex) {
+                                mPassword.setError(getString(R.string.login_wrong_password_error));
+                            } catch (Exception e) {
+                                Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
                         }
                     }
                 });
