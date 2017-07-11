@@ -46,6 +46,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -115,6 +116,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
         MapsInitializer.initialize(getContext());
 
         mGoogleMap = googleMap;
+        mGoogleMap.setMapStyle(new MapStyleOptions(getResources().getString(R.string.style_json)));
     }
 
     // Check if the user's location SETTINGS (not permissions) are satisfying for our LocationRequest
