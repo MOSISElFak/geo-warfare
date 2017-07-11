@@ -96,6 +96,8 @@
         app:layout_constraintTop_toTopOf="@+id/avatar_image"
         app:layout_constraintRight_toRightOf="@+id/register_phone_text"
         android:onClick="onAddImageClick"
+        android:drawableLeft="@drawable/ic_image_24dp"
+        android:drawablePadding="8dp"
         android:theme="@style/PrimaryButton" />
 
     <TextView

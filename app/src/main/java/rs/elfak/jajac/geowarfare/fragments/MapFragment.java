@@ -48,10 +48,12 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.activities.LauncherActivity;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, View.OnClickListener {
 
@@ -92,7 +94,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
         View inflatedView = inflater.inflate(R.layout.fragment_map, container, false);
 
         FloatingActionButton buildFab = (FloatingActionButton) inflatedView.findViewById(R.id.map_fragment_build_button);
-        buildFab.setOnClickListener(this);
+        buildFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                Intent i = new Intent(getContext(), LauncherActivity.class);
+                startActivity(i);
+            }
+        });
 
         mMapView = (MapView) inflatedView.findViewById(R.id.map_fragment_map_view);
         mMapView.onCreate(savedInstanceState);
@@ -213,7 +222,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                         @Override
                         public void onSuccess(Location location) {
                             LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
-                            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(center, 16.0f));
+                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 16.0f));
 
                             mCircle = mGoogleMap.addCircle(new CircleOptions()
                                     .center(new LatLng(0.0, 0.0))
