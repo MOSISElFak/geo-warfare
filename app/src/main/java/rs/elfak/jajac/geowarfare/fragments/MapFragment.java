@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -36,10 +37,15 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -55,6 +61,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
 
     private GoogleMap mGoogleMap;
     private MapView mMapView;
+    private Circle mCircle;
 
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
@@ -99,7 +106,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
         MapsInitializer.initialize(getContext());
 
         mGoogleMap = googleMap;
-        mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
     }
 
     // Check if the user's location SETTINGS (not permissions) are satisfying for our LocationRequest
@@ -147,6 +153,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
 
     private void onLocationSettingsUnsatisfied() {
         // TODO: Tell user the app might not perform as expected.
+        mCircle.setVisible(false);
     }
 
     private void checkLocationPermission() {
@@ -199,8 +206,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
     }
 
     private void onLocationPermissionGranted() {
+        // Get the latest location, center map on it, create and show circle and start receiving location updates
         try {
+            LocationServices.getFusedLocationProviderClient(getActivity()).getLastLocation()
+                    .addOnSuccessListener(new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
+                            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(center, 16.0f));
+
+                            mCircle = mGoogleMap.addCircle(new CircleOptions()
+                                    .center(new LatLng(0.0, 0.0))
+                                    .radius(300)
+                                    .strokeWidth(10)
+                                    .strokeColor(Color.argb(80, 69, 90, 100))
+                                    .fillColor(Color.argb(40, 255, 87, 34))
+                            );
+                        }
+                    });
+
+            mGoogleMap.setMyLocationEnabled(true);
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
+
         } catch (SecurityException e) {
             // We're not handling the exception here because this won't be called without permission anyway.
             e.printStackTrace();
@@ -209,6 +236,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
 
     private void onLocationPermissionDenied() {
         // TODO: Handle the map somehow when the user denies location access
+        mCircle.setVisible(false);
     }
 
     @Override
@@ -229,7 +257,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
 
     private void onNewLocation(LocationResult locationResult) {
         Location latestLocation = locationResult.getLastLocation();
-        Toast.makeText(getContext(), latestLocation.toString(), Toast.LENGTH_LONG);
+        LatLng center = new LatLng(latestLocation.getLatitude(), latestLocation.getLongitude());
+
+        if (mCircle != null) {
+            mCircle.setCenter(center);
+        }
     }
 
     @Override

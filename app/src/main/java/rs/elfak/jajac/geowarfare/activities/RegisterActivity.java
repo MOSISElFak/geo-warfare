@@ -188,13 +188,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
                 mAvatar.getDrawable() != null && mAvatarError.getError() == null;
     }
 
-    private UserModel getUserModel(String newUserId) {
+    private UserModel getUserModel(String newUserId, String storageImgUrl) {
         return new UserModel(
                 newUserId,
                 mEmail.getText().toString().trim(),
                 mDisplayName.getText().toString().trim(),
                 mFullName.getText().toString().trim(),
-                mPhone.getText().toString().trim()
+                mPhone.getText().toString().trim(),
+                storageImgUrl
         );
     }
 
@@ -224,11 +225,13 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
                                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                             String newUserId = mAuth.getCurrentUser().getUid();
                                             String storageImageUrl = taskSnapshot.getDownloadUrl().toString();
-                                            UserModel newUser = getUserModel(newUserId);
-                                            newUser.avatarUrl = storageImageUrl;
+                                            UserModel newUser = getUserModel(newUserId, storageImageUrl);
                                             mDatabase.child("users").child(newUserId).setValue(newUser);
 
                                             progressDialog.hide();
+                                            Intent profileIntent = new Intent(RegisterActivity.this, MainActivity.class);
+                                            startActivity(profileIntent);
+                                            finish();
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {

@@ -51,7 +51,7 @@
 
         <activity
             android:name=".activities.MainActivity"
-            >
+            android:configChanges="orientation|screenSize">
         </activity>
 
         <provider
