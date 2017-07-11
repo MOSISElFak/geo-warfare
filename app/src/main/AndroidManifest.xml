@@ -19,10 +19,9 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCN57MWde_O4zOCjhunsX_OU4vGa-b_ECo" />
+            android:value="AIzaSyCN57MWde_O4zOCjhunsX_OU4vGa-b_ECo"/>
 
         <activity
             android:name=".activities.LauncherActivity"
@@ -33,12 +32,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activities.LoginActivity"
             android:label="@string/login_title"
             android:theme="@style/AppTheme.NoActionBar"/>
-
         <activity
             android:name=".activities.RegisterActivity"
             android:label="@string/register_title"
@@ -48,7 +45,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="rs.elfak.jajac.geowarfare.activities.LoginActivity"/>
         </activity>
-
         <activity
             android:name=".activities.MainActivity"
             android:configChanges="orientation|screenSize">
@@ -64,6 +60,11 @@
                 android:resource="@xml/file_paths"/>
         </provider>
 
+        <activity
+            android:name=".activities.Main2Activity"
+            android:label="@string/title_activity_main2"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
     </application>
 
 </manifest>
