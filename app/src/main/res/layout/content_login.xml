@@ -11,8 +11,11 @@
     <ImageView
         android:id="@+id/login_image"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/logo"
+        android:layout_height="200dp"
+        android:background="@color/colorPrimary"
+        android:src="@drawable/ic_logo_144dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
         android:adjustViewBounds="true"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
