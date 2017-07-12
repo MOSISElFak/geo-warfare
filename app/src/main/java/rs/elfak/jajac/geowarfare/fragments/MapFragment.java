@@ -25,6 +25,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -50,29 +54,40 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.activities.LauncherActivity;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, View.OnClickListener {
+public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     public static final int REQUEST_CHECK_SETTINGS = 1;
 
     private static final int REQUEST_LOCATION_PERMISSION = 1;
 
+    private FirebaseUser mUser;
+
     private GoogleMap mGoogleMap;
     private MapView mMapView;
     private Circle mCircle;
+    private double mRadius = 300;
 
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
 
+    private GeoFire mUsersGeoFire;
+    private GeoQuery mUsersGeoQuery;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mUser = FirebaseAuth.getInstance().getCurrentUser();
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
 
@@ -87,6 +102,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                 onNewLocation(locationResult);
             }
         };
+
+        mUsersGeoFire = new GeoFire(FirebaseDatabase.getInstance().getReference().child("usersGeoFire"));
     }
 
     @Nullable
@@ -233,6 +250,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                                     .strokeColor(Color.argb(80, 69, 90, 100))
                                     .fillColor(Color.argb(40, 255, 171, 0))
                             );
+
+                            // Start querying for nearby users
+                            GeoLocation geoLoc = new GeoLocation(location.getLatitude(), location.getLongitude());
+                            mUsersGeoQuery = mUsersGeoFire.queryAtLocation(geoLoc, mRadius / 1000);
+                            addUserGeoQueryEventListeners();
                         }
                     });
 
@@ -258,6 +280,35 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
         }
     }
 
+    private void addUserGeoQueryEventListeners() {
+        mUsersGeoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, GeoLocation location) {
+                Toast.makeText(getContext(), "New key!", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+                Toast.makeText(getContext(), "Key left!", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+                Toast.makeText(getContext(), "Key moved!", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+
+            }
+        });
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -267,12 +318,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
     }
 
     private void onNewLocation(LocationResult locationResult) {
-        Location latestLocation = locationResult.getLastLocation();
-        LatLng center = new LatLng(latestLocation.getLatitude(), latestLocation.getLongitude());
+        Location loc = locationResult.getLastLocation();
+        LatLng center = new LatLng(loc.getLatitude(), loc.getLongitude());
 
         if (mCircle != null) {
             mCircle.setCenter(center);
         }
+
+        GeoLocation geoLoc = new GeoLocation(loc.getLatitude(), loc.getLongitude());
+        // Send our new location to the server
+        mUsersGeoFire.setLocation(mUser.getUid(), geoLoc);
+
+        // Update the center of the area we're querying for users
+        mUsersGeoQuery.setCenter(geoLoc);
     }
 
     @Override
@@ -313,8 +371,5 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
         mMapView.onLowMemory();
     }
 
-    @Override
-    public void onClick(View v) {
 
-    }
 }
