@@ -231,7 +231,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                                     .radius(300)
                                     .strokeWidth(10)
                                     .strokeColor(Color.argb(80, 69, 90, 100))
-                                    .fillColor(Color.argb(40, 255, 87, 34))
+                                    .fillColor(Color.argb(40, 255, 171, 0))
                             );
                         }
                     });
@@ -281,6 +281,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
         mMapView.onPause();
 
         stopLocationUpdates();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mMapView.onStop();
+
+        mCircle.remove();
     }
 
     private void stopLocationUpdates() {

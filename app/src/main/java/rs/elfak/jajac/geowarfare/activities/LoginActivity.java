@@ -15,7 +15,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.utils.Validator;
@@ -82,7 +81,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnFocusChan
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         progressDialog.hide();
                         if (task.isSuccessful()) {
-                            Intent profileIntent = new Intent(LoginActivity.this, Main2Activity.class);
+                            Intent profileIntent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(profileIntent);
                             finish();
                         } else {

@@ -229,7 +229,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
                                             mDatabase.child("users").child(newUserId).setValue(newUser);
 
                                             progressDialog.hide();
-                                            Intent profileIntent = new Intent(RegisterActivity.this, Main2Activity
+                                            Intent profileIntent = new Intent(RegisterActivity.this, MainActivity
                                                     .class);
                                             startActivity(profileIntent);
                                             finish();

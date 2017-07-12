@@ -38,11 +38,8 @@
     <string name="register_progress_dialog_message">Registering…</string>
     <string name="register_failed_message">Unable to register at the moment.</string>
 
-    <!-- MainActivity and navigation -->
-    <string name="main_title">MainActivity</string>
-    <string name="navigation_world">World</string>
-    <string name="navigation_profile">Profile</string>
-    <string name="navigation_rankings">Rankings</string>
+    <string name="action_bar_profile">Profile</string>
+    <string name="action_bar_about">About</string>
 
     <!-- MapFragment -->
     <string name="location_permission_title">Location required</string>

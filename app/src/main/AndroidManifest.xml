@@ -45,10 +45,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="rs.elfak.jajac.geowarfare.activities.LoginActivity"/>
         </activity>
-        <activity
-            android:name=".activities.MainActivity"
-            android:configChanges="orientation|screenSize">
-        </activity>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -61,8 +57,7 @@
         </provider>
 
         <activity
-            android:name=".activities.Main2Activity"
-            android:label="@string/title_activity_main2"
+            android:name=".activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
     </application>

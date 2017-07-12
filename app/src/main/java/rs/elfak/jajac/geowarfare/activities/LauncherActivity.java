@@ -1,8 +1,6 @@
 package rs.elfak.jajac.geowarfare.activities;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -19,7 +17,7 @@ public class LauncherActivity extends AppCompatActivity {
         if (!loggedIn) {
             startActivity(new Intent(LauncherActivity.this, LoginActivity.class));
         } else {
-            startActivity(new Intent(LauncherActivity.this, Main2Activity.class));
+            startActivity(new Intent(LauncherActivity.this, MainActivity.class));
         }
         finish();
     }
