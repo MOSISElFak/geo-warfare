@@ -20,6 +20,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.UserModel;
+import rs.elfak.jajac.geowarfare.providers.UserProvider;
 
 public class ProfileFragment extends DialogFragment implements View.OnClickListener {
 
@@ -78,7 +79,7 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
         if (mUser != null) {
             setupUI();
         } else {
-            FirebaseDatabase.getInstance().getReference().child("users").child(userId)
+            UserProvider.getInstance().getUserById(userId)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {

@@ -51,17 +51,24 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.activities.LauncherActivity;
+import rs.elfak.jajac.geowarfare.models.UserModel;
+import rs.elfak.jajac.geowarfare.providers.UserProvider;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
@@ -75,6 +82,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private MapView mMapView;
     private Circle mCircle;
     private double mRadius = 300;
+    private Map<String, Marker> mMarkers = new HashMap<>();
 
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
@@ -83,11 +91,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private GeoFire mUsersGeoFire;
     private GeoQuery mUsersGeoQuery;
 
+    private UserProvider mUserProvider;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mUser = FirebaseAuth.getInstance().getCurrentUser();
+        mUserProvider = UserProvider.getInstance();
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
 
@@ -245,7 +256,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         public void onSuccess(Location location) {
                             LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
                             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 16.0f));
-                            
+
                                 mCircle = mGoogleMap.addCircle(new CircleOptions()
                                         .center(new LatLng(0.0, 0.0))
                                         .radius(300)
@@ -287,17 +298,41 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mUsersGeoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
+                // We only add markers if the map is loaded and the key is from other users (not ourselves)
+                if (mGoogleMap != null && !key.equals(mUser.getUid())) {
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(new LatLng(location.latitude, location.longitude));
+                    markerOptions.visible(false);
+                    final Marker marker = mGoogleMap.addMarker(markerOptions);
+                    mUserProvider.getUserById(key).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            UserModel user = dataSnapshot.getValue(UserModel.class);
+                            marker.setTag(user);
+                            marker.setVisible(true);
+                            mMarkers.put(user.id, marker);
+                        }
 
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
             }
 
             @Override
             public void onKeyExited(String key) {
-
+                Marker marker = mMarkers.get(key);
+                marker.remove();
             }
 
             @Override
             public void onKeyMoved(String key, GeoLocation location) {
-
+                if (!key.equals(mUser.getUid())) {
+                    Marker marker = mMarkers.get(key);
+                    marker.setPosition(new LatLng(location.latitude, location.longitude));
+                }
             }
 
             @Override
