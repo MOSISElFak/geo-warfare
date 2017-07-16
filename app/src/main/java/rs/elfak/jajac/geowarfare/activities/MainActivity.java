@@ -14,6 +14,10 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
 
@@ -29,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements ProfileFragment.O
     Spinner mFilterSpinner;
     TextView mFriendRequestsCountTv;
 
-    FirebaseAuth mAuth;
+    private FirebaseUser mUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,13 +43,13 @@ public class MainActivity extends AppCompatActivity implements ProfileFragment.O
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+        mUser = FirebaseAuth.getInstance().getCurrentUser();
+
         mFilterSpinner = (Spinner) findViewById(R.id.toolbar_filter_spinner);
 
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.main_fragment_container, new MapFragment())
                 .commit();
-
-        mAuth = FirebaseAuth.getInstance();
 
         ArrayAdapter<String> spinAdapter = new ArrayAdapter<String>(
                 this,
@@ -71,11 +75,9 @@ public class MainActivity extends AppCompatActivity implements ProfileFragment.O
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.action_bar_profile_item:
-                UserModel userModel = new UserModel();
-                userModel.displayName = "MMMMMMMMMMMM";
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.main_fragment_container, ProfileFragment.newInstance(userModel))
+                        .replace(R.id.main_fragment_container, ProfileFragment.newInstance(mUser.getUid()))
                         .addToBackStack(null)
                         .commit();
                 return true;
@@ -104,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements ProfileFragment.O
     @Override
     protected void onStart() {
         super.onStart();
-        setupUI(mAuth.getCurrentUser());
+        setupUI(mUser);
     }
 
     private void setupUI(FirebaseUser user) {

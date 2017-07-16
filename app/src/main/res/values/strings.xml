@@ -38,6 +38,15 @@
     <string name="register_progress_dialog_message">Registering…</string>
     <string name="register_failed_message">Unable to register at the moment.</string>
 
+    <string name="register_storage_permission_title">Storage access required</string>
+    <string name="register_storage_permission_message">The application requires access to read external storage
+    in order to load an image from gallery. If you deny the permission, you can still add an avatar using your
+        Camera application.</string>
+    <string name="register_storage_permission_message_no_ask">In order to choose an image from gallery, the
+        application requires access to read storage. Please either enable the storage permission or take a
+        picture using the Camera application.</string>
+
+    <!-- Action bar -->
     <string name="action_bar_profile">Profile</string>
     <string name="action_bar_about">About</string>
 

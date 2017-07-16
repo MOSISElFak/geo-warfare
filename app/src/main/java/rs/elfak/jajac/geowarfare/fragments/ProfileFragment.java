@@ -3,32 +3,50 @@ package rs.elfak.jajac.geowarfare.fragments;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 
-public class ProfileFragment extends DialogFragment {
+public class ProfileFragment extends DialogFragment implements View.OnClickListener {
 
-    private static final String ARG_USER = "user";
+    private static final String ARG_USER_ID = "user_id";
 
+    private String mUserId;
     private UserModel mUser;
 
+    // UI elements
+    ImageView mAvatarImage;
+    TextView mDisplayName;
+    TextView mFullName;
+
     private OnFragmentInteractionListener mListener;
+
+    public interface OnFragmentInteractionListener {
+        void onAddFriend(String userId);
+    }
 
     public ProfileFragment() {
         // Required empty public constructor
     }
 
-    public static ProfileFragment newInstance(UserModel user) {
+    public static ProfileFragment newInstance(String userId) {
         ProfileFragment fragment = new ProfileFragment();
         Bundle args = new Bundle();
-        args.putParcelable(ARG_USER, user);
+        args.putString(ARG_USER_ID, userId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -37,7 +55,7 @@ public class ProfileFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mUser = getArguments().getParcelable(ARG_USER);
+            mUserId = getArguments().getString(ARG_USER_ID);
         }
     }
 
@@ -47,9 +65,46 @@ public class ProfileFragment extends DialogFragment {
         // Inflate the layout for this fragment
         View inflatedView = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        ((TextView) inflatedView.findViewById(R.id.profile_fragment_display_name)).setText(mUser.displayName);
+        mAvatarImage = (ImageView) inflatedView.findViewById(R.id.profile_fragment_avatar);
+        mDisplayName = (TextView) inflatedView.findViewById(R.id.profile_fragment_display_name);
+        mFullName = (TextView) inflatedView.findViewById(R.id.profile_fragment_full_name);
+
+        getUserDataAndSetupUI(mUserId);
 
         return inflatedView;
+    }
+
+    private void getUserDataAndSetupUI(String userId) {
+        if (mUser != null) {
+            setupUI();
+        } else {
+            FirebaseDatabase.getInstance().getReference().child("users").child(userId)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            mUser = dataSnapshot.getValue(UserModel.class);
+                            setupUI();
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+        }
+    }
+
+    private void setupUI() {
+        Glide.with(ProfileFragment.this)
+                .load(mUser.avatarUrl)
+                .into(mAvatarImage);
+        mDisplayName.setText(mUser.displayName);
+        mFullName.setText(mUser.fullName);
+    }
+
+    @Override
+    public void onClick(View v) {
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -76,7 +131,4 @@ public class ProfileFragment extends DialogFragment {
         mListener = null;
     }
 
-    public interface OnFragmentInteractionListener {
-        void onAddFriend(String userId);
-    }
 }
