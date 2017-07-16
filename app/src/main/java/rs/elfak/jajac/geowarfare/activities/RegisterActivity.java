@@ -26,7 +26,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -263,7 +262,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
 
             Glide.with(RegisterActivity.this)
                     .load(mImageUri.toString())
-                    .apply(RequestOptions.circleCropTransform())
                     .into(mAvatar);
             mAvatarError.setError(null);
         }

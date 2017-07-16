@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
@@ -25,6 +26,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -46,6 +50,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
@@ -257,13 +263,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
                             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 16.0f));
 
-                                mCircle = mGoogleMap.addCircle(new CircleOptions()
-                                        .center(new LatLng(0.0, 0.0))
-                                        .radius(300)
-                                        .strokeWidth(10)
-                                        .strokeColor(Color.argb(80, 69, 90, 100))
-                                        .fillColor(Color.argb(40, 255, 171, 0))
-                                );
+                            if (mCircle != null) {
+                                mCircle.remove();
+                            }
+                            mCircle = mGoogleMap.addCircle(new CircleOptions()
+                                    .center(new LatLng(0.0, 0.0))
+                                    .radius(300)
+                                    .strokeWidth(10)
+                                    .strokeColor(Color.argb(80, 69, 90, 100))
+                                    .fillColor(Color.argb(40, 255, 171, 0))
+                            );
 
                             // Start querying for nearby users
                             GeoLocation geoLoc = new GeoLocation(location.getLatitude(), location.getLongitude());
@@ -309,8 +318,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             UserModel user = dataSnapshot.getValue(UserModel.class);
                             marker.setTag(user);
-                            marker.setVisible(true);
                             mMarkers.put(user.id, marker);
+
+                            Glide.with(MapFragment.this)
+                                    .load(user.avatarUrl)
+                                    .asBitmap()
+                                    .listener(new RequestListener<String, Bitmap>() {
+                                        @Override
+                                        public boolean onException(Exception e, String model, Target<Bitmap> target,
+                                                                   boolean isFirstResource) {
+                                            return false;
+                                        }
+
+                                        @Override
+                                        public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap>
+                                                target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                            Bitmap smallAvatar = Bitmap.createScaledBitmap(resource, 50, 50, false);
+                                            marker.setIcon(BitmapDescriptorFactory.fromBitmap(smallAvatar));
+                                            marker.setVisible(true);
+                                            return true;
+                                        }
+                                    })
+                                    .preload();
                         }
 
                         @Override
@@ -325,6 +354,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onKeyExited(String key) {
                 Marker marker = mMarkers.get(key);
                 marker.remove();
+                mMarkers.remove(key);
             }
 
             @Override
