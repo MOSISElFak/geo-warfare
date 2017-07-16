@@ -1,14 +1,22 @@
 package rs.elfak.jajac.geowarfare.activities;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -43,6 +51,7 @@ import rs.elfak.jajac.geowarfare.utils.Validator;
 public class RegisterActivity extends AppCompatActivity implements View.OnFocusChangeListener {
 
     private static final int REQUEST_CHOOSE_IMAGE = 1;
+    private static final int REQUEST_STORAGE_PERMISSION = 2;
 
     private EditText mEmail;
     private EditText mPassword;
@@ -57,7 +66,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
     private DatabaseReference mDatabase;
     private StorageReference mStorage;
 
-    private String mImagePath;
+    private Uri mImageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +127,67 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
     }
 
     public void onAddImageClick(View v) {
-        Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        checkReadStoragePermission();
+    }
+
+    private void checkReadStoragePermission() {
+        final String storagePermission = Manifest.permission.READ_EXTERNAL_STORAGE;
+        int userPermission = ContextCompat.checkSelfPermission(RegisterActivity.this, storagePermission);
+        boolean permissionGranted = userPermission == PackageManager.PERMISSION_GRANTED;
+
+        if (!permissionGranted) {
+            // Explain the user why the app requires the storage permission and ask for it
+            if (ActivityCompat.shouldShowRequestPermissionRationale(RegisterActivity.this, storagePermission)) {
+                new AlertDialog.Builder(RegisterActivity.this)
+                        .setTitle(getString(R.string.register_storage_permission_title))
+                        .setMessage(getString(R.string.register_storage_permission_message))
+                        .setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ActivityCompat.requestPermissions(
+                                        RegisterActivity.this,
+                                        new String[]{storagePermission},
+                                        REQUEST_STORAGE_PERMISSION);
+                            }
+                        }).create().show();
+            } else {
+                // User checked "never ask again", explain why gallery isn't available and run camera
+                new AlertDialog.Builder(RegisterActivity.this)
+                        .setTitle(getString(R.string.register_storage_permission_title))
+                        .setMessage(getString(R.string.register_storage_permission_message_no_ask))
+                        .setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            onStoragePermissionDenied();
+                            }
+                        }).create().show();
+            }
+        } else {
+            onStoragePermissionGranted();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_STORAGE_PERMISSION: {
+                // If request is granted, the result arrays won't be empty
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    onStoragePermissionGranted();
+                } else {
+                    onStoragePermissionDenied();
+                }
+                return;
+            }
+        }
+    }
+
+    /**
+     * If storage access is granted, we can offer the user to choose image from gallery or camera
+     */
+    private void onStoragePermissionGranted() {
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK);
         galleryIntent.setType("image/*");
 
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -146,26 +215,42 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
 
                 startActivityForResult(chooseIntent, REQUEST_CHOOSE_IMAGE);
             }
-        } else {
-            // If no Camera available, choose from gallery only
-            startActivityForResult(galleryIntent, REQUEST_CHOOSE_IMAGE);
         }
-
-
     }
 
+    /**
+     * If storage access id denied, we let the user take a picture with the camera
+     */
+    private void onStoragePermissionDenied() {
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(cameraIntent, REQUEST_CHOOSE_IMAGE);
+        } else {
+            Toast.makeText(RegisterActivity.this, "Need camera or storage permission.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Called when the user has selected an image from the gallery or taken one with the Camera
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CHOOSE_IMAGE && resultCode == Activity.RESULT_OK) {
-            Uri imageUri = data.getData();
-            // If an Uri is not found in getData(), then we fetch the new camera image
-            if (imageUri == null) {
-                File file = new File(mImagePath);
-                imageUri = Uri.fromFile(file);
+            Uri dataImageUri = data.getData();
+
+            // If an Uri is found in getData(), we need to get the real file path
+            // from gallery, because imageUri is a "content://..." Uri
+            if (dataImageUri != null) {
+                mImageUri = Uri.parse(getRealPathFromURI(RegisterActivity.this, dataImageUri));
+            } else {
+                // If no Uri is found, then camera was used so we create a new File and get its Uri
+                File file = new File(mImageUri.toString());
+                mImageUri = Uri.fromFile(file);
             }
 
-            mAvatar.setImageURI(imageUri);
+            mAvatar.setImageURI(mImageUri);
             mAvatarError.setError(null);
         }
     }
@@ -218,8 +303,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
                         // Then we store the avatar in Storage and get its downloadUrl
                         // from the snapshot, and save all user data in realtime database
                         if (task.isSuccessful()) {
-                            StorageReference avatarsRef = mStorage.child("avatars").child(mImagePath);
-                            avatarsRef.putFile(Uri.fromFile(new File(mImagePath)))
+                            StorageReference avatarsRef = mStorage.child("avatars").child(mImageUri.toString());
+                            avatarsRef.putFile(Uri.fromFile(new File(mImageUri.toString())))
                                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                         @Override
                                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -228,7 +313,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
                                             UserModel newUser = getUserModel(newUserId, storageImageUrl);
                                             mDatabase.child("users").child(newUserId).setValue(newUser);
 
-                                            progressDialog.hide();
+                                            progressDialog.dismiss();
                                             Intent profileIntent = new Intent(RegisterActivity.this, MainActivity
                                                     .class);
                                             startActivity(profileIntent);
@@ -272,7 +357,23 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
 
-        mImagePath = image.getAbsolutePath();
+        mImageUri = Uri.parse(image.getAbsolutePath());
         return image;
     }
+
+    public String getRealPathFromURI(Context context, Uri contentUri) {
+        Cursor cursor = null;
+        try {
+            String[] proj = { MediaStore.Images.Media.DATA };
+            cursor = context.getContentResolver().query(contentUri,  proj, null, null, null);
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
 }
