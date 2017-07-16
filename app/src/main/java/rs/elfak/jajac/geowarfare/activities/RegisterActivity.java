@@ -190,6 +190,32 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
         Intent galleryIntent = new Intent(Intent.ACTION_PICK);
         galleryIntent.setType("image/*");
 
+        Intent cameraIntent = getCameraIntent();
+
+        if (cameraIntent != null) {
+            Intent chooseIntent = Intent.createChooser(galleryIntent, "Select image from");
+            chooseIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{cameraIntent});
+
+            startActivityForResult(chooseIntent, REQUEST_CHOOSE_IMAGE);
+        } else {
+            Toast.makeText(RegisterActivity.this, "Camera error. Provide storage access.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * If storage access id denied, we let the user take a picture with the camera
+     */
+    private void onStoragePermissionDenied() {
+        Intent cameraIntent = getCameraIntent();
+
+        if (cameraIntent != null) {
+            startActivityForResult(cameraIntent, REQUEST_CHOOSE_IMAGE);
+        } else {
+            Toast.makeText(RegisterActivity.this, "Camera error. Provide storage access.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private Intent getCameraIntent() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         // If there's a camera activity, we let the user choose Gallery or Camera
@@ -210,25 +236,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
                 );
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
 
-                Intent chooseIntent = Intent.createChooser(galleryIntent, "Select image from");
-                chooseIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{cameraIntent});
-
-                startActivityForResult(chooseIntent, REQUEST_CHOOSE_IMAGE);
+                return cameraIntent;
             }
         }
-    }
 
-    /**
-     * If storage access id denied, we let the user take a picture with the camera
-     */
-    private void onStoragePermissionDenied() {
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-        if (cameraIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(cameraIntent, REQUEST_CHOOSE_IMAGE);
-        } else {
-            Toast.makeText(RegisterActivity.this, "Need camera or storage permission.", Toast.LENGTH_SHORT).show();
-        }
+        // If no camera available or File failed to create, we return null
+        return null;
     }
 
     /**
@@ -244,10 +257,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
             // from gallery, because imageUri is a "content://..." Uri
             if (dataImageUri != null) {
                 mImageUri = Uri.parse(getRealPathFromURI(RegisterActivity.this, dataImageUri));
-            } else {
-                // If no Uri is found, then camera was used so we create a new File and get its Uri
-                File file = new File(mImageUri.toString());
-                mImageUri = Uri.fromFile(file);
             }
 
             mAvatar.setImageURI(mImageUri);
@@ -323,12 +332,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
                                     .addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
+                                            progressDialog.dismiss();
                                             Toast.makeText(RegisterActivity.this, getString(R.string
                                                     .register_failed_message), Toast.LENGTH_LONG).show();
                                         }
                                     });
 
                         } else {
+                            progressDialog.dismiss();
                             try {
                                 throw task.getException();
                             } catch (FirebaseAuthInvalidCredentialsException e) {
