@@ -1,21 +1,31 @@
 package rs.elfak.jajac.geowarfare.activities;
 
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import org.w3c.dom.Text;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.fragments.MapFragment;
 
 public class MainActivity extends AppCompatActivity {
 
+    private int mFriendRequestsCount = 0;
+
     Spinner mFilterSpinner;
+    TextView mFriendRequestsCountTv;
 
     FirebaseAuth mAuth;
 
@@ -47,7 +57,29 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.action_bar_menu, menu);
-        return true;
+
+        View friendRequestsView = menu.findItem(R.id.action_friend_requests_item).getActionView();
+        mFriendRequestsCountTv = (TextView) friendRequestsView.findViewById(R.id.friend_requests_count_tv);
+        updateFriendRequestsCount(mFriendRequestsCount);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    public void updateFriendRequestsCount(final int newCount) {
+        mFriendRequestsCount = newCount;
+        if (mFriendRequestsCountTv == null) return;
+        // Call the updating code on the main thread so we can call this asynchronously
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (newCount == 0) {
+                    mFriendRequestsCountTv.setVisibility(View.INVISIBLE);
+                } else {
+                    mFriendRequestsCountTv.setText(String.valueOf(newCount));
+                    mFriendRequestsCountTv.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     @Override

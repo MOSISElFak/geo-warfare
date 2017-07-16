@@ -108,10 +108,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View inflatedView = inflater.inflate(R.layout.fragment_map, container, false);
 
-        FloatingActionButton buildFab = (FloatingActionButton) inflatedView.findViewById(R.id.map_fragment_build_button);
+        FloatingActionButton buildFab = (FloatingActionButton) inflatedView.findViewById(
+                R.id.map_fragment_build_button);
         buildFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -219,7 +221,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_LOCATION_PERMISSION: {
                 // If request is granted, the result arrays won't be empty
@@ -243,13 +246,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
                             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 16.0f));
 
-                            mCircle = mGoogleMap.addCircle(new CircleOptions()
-                                    .center(new LatLng(0.0, 0.0))
-                                    .radius(300)
-                                    .strokeWidth(10)
-                                    .strokeColor(Color.argb(80, 69, 90, 100))
-                                    .fillColor(Color.argb(40, 255, 171, 0))
-                            );
+                            if (mCircle == null) {
+                                mCircle = mGoogleMap.addCircle(new CircleOptions()
+                                        .center(new LatLng(0.0, 0.0))
+                                        .radius(300)
+                                        .strokeWidth(10)
+                                        .strokeColor(Color.argb(80, 69, 90, 100))
+                                        .fillColor(Color.argb(40, 255, 171, 0))
+                                );
+                            }
 
                             // Start querying for nearby users
                             GeoLocation geoLoc = new GeoLocation(location.getLatitude(), location.getLongitude());
@@ -284,17 +289,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mUsersGeoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
-                Toast.makeText(getContext(), "New key!", Toast.LENGTH_LONG).show();
+
             }
 
             @Override
             public void onKeyExited(String key) {
-                Toast.makeText(getContext(), "Key left!", Toast.LENGTH_LONG).show();
+
             }
 
             @Override
             public void onKeyMoved(String key, GeoLocation location) {
-                Toast.makeText(getContext(), "Key moved!", Toast.LENGTH_LONG).show();
+
             }
 
             @Override
@@ -345,8 +350,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onStop() {
         super.onStop();
         mMapView.onStop();
-
-        mCircle.remove();
     }
 
     private void stopLocationUpdates() {

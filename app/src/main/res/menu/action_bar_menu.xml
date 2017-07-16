@@ -3,6 +3,13 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_friend_requests_item"
+        app:showAsAction="ifRoom"
+        android:title="Friend Requests"
+        app:actionLayout="@layout/action_badge_button"
+        android:icon="@drawable/ic_group_24dp"/>
+
+    <item
         android:id="@+id/action_bar_profile_item"
         app:showAsAction="never"
         android:title="@string/action_bar_profile"/>
