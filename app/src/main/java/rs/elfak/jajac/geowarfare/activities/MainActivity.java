@@ -19,8 +19,10 @@ import org.w3c.dom.Text;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.fragments.MapFragment;
+import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
+import rs.elfak.jajac.geowarfare.models.UserModel;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ProfileFragment.OnFragmentInteractionListener {
 
     private int mFriendRequestsCount = 0;
 
@@ -65,6 +67,23 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.action_bar_profile_item:
+                UserModel userModel = new UserModel();
+                userModel.displayName = "MMMMMMMMMMMM";
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.main_fragment_container, ProfileFragment.newInstance(userModel))
+                        .addToBackStack(null)
+                        .commit();
+                return true;
+        }
+
+        return false;
+    }
+
     public void updateFriendRequestsCount(final int newCount) {
         mFriendRequestsCount = newCount;
         if (mFriendRequestsCountTv == null) return;
@@ -90,6 +109,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupUI(FirebaseUser user) {
 
+    }
+
+    @Override
+    public void onAddFriend(String userId) {
+        // TODO: Send friend request to user with id = userId
     }
 
 //    @Override

@@ -46,4 +46,7 @@
     <string name="location_permission_message">In order to see your position on the map, build structures
         and interact with other players, you must allow this app to access your location.</string>
     <string name="title_activity_main2">Main2Activity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
