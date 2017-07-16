@@ -245,8 +245,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         public void onSuccess(Location location) {
                             LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
                             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 16.0f));
-
-                            if (mCircle == null) {
+                            
                                 mCircle = mGoogleMap.addCircle(new CircleOptions()
                                         .center(new LatLng(0.0, 0.0))
                                         .radius(300)
@@ -254,7 +253,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                         .strokeColor(Color.argb(80, 69, 90, 100))
                                         .fillColor(Color.argb(40, 255, 171, 0))
                                 );
-                            }
 
                             // Start querying for nearby users
                             GeoLocation geoLoc = new GeoLocation(location.getLatitude(), location.getLongitude());
