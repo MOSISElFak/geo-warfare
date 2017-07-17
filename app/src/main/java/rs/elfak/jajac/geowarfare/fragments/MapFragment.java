@@ -364,6 +364,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(new LatLng(location.latitude, location.longitude));
         markerOptions.visible(false);
+        markerOptions.anchor(0.5f, 0.5f);
         final Marker marker = mGoogleMap.addMarker(markerOptions);
 
 
