@@ -20,6 +20,7 @@ import rs.elfak.jajac.geowarfare.fragments.MapFragment;
 import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
 
 public class MainActivity extends AppCompatActivity implements
+        FragmentManager.OnBackStackChangedListener,
         ProfileFragment.OnFragmentInteractionListener,
         MapFragment.OnFragmentInteractionListener {
 
@@ -40,12 +41,18 @@ public class MainActivity extends AppCompatActivity implements
 
         mUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        mFilterSpinner = (Spinner) findViewById(R.id.toolbar_filter_spinner);
-
-        getSupportFragmentManager().beginTransaction()
+        // Display map as the initial fragment
+        FragmentManager fragManager = getSupportFragmentManager();
+        fragManager.beginTransaction()
                 .replace(R.id.main_fragment_container, new MapFragment())
                 .commit();
 
+        // Monitor the backstack in order to show/hide the back button
+        fragManager.addOnBackStackChangedListener(this);
+        shouldDisplayHomeUp();
+
+        // Initialize the action bar spinner for filtering map markers
+        mFilterSpinner = (Spinner) findViewById(R.id.toolbar_filter_spinner);
         ArrayAdapter<String> spinAdapter = new ArrayAdapter<String>(
                 this,
                 R.layout.toolbar_spinner_selected_item,
@@ -53,6 +60,22 @@ public class MainActivity extends AppCompatActivity implements
         );
         spinAdapter.setDropDownViewResource(R.layout.toolbar_spinner_dropdown_item);
         mFilterSpinner.setAdapter(spinAdapter);
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        shouldDisplayHomeUp();
+    }
+
+    private void shouldDisplayHomeUp() {
+        boolean canBack = getSupportFragmentManager().getBackStackEntryCount() > 0;
+        getSupportActionBar().setDisplayHomeAsUpEnabled(canBack);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        getSupportFragmentManager().popBackStack();
+        return true;
     }
 
     @Override
@@ -69,13 +92,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
-            case android.R.id.home:
-                FragmentManager fragManager = getSupportFragmentManager();
-                fragManager.popBackStack();
-                if (fragManager.getBackStackEntryCount() <= 1) {
-                    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                }
-                return true;
             case R.id.action_bar_profile_item:
                 onOpenUserProfile(mUser.getUid());
                 return true;
@@ -114,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements
                 .replace(R.id.main_fragment_container, ProfileFragment.newInstance(userId))
                 .addToBackStack(null)
                 .commit();
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

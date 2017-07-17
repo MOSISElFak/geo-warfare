@@ -307,7 +307,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
         String email = mEmail.getText().toString().trim();
         String password = mPassword.getText().toString().trim();
 
-        // First we create the user in realtime database so he/she's authenticated
+        // First we create the user using FirebaseAuth so he/she's authenticated
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override

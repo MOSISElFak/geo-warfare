@@ -154,9 +154,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 //        buildFab.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
-//                FirebaseAuth.getInstance().signOut();
-//                Intent i = new Intent(getContext(), LauncherActivity.class);
-//                startActivity(i);
+//                FirebaseAuth.getInstance().getCurrentUser().sendEmailVerification();
 //            }
 //        });
 
@@ -441,6 +439,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+        getActivity().findViewById(R.id.toolbar_filter_spinner).setVisibility(View.VISIBLE);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         mMapView.onResume();
@@ -460,6 +465,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     public void onStop() {
         super.onStop();
         mMapView.onStop();
+
+        getActivity().findViewById(R.id.toolbar_filter_spinner).setVisibility(View.INVISIBLE);
     }
 
     private void stopLocationUpdates() {
