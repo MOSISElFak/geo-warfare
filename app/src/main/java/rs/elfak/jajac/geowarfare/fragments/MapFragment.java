@@ -21,7 +21,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -146,16 +149,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                              @Nullable Bundle savedInstanceState) {
         View inflatedView = inflater.inflate(R.layout.fragment_map, container, false);
 
-        FloatingActionButton buildFab = (FloatingActionButton) inflatedView.findViewById(
-                R.id.map_fragment_build_button);
-        buildFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                Intent i = new Intent(getContext(), LauncherActivity.class);
-                startActivity(i);
-            }
-        });
+//        FloatingActionButton buildFab = (FloatingActionButton) inflatedView.findViewById(
+//                R.id.map_fragment_build_button);
+//        buildFab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                FirebaseAuth.getInstance().signOut();
+//                Intent i = new Intent(getContext(), LauncherActivity.class);
+//                startActivity(i);
+//            }
+//        });
 
         mMapView = (MapView) inflatedView.findViewById(R.id.map_fragment_map_view);
         mMapView.onCreate(savedInstanceState);

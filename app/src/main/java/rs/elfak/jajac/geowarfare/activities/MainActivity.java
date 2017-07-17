@@ -1,30 +1,23 @@
 package rs.elfak.jajac.geowarfare.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import org.w3c.dom.Text;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.fragments.MapFragment;
 import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
-import rs.elfak.jajac.geowarfare.models.UserModel;
 
 public class MainActivity extends AppCompatActivity implements
         ProfileFragment.OnFragmentInteractionListener,
@@ -64,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.action_bar_menu, menu);
+        getMenuInflater().inflate(R.menu.action_bar_main_menu, menu);
 
         View friendRequestsView = menu.findItem(R.id.action_friend_requests_item).getActionView();
         mFriendRequestsCountTv = (TextView) friendRequestsView.findViewById(R.id.friend_requests_count_tv);
@@ -76,11 +69,24 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
+            case android.R.id.home:
+                FragmentManager fragManager = getSupportFragmentManager();
+                fragManager.popBackStack();
+                if (fragManager.getBackStackEntryCount() <= 1) {
+                    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                }
+                return true;
             case R.id.action_bar_profile_item:
                 onOpenUserProfile(mUser.getUid());
                 return true;
+            case R.id.action_bar_logout_item:
+                FirebaseAuth.getInstance().signOut();
+                Intent i = new Intent(MainActivity.this, LauncherActivity.class);
+                startActivity(i);
+                return true;
         }
 
+        // If none of the 'case' statements return true, we return false to let a specific fragment handle the option
         return false;
     }
 
@@ -108,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements
                 .replace(R.id.main_fragment_container, ProfileFragment.newInstance(userId))
                 .addToBackStack(null)
                 .commit();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
