@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -128,6 +129,14 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
         }
 
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        boolean shouldShowEditButton = FirebaseAuth.getInstance().getCurrentUser().getUid().equals(mUserId);
+        menu.findItem(R.id.action_profile_edit_item).setVisible(shouldShowEditButton);
+
+        super.onPrepareOptionsMenu(menu);
     }
 
     @Override
