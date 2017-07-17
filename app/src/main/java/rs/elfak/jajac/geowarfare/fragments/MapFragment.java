@@ -76,7 +76,7 @@ import rs.elfak.jajac.geowarfare.activities.LauncherActivity;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.UserProvider;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     public static final int REQUEST_CHECK_SETTINGS = 1;
 
@@ -89,6 +89,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private Circle mCircle;
     private double mRadius = 300;
     private Map<String, Marker> mMarkers = new HashMap<>();
+    private Map<Marker, GoogleMap.OnMarkerClickListener> mMarkerListeners = new HashMap<>();
+
+    private GoogleMap.OnMarkerClickListener mUserMarkerListener;
 
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
@@ -98,6 +101,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private GeoQuery mUsersGeoQuery;
 
     private UserProvider mUserProvider;
+
+    private OnFragmentInteractionListener mListener;
+
+    public interface OnFragmentInteractionListener {
+        void onOpenUserProfile(String userId);
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -121,6 +130,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         };
 
         mUsersGeoFire = new GeoFire(FirebaseDatabase.getInstance().getReference().child("usersGeoFire"));
+
+        mUserMarkerListener = new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                onUserMarkerClick(marker);
+                return true;
+            }
+        };
     }
 
     @Nullable
@@ -153,6 +170,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         mGoogleMap = googleMap;
         mGoogleMap.setMapStyle(new MapStyleOptions(getResources().getString(R.string.style_json)));
+        mGoogleMap.setOnMarkerClickListener(this);
     }
 
     // Check if the user's location SETTINGS (not permissions) are satisfying for our LocationRequest
@@ -309,52 +327,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onKeyEntered(String key, GeoLocation location) {
                 // We only add markers if the map is loaded and the key is from other users (not ourselves)
                 if (mGoogleMap != null && !key.equals(mUser.getUid())) {
-                    MarkerOptions markerOptions = new MarkerOptions();
-                    markerOptions.position(new LatLng(location.latitude, location.longitude));
-                    markerOptions.visible(false);
-                    final Marker marker = mGoogleMap.addMarker(markerOptions);
-                    mUserProvider.getUserById(key).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            UserModel user = dataSnapshot.getValue(UserModel.class);
-                            marker.setTag(user);
-                            mMarkers.put(user.id, marker);
-
-                            Glide.with(MapFragment.this)
-                                    .load(user.avatarUrl)
-                                    .asBitmap()
-                                    .listener(new RequestListener<String, Bitmap>() {
-                                        @Override
-                                        public boolean onException(Exception e, String model, Target<Bitmap> target,
-                                                                   boolean isFirstResource) {
-                                            return false;
-                                        }
-
-                                        @Override
-                                        public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap>
-                                                target, boolean isFromMemoryCache, boolean isFirstResource) {
-                                            Bitmap smallAvatar = Bitmap.createScaledBitmap(resource, 50, 50, false);
-                                            marker.setIcon(BitmapDescriptorFactory.fromBitmap(smallAvatar));
-                                            marker.setVisible(true);
-                                            return true;
-                                        }
-                                    })
-                                    .preload();
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
+                    addUserMarker(key, location);
                 }
             }
 
             @Override
             public void onKeyExited(String key) {
                 Marker marker = mMarkers.get(key);
-                marker.remove();
                 mMarkers.remove(key);
+                mMarkerListeners.remove(marker);
+                marker.remove();
             }
 
             @Override
@@ -377,12 +359,65 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        mMapView.onResume();
+    private void addUserMarker(String userId, GeoLocation location) {
+        // Create a (temporary) invisible marker
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(new LatLng(location.latitude, location.longitude));
+        markerOptions.visible(false);
+        final Marker marker = mGoogleMap.addMarker(markerOptions);
 
-        checkLocationSettings();
+
+        mUserProvider.getUserById(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Associate the user data with the marker and add the marker to the HashMaps
+                UserModel user = dataSnapshot.getValue(UserModel.class);
+                marker.setTag(user);
+
+                mMarkers.put(user.id, marker);
+                mMarkerListeners.put(marker, mUserMarkerListener);
+
+                // Load the user avatar and make the marker visible when the picture is in place
+                Glide.with(MapFragment.this)
+                        .load(user.avatarUrl)
+                        .asBitmap()
+                        .listener(new RequestListener<String, Bitmap>() {
+                            @Override
+                            public boolean onException(Exception e, String model, Target<Bitmap> target,
+                                                       boolean isFirstResource) {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap>
+                                    target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                Bitmap smallAvatar = Bitmap.createScaledBitmap(resource, 75, 75, false);
+                                marker.setIcon(BitmapDescriptorFactory.fromBitmap(smallAvatar));
+                                marker.setVisible(true);
+                                return true;
+                            }
+                        })
+                        .preload();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        return mMarkerListeners.get(marker).onMarkerClick(marker);
+    }
+
+    private void onUserMarkerClick(Marker marker) {
+        UserModel user = (UserModel) marker.getTag();
+        if (mListener != null) {
+            mListener.onOpenUserProfile(user.id);
+        }
+
     }
 
     private void onNewLocation(LocationResult locationResult) {
@@ -399,6 +434,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Update the center of the area we're querying for users
         mUsersGeoQuery.setCenter(geoLoc);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mMapView.onResume();
+
+        checkLocationSettings();
     }
 
     @Override
@@ -420,6 +463,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         mMapView.onDestroy();
@@ -436,6 +496,5 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         super.onLowMemory();
         mMapView.onLowMemory();
     }
-
 
 }

@@ -108,7 +108,6 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
 
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onAddFriendClick() {
         if (mListener != null) {
             mListener.onAddFriend(mUser.id);

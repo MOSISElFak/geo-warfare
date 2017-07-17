@@ -26,7 +26,9 @@ import rs.elfak.jajac.geowarfare.fragments.MapFragment;
 import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 
-public class MainActivity extends AppCompatActivity implements ProfileFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements
+        ProfileFragment.OnFragmentInteractionListener,
+        MapFragment.OnFragmentInteractionListener {
 
     private int mFriendRequestsCount = 0;
 
@@ -75,11 +77,7 @@ public class MainActivity extends AppCompatActivity implements ProfileFragment.O
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.action_bar_profile_item:
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.main_fragment_container, ProfileFragment.newInstance(mUser.getUid()))
-                        .addToBackStack(null)
-                        .commit();
+                onOpenUserProfile(mUser.getUid());
                 return true;
         }
 
@@ -101,6 +99,15 @@ public class MainActivity extends AppCompatActivity implements ProfileFragment.O
                 }
             }
         });
+    }
+
+    @Override
+    public void onOpenUserProfile(String userId) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_fragment_container, ProfileFragment.newInstance(userId))
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
