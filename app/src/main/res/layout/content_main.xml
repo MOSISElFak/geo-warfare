@@ -23,7 +23,7 @@
         android:layout_height="32dp"
         android:padding="8dp"
         android:layout_alignParentBottom="true"
-        android:background="@color/colorPrimary">
+        android:background="@color/colorPrimaryDark">
 
         <ImageView
             android:id="@+id/info_soldier_icon"

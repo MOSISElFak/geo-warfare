@@ -22,7 +22,7 @@ public class UserModel {
     public String fullName;
     public String phone;
     public String avatarUrl;
-    public Map<String, Boolean> sentFriendRequests = new HashMap<>();
+    public Map<String, Boolean> friends = new HashMap<>();
     public Map<String, Boolean> receivedFriendRequests = new HashMap<>();
 
     public UserModel() {

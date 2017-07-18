@@ -60,6 +60,9 @@
         and interact with other players, you must allow this app to access your location.</string>
     <string name="title_activity_main2">Main2Activity</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- ProfileFragment -->
+    <string name="profile_friend_request_button_unfriend">Unfriend</string>
+    <string name="profile_friend_request_button_add">Add friend</string>
+    <string name="profile_friend_request_button_cancel">Cancel request</string>
+
 </resources>

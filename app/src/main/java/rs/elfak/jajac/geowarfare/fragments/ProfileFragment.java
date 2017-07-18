@@ -1,16 +1,21 @@
 package rs.elfak.jajac.geowarfare.fragments;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -26,15 +31,24 @@ import rs.elfak.jajac.geowarfare.providers.UserProvider;
 
 public class ProfileFragment extends DialogFragment implements View.OnClickListener {
 
+    private static final int STATUS_MYSELF = 0;
+    private static final int STATUS_NOT_FRIEND = 1;
+    private static final int STATUS_REQUEST_SENT = 2;
+    private static final int STATUS_FRIEND = 3;
+
     private static final String ARG_USER_ID = "user_id";
+
+    private Context mContext;
 
     private String mUserId;
     private UserModel mUser;
+    private int mStatus;
 
     // UI elements
     ImageView mAvatarImage;
     TextView mDisplayName;
     TextView mFullName;
+    LinearLayout mFriendRequestGroup;
 
     private OnFragmentInteractionListener mListener;
 
@@ -77,6 +91,7 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
         mAvatarImage = (ImageView) inflatedView.findViewById(R.id.profile_fragment_avatar_image);
         mDisplayName = (TextView) inflatedView.findViewById(R.id.profile_fragment_display_name);
         mFullName = (TextView) inflatedView.findViewById(R.id.profile_fragment_full_name);
+        mFriendRequestGroup = (LinearLayout) inflatedView.findViewById(R.id.profile_fragment_friend_request_group);
 
         getUserDataAndSetupUI(mUserId);
 
@@ -105,6 +120,65 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
                 .into(mAvatarImage);
         mDisplayName.setText(mUser.displayName);
         mFullName.setText(mUser.fullName);
+
+        checkStatusAndSetupFriendRequestButton();
+    }
+
+    private void checkStatusAndSetupFriendRequestButton() {
+        String loggedUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        if (loggedUserId.equals(mUserId)) {
+            mStatus = STATUS_MYSELF;
+            return;
+        } else {
+            if (mUser.friends.containsKey(loggedUserId)) {
+                mStatus = STATUS_FRIEND;
+            } else if (mUser.receivedFriendRequests.containsKey(loggedUserId)) {
+                mStatus = STATUS_REQUEST_SENT;
+            } else {
+                mStatus = STATUS_NOT_FRIEND;
+            }
+        }
+
+        setupFriendRequestButton();
+    }
+
+    private void setupFriendRequestButton() {
+        Button button = (Button) mFriendRequestGroup.findViewById(R.id.profile_fragment_friend_request_btn);
+        switch (mStatus) {
+            case STATUS_FRIEND:
+                button.setText(getString(R.string.profile_friend_request_button_unfriend));
+                button.getBackground().setColorFilter(
+                        ContextCompat.getColor(mContext, R.color.colorPrimaryLight),
+                        PorterDuff.Mode.MULTIPLY
+                );
+                button.setTextColor(ContextCompat.getColor(mContext, android.R.color.white));
+                Drawable removeIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_remove_circle_24dp);
+                button.setCompoundDrawablesWithIntrinsicBounds(removeIcon, null, null, null);
+                break;
+            case STATUS_REQUEST_SENT:
+                button.setText(getString(R.string.profile_friend_request_button_cancel));
+                button.getBackground().setColorFilter(
+                        ContextCompat.getColor(mContext, R.color.colorPrimaryLight),
+                        PorterDuff.Mode.MULTIPLY
+                );
+                button.setTextColor(ContextCompat.getColor(mContext, android.R.color.white));
+                Drawable cancelIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_cancel_24dp);
+                button.setCompoundDrawablesWithIntrinsicBounds(cancelIcon, null, null, null);
+                break;
+            case STATUS_NOT_FRIEND:
+                button.setText(getString(R.string.profile_friend_request_button_add));
+                button.getBackground().setColorFilter(
+                        ContextCompat.getColor(mContext, R.color.colorAccent),
+                        PorterDuff.Mode.MULTIPLY
+                );
+                button.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimaryDark));
+                Drawable addIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_person_add_24dp);
+                button.setCompoundDrawablesWithIntrinsicBounds(addIcon, null, null, null);
+                break;
+        }
+
+        button.setCompoundDrawablePadding(16);
+        mFriendRequestGroup.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -128,6 +202,7 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
                     + " must implement OnFragmentInteractionListener");
         }
 
+        mContext = context;
         setHasOptionsMenu(true);
     }
 
@@ -173,6 +248,7 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
     @Override
     public void onDetach() {
         super.onDetach();
+        mContext = null;
         mListener = null;
     }
 
