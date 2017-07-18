@@ -1,15 +1,9 @@
 package rs.elfak.jajac.geowarfare.fragments;
 
-import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,7 +17,6 @@ import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import rs.elfak.jajac.geowarfare.R;
@@ -81,7 +74,7 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
         // Inflate the layout for this fragment
         View inflatedView = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        mAvatarImage = (ImageView) inflatedView.findViewById(R.id.profile_fragment_avatar);
+        mAvatarImage = (ImageView) inflatedView.findViewById(R.id.profile_fragment_avatar_image);
         mDisplayName = (TextView) inflatedView.findViewById(R.id.profile_fragment_display_name);
         mFullName = (TextView) inflatedView.findViewById(R.id.profile_fragment_full_name);
 

@@ -48,7 +48,8 @@
         android:scaleType="fitXY"
         android:padding="4dp"
         android:src="@drawable/default_avatar"
-        android:clickable="true"/>
+        android:clickable="true"
+        android:background="@drawable/imageview_border"/>
 
     <Button
         android:id="@+id/choose_avatar_btn"

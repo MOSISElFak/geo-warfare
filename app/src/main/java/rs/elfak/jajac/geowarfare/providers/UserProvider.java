@@ -1,5 +1,8 @@
 package rs.elfak.jajac.geowarfare.providers;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 
 import com.google.android.gms.tasks.Task;

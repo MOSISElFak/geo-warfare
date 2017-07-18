@@ -22,7 +22,8 @@ public class UserModel {
     public String fullName;
     public String phone;
     public String avatarUrl;
-    public CoordsModel coordinates = new CoordsModel(0.0, 0.0);
+    public Map<String, Boolean> sentFriendRequests = new HashMap<>();
+    public Map<String, Boolean> receivedFriendRequests = new HashMap<>();
 
     public UserModel() {
         // Default constructor required for calls to DataSnapshot.getValue(UserModel.class)
