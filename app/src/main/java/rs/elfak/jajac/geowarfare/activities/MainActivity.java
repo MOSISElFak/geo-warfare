@@ -3,6 +3,7 @@ package rs.elfak.jajac.geowarfare.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -31,24 +32,23 @@ public class MainActivity extends AppCompatActivity implements
 
     private FirebaseUser mUser;
 
+    private FragmentManager mFragmentManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         mUser = FirebaseAuth.getInstance().getCurrentUser();
 
+        mFragmentManager = getSupportFragmentManager();
         // Display map as the initial fragment
-        FragmentManager fragManager = getSupportFragmentManager();
-        fragManager.beginTransaction()
-                .replace(R.id.main_fragment_container, new MapFragment())
-                .commit();
+        onOpenMap();
 
         // Monitor the backstack in order to show/hide the back button
-        fragManager.addOnBackStackChangedListener(this);
+        mFragmentManager.addOnBackStackChangedListener(this);
         shouldDisplayHomeUp();
 
         // Initialize the action bar spinner for filtering map markers
@@ -60,6 +60,16 @@ public class MainActivity extends AppCompatActivity implements
         );
         spinAdapter.setDropDownViewResource(R.layout.toolbar_spinner_dropdown_item);
         mFilterSpinner.setAdapter(spinAdapter);
+    }
+
+    public void setActionBarTitle(String newTitle) {
+        ActionBar actionBar = getSupportActionBar();
+        if (newTitle != null) {
+            actionBar.setDisplayShowTitleEnabled(true);
+            actionBar.setTitle(newTitle);
+        } else {
+            actionBar.setDisplayShowTitleEnabled(false);
+        }
     }
 
     @Override
@@ -123,6 +133,12 @@ public class MainActivity extends AppCompatActivity implements
         });
     }
 
+    public void onOpenMap() {
+        mFragmentManager.beginTransaction()
+                .replace(R.id.main_fragment_container, new MapFragment())
+                .commit();
+    }
+
     @Override
     public void onOpenUserProfile(String userId) {
         getSupportFragmentManager()
@@ -155,4 +171,11 @@ public class MainActivity extends AppCompatActivity implements
 //        }
 //        super.onActivityResult(requestCode, resultCode, data);
 //    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mFragmentManager = null;
+    }
 }

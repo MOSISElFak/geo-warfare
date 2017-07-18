@@ -10,7 +10,7 @@
     <string name="email_bad_format_error">Invalid email format.</string>
     <string name="password_bad_format_error">Minimum 8 alphanumeric characters. At least one letter and one number.</string>
 
-    <!-- Login Activity-->
+    <!-- LoginActivity-->
     <string name="login_title">Login</string>
     <string name="login_button">Login</string>
     <string name="login_no_account_button"><u>Create account</u></string>
@@ -20,14 +20,16 @@
     <string name="login_email_not_exist_error">A user with that email does not exist.</string>
     <string name="login_wrong_password_error">Incorrect password.</string>
 
-    <!-- Register Activity -->
-    <string name="register_title">Register</string>
-    <string name="register_display_name_hint">Display name</string>
-    <string name="register_full_name_hint">Full name</string>
-    <string name="register_phone_number_hint">Phone number</string>
-    <string name="register_avatar_choose_button">Choose</string>
-    <string name="register_button">Register</string>
+    <!-- EditUserInfoFragment -->
+    <string name="edit_user_info_title">Edit profile</string>
+    <string name="display_name_hint">Display name</string>
+    <string name="full_name_hint">Full name</string>
+    <string name="phone_number_hint">Phone number</string>
+    <string name="avatar_choose_button">Choose</string>
 
+    <!-- RegisterActivity -->
+    <string name="register_title">Register</string>
+    <string name="register_button">Register</string>
     <string name="register_email_exists_error">This email is already in use by another account.</string>
     <string name="register_repeat_password_error">Must be same as password.</string>
     <string name="register_display_name_format_error">Must contain from 2 to 12 alphanumeric characters and begin with a letter.</string>

@@ -19,7 +19,8 @@
         android:layout_marginLeft="@dimen/login_field_horizontal_margin"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginRight="@dimen/login_field_horizontal_margin"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"/>
 
     <EditText
         android:id="@+id/register_password_text"
@@ -43,86 +44,26 @@
         app:layout_constraintLeft_toLeftOf="@+id/register_password_text"
         app:layout_constraintRight_toRightOf="@+id/register_password_text" />
 
-    <EditText
-        android:id="@+id/register_display_name_text"
+    <fragment
+        android:name="rs.elfak.jajac.geowarfare.fragments.EditUserInfoFragment"
+        android:id="@+id/register_user_info_fragment"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:inputType="text"
-        android:hint="@string/register_display_name_hint"
-        android:layout_marginTop="@dimen/login_field_top_margin"
-        app:layout_constraintTop_toBottomOf="@+id/register_repeat_password_text"
-        app:layout_constraintLeft_toLeftOf="@+id/register_repeat_password_text"
-        app:layout_constraintRight_toRightOf="@+id/register_repeat_password_text" />
-
-    <EditText
-        android:id="@+id/register_full_name_text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="textPersonName|textCapWords"
-        android:hint="@string/register_full_name_hint"
-        android:layout_marginTop="@dimen/login_field_top_margin"
-        app:layout_constraintTop_toBottomOf="@+id/register_display_name_text"
-        app:layout_constraintLeft_toLeftOf="@+id/register_display_name_text"
-        app:layout_constraintRight_toRightOf="@+id/register_display_name_text" />
-
-    <EditText
-        android:id="@+id/register_phone_text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:inputType="phone"
-        android:hint="@string/register_phone_number_hint"
-        android:layout_marginTop="@dimen/login_field_top_margin"
-        app:layout_constraintTop_toBottomOf="@+id/register_full_name_text"
-        app:layout_constraintLeft_toLeftOf="@+id/register_full_name_text"
-        app:layout_constraintRight_toRightOf="@+id/register_full_name_text" />
-
-    <ImageView
-        android:id="@+id/avatar_image"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="@dimen/login_field_top_margin"
-        app:layout_constraintTop_toBottomOf="@+id/register_phone_text"
-        app:layout_constraintLeft_toLeftOf="@+id/register_phone_text"
-        android:scaleType="fitXY"
-        android:padding="4dp"
-        android:src="@drawable/default_avatar"
-        android:clickable="true"
-        android:onClick="onAvatarClick" />
-
-    <Button
-        android:id="@+id/add_avatar_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/register_avatar_choose_button"
-        app:layout_constraintTop_toTopOf="@+id/avatar_image"
-        app:layout_constraintRight_toRightOf="@+id/register_phone_text"
-        android:onClick="onAddImageClick"
-        android:drawableLeft="@drawable/ic_image_24dp"
-        android:drawablePadding="8dp"
-        android:theme="@style/PrimaryButton" />
-
-    <TextView
-        android:id="@+id/avatar_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        app:layout_constraintBottom_toBottomOf="@+id/avatar_image"
-        app:layout_constraintTop_toTopOf="@+id/avatar_image"
-        android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toRightOf="@+id/avatar_image" />
+        app:layout_constraintTop_toBottomOf="@id/register_repeat_password_text"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:layout="@layout/fragment_edit_user_info"/>
 
     <Button
         android:id="@+id/register_btn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/register_button"
         android:layout_marginTop="@dimen/login_field_top_margin"
-        app:layout_constraintTop_toBottomOf="@+id/avatar_image"
-        app:layout_constraintLeft_toLeftOf="@+id/avatar_image"
-        app:layout_constraintRight_toRightOf="@+id/add_avatar_btn"
+        app:layout_constraintTop_toBottomOf="@id/register_user_info_fragment"
+        app:layout_constraintLeft_toLeftOf="@id/register_repeat_password_text"
+        app:layout_constraintRight_toRightOf="@id/register_repeat_password_text"
+        android:text="@string/register_button"
         android:onClick="onRegisterClick"
-        android:theme="@style/PrimaryButton" />
+        android:theme="@style/PrimaryButton"/>
 
 </android.support.constraint.ConstraintLayout>

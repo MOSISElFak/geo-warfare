@@ -1,15 +1,19 @@
 package rs.elfak.jajac.geowarfare.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -23,6 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.activities.MainActivity;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.UserProvider;
 
@@ -54,6 +59,12 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
         args.putString(ARG_USER_ID, userId);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        ((MainActivity) getActivity()).setActionBarTitle(null);
     }
 
     @Override
@@ -143,6 +154,29 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.action_bar_profile_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_profile_edit_item:
+                onEditProfileClick();
+                return true;
+        }
+        return false;
+    }
+
+    public void onEditProfileClick() {
+        getActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_fragment_container, EditUserInfoFragment.newInstance(
+                        mUser.displayName,
+                        mUser.fullName,
+                        mUser.phone,
+                        mUser.avatarUrl
+                ))
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override

@@ -76,6 +76,7 @@ import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.activities.LauncherActivity;
+import rs.elfak.jajac.geowarfare.activities.MainActivity;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.UserProvider;
 
@@ -109,6 +110,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     public interface OnFragmentInteractionListener {
         void onOpenUserProfile(String userId);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        ((MainActivity) getActivity()).setActionBarTitle(null);
     }
 
     @Override
