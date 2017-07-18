@@ -1,9 +1,20 @@
 package rs.elfak.jajac.geowarfare.models;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.IgnoreExtraProperties;
 
-public class UserModel implements Parcelable {
+import java.util.HashMap;
+import java.util.Map;
+
+@IgnoreExtraProperties
+public class UserModel {
+
+    public static final String KEY_USER_ID = "id";
+    public static final String KEY_USER_EMAIL = "email";
+    public static final String KEY_USER_DISPLAY_NAME = "displayName";
+    public static final String KEY_USER_FULL_NAME = "fullName";
+    public static final String KEY_USER_PHONE = "phone";
+    public static final String KEY_USER_AVATAR_URL = "avatarUrl";
 
     public String id;
     public String email;
@@ -26,39 +37,17 @@ public class UserModel implements Parcelable {
         this.avatarUrl = imgUrl;
     }
 
-    private UserModel(Parcel in) {
-        id = in.readString();
-        email = in.readString();
-        displayName = in.readString();
-        fullName = in.readString();
-        phone = in.readString();
-        avatarUrl = in.readString();
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put(KEY_USER_ID, id);
+        result.put(KEY_USER_EMAIL, email);
+        result.put(KEY_USER_DISPLAY_NAME, displayName);
+        result.put(KEY_USER_FULL_NAME, fullName);
+        result.put(KEY_USER_PHONE, phone);
+        result.put(KEY_USER_AVATAR_URL, avatarUrl);
+
+        return result;
     }
 
-    public static final Creator<UserModel> CREATOR = new Creator<UserModel>() {
-        @Override
-        public UserModel createFromParcel(Parcel in) {
-            return new UserModel(in);
-        }
-
-        @Override
-        public UserModel[] newArray(int size) {
-            return new UserModel[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeString(email);
-        dest.writeString(displayName);
-        dest.writeString(fullName);
-        dest.writeString(phone);
-        dest.writeString(avatarUrl);
-    }
 }

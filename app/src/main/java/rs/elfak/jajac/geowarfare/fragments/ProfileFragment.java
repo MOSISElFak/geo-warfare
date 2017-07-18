@@ -91,23 +91,19 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
     }
 
     private void getUserDataAndSetupUI(String userId) {
-        if (mUser != null) {
-            setupUI();
-        } else {
-            UserProvider.getInstance().getUserById(userId)
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            mUser = dataSnapshot.getValue(UserModel.class);
-                            setupUI();
-                        }
+        UserProvider.getInstance().getUserById(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        mUser = dataSnapshot.getValue(UserModel.class);
+                        setupUI();
+                    }
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-                        }
-                    });
-        }
+                    }
+                });
     }
 
     private void setupUI() {
@@ -152,6 +148,7 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.setGroupVisible(R.id.main_menu_group, false);
         inflater.inflate(R.menu.action_bar_profile_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -173,7 +170,8 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
                         mUser.displayName,
                         mUser.fullName,
                         mUser.phone,
-                        mUser.avatarUrl
+                        mUser.avatarUrl,
+                        true
                 ))
                 .addToBackStack(null)
                 .commit();

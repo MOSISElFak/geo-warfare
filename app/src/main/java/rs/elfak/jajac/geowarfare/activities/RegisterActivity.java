@@ -2,7 +2,6 @@ package rs.elfak.jajac.geowarfare.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -16,31 +15,25 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.File;
+import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.fragments.EditUserInfoFragment;
 import rs.elfak.jajac.geowarfare.models.UserModel;
+import rs.elfak.jajac.geowarfare.providers.UserProvider;
 import rs.elfak.jajac.geowarfare.utils.Validator;
 
-public class RegisterActivity extends AppCompatActivity implements View.OnFocusChangeListener {
+public class RegisterActivity extends AppCompatActivity implements
+        View.OnFocusChangeListener,
+        EditUserInfoFragment.OnFragmentInteractionListener {
 
     private EditText mEmail;
     private EditText mPassword;
     private EditText mRepeatPassword;
-
-    private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
-    private StorageReference mStorage;
 
     private EditUserInfoFragment mUserInfoFragment;
 
@@ -62,10 +55,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
         mEmail.setOnFocusChangeListener(this);
         mPassword.setOnFocusChangeListener(this);
         mRepeatPassword.setOnFocusChangeListener(this);
-
-        mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mStorage = FirebaseStorage.getInstance().getReference();
     }
 
     @Override
@@ -122,24 +111,27 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
         String email = mEmail.getText().toString().trim();
         String password = mPassword.getText().toString().trim();
 
+        final UserProvider userProvider = UserProvider.getInstance();
+
         // First we create the user using FirebaseAuth so he/she's authenticated
-        mAuth.createUserWithEmailAndPassword(email, password)
+        userProvider.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         // Then we store the avatar in Storage and get its downloadUrl
                         // from the snapshot, and save all user data in realtime database
                         if (task.isSuccessful()) {
+                            String imageFileName = mUserInfoFragment.getAvatarFileName();
                             String localImageUri = mUserInfoFragment.getAvatarPath();
-                            StorageReference avatarsRef = mStorage.child("avatars").child(localImageUri);
-                            avatarsRef.putFile(Uri.fromFile(new File(localImageUri)))
+                            userProvider.uploadAvatarImage(imageFileName, localImageUri)
                                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                         @Override
                                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                            String newUserId = mAuth.getCurrentUser().getUid();
+                                            String newUserId = userProvider.getCurrentUser().getUid();
                                             String storageImageUri = taskSnapshot.getDownloadUrl().toString();
                                             UserModel newUser = getUserModel(newUserId, storageImageUri);
-                                            mDatabase.child("users").child(newUserId).setValue(newUser);
+                                            Map<String, Object> userInfoValues = newUser.toMap();
+                                            userProvider.updateUserInfo(newUserId, userInfoValues);
 
                                             progressDialog.dismiss();
                                             Intent profileIntent = new Intent(RegisterActivity.this,
@@ -175,6 +167,11 @@ public class RegisterActivity extends AppCompatActivity implements View.OnFocusC
                     }
                 });
 
+    }
+
+    @Override
+    public void onEditFinished() {
+        // We do nothing here because the action is handled using the register button
     }
 
     @Override

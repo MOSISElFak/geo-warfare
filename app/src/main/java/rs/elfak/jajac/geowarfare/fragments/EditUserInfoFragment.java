@@ -2,6 +2,7 @@ package rs.elfak.jajac.geowarfare.fragments;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,7 +13,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -31,15 +31,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
-import rs.elfak.jajac.geowarfare.activities.MainActivity;
-import rs.elfak.jajac.geowarfare.activities.RegisterActivity;
+import rs.elfak.jajac.geowarfare.models.UserModel;
+import rs.elfak.jajac.geowarfare.providers.UserProvider;
 import rs.elfak.jajac.geowarfare.utils.Validator;
 
 public class EditUserInfoFragment extends Fragment implements View.OnFocusChangeListener, View.OnClickListener {
@@ -51,6 +56,7 @@ public class EditUserInfoFragment extends Fragment implements View.OnFocusChange
     private static final String ARG_FULL_NAME = "full_name";
     private static final String ARG_PHONE = "phone";
     private static final String ARG_AVATAR_PATH = "avatar_path";
+    private static final String ARG_SHOULD_INJECT_OWN_MENU = "should_inject_own_menu";
 
     private Context mContext;
 
@@ -59,6 +65,7 @@ public class EditUserInfoFragment extends Fragment implements View.OnFocusChange
     private String mFullName;
     private String mPhone;
     private String mAvatarPath;
+    private boolean mShouldInjectOwnMenu = false;
 
     // UI elements
     private EditText mDisplayNameEt;
@@ -68,39 +75,50 @@ public class EditUserInfoFragment extends Fragment implements View.OnFocusChange
     private TextView mAvatarErrorTv;
 
     // New avatar image path, used to check whether we need to delete the old and upload the new image
-    private String mNewAvatarPath;
+    private String mNewAvatarLocalPath;
+    // Temporary field for storing the path of the generated camera image
+    private String mGeneratedLocalPath;
+
+    private OnFragmentInteractionListener mListener;
+
+    public interface OnFragmentInteractionListener {
+        void onEditFinished();
+    }
+
 
     public EditUserInfoFragment() {
         // Required empty public constructor
     }
 
     public static EditUserInfoFragment newInstance(String displayName, String fullName,
-                                                   String phone, String avatarPath) {
+                                                   String phone, String avatarPath, boolean shouldInjectOwnMenu) {
         EditUserInfoFragment fragment = new EditUserInfoFragment();
         Bundle args = new Bundle();
         args.putString(ARG_DISPLAY_NAME, displayName);
         args.putString(ARG_FULL_NAME, fullName);
         args.putString(ARG_PHONE, phone);
         args.putString(ARG_AVATAR_PATH, avatarPath);
+        args.putBoolean(ARG_SHOULD_INJECT_OWN_MENU, shouldInjectOwnMenu);
         fragment.setArguments(args);
         return fragment;
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.edit_user_info_title));
-    }
+//    @Override
+//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+//        super.onActivityCreated(savedInstanceState);
+//        ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.edit_user_info_title));
+//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mDisplayName = getArguments().getString(ARG_DISPLAY_NAME);
-            mFullName = getArguments().getString(ARG_FULL_NAME);
-            mPhone = getArguments().getString(ARG_PHONE);
-            mAvatarPath = getArguments().getString(ARG_AVATAR_PATH);
-            mNewAvatarPath = mAvatarPath;
+        Bundle args = getArguments();
+        if (args != null) {
+            mDisplayName = args.getString(ARG_DISPLAY_NAME);
+            mFullName = args.getString(ARG_FULL_NAME);
+            mPhone = args.getString(ARG_PHONE);
+            mAvatarPath = args.getString(ARG_AVATAR_PATH);
+            mShouldInjectOwnMenu = args.getBoolean(ARG_SHOULD_INJECT_OWN_MENU);
         }
     }
 
@@ -121,9 +139,11 @@ public class EditUserInfoFragment extends Fragment implements View.OnFocusChange
         mDisplayNameEt.setText(mDisplayName);
         mFullNameEt.setText(mFullName);
         mPhoneEt.setText(mPhone);
-        Glide.with(mContext)
-                .load(mAvatarPath)
-                .into(mAvatarImg);
+        if (mAvatarPath != null && !mAvatarPath.isEmpty()) {
+            Glide.with(mContext)
+                    .load(mAvatarPath)
+                    .into(mAvatarImg);
+        }
 
         mDisplayNameEt.setOnFocusChangeListener(this);
         mFullNameEt.setOnFocusChangeListener(this);
@@ -297,19 +317,25 @@ public class EditUserInfoFragment extends Fragment implements View.OnFocusChange
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CHOOSE_IMAGE && resultCode == Activity.RESULT_OK) {
-            Uri dataImageUri = data.getData();
+        if (requestCode == REQUEST_CHOOSE_IMAGE) {
+            if (resultCode == Activity.RESULT_OK) {
+                // If the user has actually picked another image and accepted it
+                Uri dataImageUri = data.getData();
 
-            // If an Uri is found in getData(), we need to get the real file path
-            // from gallery, because imageUri is a "content://..." Uri
-            if (dataImageUri != null) {
-                mNewAvatarPath = getRealPathFromURI(mContext, dataImageUri);
+                if (dataImageUri != null) {
+                    // If an Uri is found in getData(), we need to get the real file path
+                    // from gallery, because imageUri is a "content://..." Uri
+                    mNewAvatarLocalPath = getRealPathFromURI(mContext, dataImageUri);
+                } else {
+                    // If no Uri is found in getData(), camera was used and we point to the generated file path
+                    mNewAvatarLocalPath = mGeneratedLocalPath;
+                }
+
+                Glide.with(mContext)
+                        .load(mNewAvatarLocalPath)
+                        .into(mAvatarImg);
+                mAvatarErrorTv.setError(null);
             }
-
-            Glide.with(mContext)
-                    .load(mNewAvatarPath)
-                    .into(mAvatarImg);
-            mAvatarErrorTv.setError(null);
         }
     }
 
@@ -334,7 +360,7 @@ public class EditUserInfoFragment extends Fragment implements View.OnFocusChange
         File storageDir = mContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
 
-        mNewAvatarPath = image.getAbsolutePath();
+        mGeneratedLocalPath = image.getAbsolutePath();
         return image;
     }
 
@@ -351,31 +377,115 @@ public class EditUserInfoFragment extends Fragment implements View.OnFocusChange
     }
 
     public String getAvatarPath() {
-        return mNewAvatarPath;
+        return mNewAvatarLocalPath;
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         menu.clear();
-        inflater.inflate(R.menu.action_bar_edit_profile_menu, menu);
+        if (mShouldInjectOwnMenu) {
+            inflater.inflate(R.menu.action_bar_edit_profile_menu, menu);
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_edit_profile_save_item:
-                Toast.makeText(getContext(), "SAVE!", Toast.LENGTH_SHORT).show();
+                onUpdateUserInfo();
                 return true;
         }
         return false;
     }
 
+    private void onUpdateUserInfo() {
+        if (!allFieldsValid()) return;
+
+        final ProgressDialog progressDialog = new ProgressDialog(mContext);
+        progressDialog.setMessage(getString(R.string.edit_profile_progress_dialog_message));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        final UserProvider userProvider = UserProvider.getInstance();
+
+        final String newUserId = userProvider.getCurrentUser().getUid();
+        final String storageImageUri = mAvatarPath;
+        final Map<String, Object> newUserValues = getUserValuesMap(storageImageUri);
+
+        if (mNewAvatarLocalPath == null) {
+            // If the user didn't change the avatar, we remove that from the fields that will be updated
+            newUserValues.remove(UserModel.KEY_USER_AVATAR_URL);
+            userProvider.updateUserInfo(newUserId, newUserValues)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            progressDialog.dismiss();
+                            mListener.onEditFinished();
+                        }
+                    });
+        } else {
+            // If he did, we need to remove the old image from the server and upload the new one
+            userProvider.removeAvatarImage(mAvatarPath)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+
+                        }
+                    });
+
+            userProvider.uploadAvatarImage(getAvatarFileName(), mNewAvatarLocalPath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            String newStorageImgUri = taskSnapshot.getDownloadUrl().toString();
+                            newUserValues.put(UserModel.KEY_USER_AVATAR_URL, newStorageImgUri);
+                            userProvider.updateUserInfo(newUserId, newUserValues)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            progressDialog.dismiss();
+                                            mListener.onEditFinished();
+                                        }
+                                    });
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(getContext(), getString(R.string
+                                    .edit_profile_failed_message), Toast.LENGTH_LONG).show();
+                        }
+                    });
+        }
+    }
+
+    private Map<String, Object> getUserValuesMap(String storageImgUrl) {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put(UserModel.KEY_USER_DISPLAY_NAME, getDisplayName());
+        result.put(UserModel.KEY_USER_FULL_NAME, getFullName());
+        result.put(UserModel.KEY_USER_PHONE, getPhone());
+        result.put(UserModel.KEY_USER_AVATAR_URL, storageImgUrl);
+
+        return result;
+    }
+
+    public String getAvatarFileName() {
+        return mDisplayNameEt.getText().toString().trim() + "_avatar.jpg";
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mContext = context;
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
 
+        mContext = context;
         setHasOptionsMenu(true);
     }
 
@@ -383,6 +493,7 @@ public class EditUserInfoFragment extends Fragment implements View.OnFocusChange
     public void onDetach() {
         super.onDetach();
         mContext = null;
+        mListener = null;
     }
 
 }

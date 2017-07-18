@@ -17,12 +17,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.fragments.EditUserInfoFragment;
 import rs.elfak.jajac.geowarfare.fragments.MapFragment;
 import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
 
 public class MainActivity extends AppCompatActivity implements
         FragmentManager.OnBackStackChangedListener,
         ProfileFragment.OnFragmentInteractionListener,
+        EditUserInfoFragment.OnFragmentInteractionListener,
         MapFragment.OnFragmentInteractionListener {
 
     private int mFriendRequestsCount = 0;
@@ -78,13 +80,16 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void shouldDisplayHomeUp() {
-        boolean canBack = getSupportFragmentManager().getBackStackEntryCount() > 0;
+        boolean canBack = mFragmentManager.getBackStackEntryCount() > 0;
         getSupportActionBar().setDisplayHomeAsUpEnabled(canBack);
     }
 
+    /**
+     * This is called when the up button is pressed. Just pop the back stack.
+     */
     @Override
     public boolean onSupportNavigateUp() {
-        getSupportFragmentManager().popBackStack();
+        mFragmentManager.popBackStack();
         return true;
     }
 
@@ -141,11 +146,16 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onOpenUserProfile(String userId) {
-        getSupportFragmentManager()
+        mFragmentManager
                 .beginTransaction()
                 .replace(R.id.main_fragment_container, ProfileFragment.newInstance(userId))
                 .addToBackStack(null)
                 .commit();
+    }
+
+    @Override
+    public void onEditFinished() {
+        mFragmentManager.popBackStack();
     }
 
     @Override

@@ -26,6 +26,8 @@
     <string name="full_name_hint">Full name</string>
     <string name="phone_number_hint">Phone number</string>
     <string name="avatar_choose_button">Choose</string>
+    <string name="edit_profile_progress_dialog_message">Updating…</string>
+    <string name="edit_profile_failed_message">Unable to update profile right now.</string>
 
     <!-- RegisterActivity -->
     <string name="register_title">Register</string>
