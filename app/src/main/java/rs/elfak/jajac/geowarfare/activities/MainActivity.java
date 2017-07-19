@@ -21,15 +21,19 @@ import com.google.firebase.database.ValueEventListener;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.fragments.EditUserInfoFragment;
+import rs.elfak.jajac.geowarfare.fragments.FriendsFragment;
 import rs.elfak.jajac.geowarfare.fragments.MapFragment;
 import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
+import rs.elfak.jajac.geowarfare.models.FriendRequestModel;
 import rs.elfak.jajac.geowarfare.providers.UserProvider;
 
 public class MainActivity extends AppCompatActivity implements
+        View.OnClickListener,
         FragmentManager.OnBackStackChangedListener,
         ProfileFragment.OnFragmentInteractionListener,
         EditUserInfoFragment.OnFragmentInteractionListener,
-        MapFragment.OnFragmentInteractionListener {
+        MapFragment.OnFragmentInteractionListener,
+        FriendsFragment.OnListFragmentInteractionListener {
 
     private int mFriendRequestsCount = 0;
 
@@ -104,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements
         getMenuInflater().inflate(R.menu.action_bar_main_menu, menu);
 
         View friendRequestsView = menu.findItem(R.id.action_friend_requests_item).getActionView();
+        friendRequestsView.setOnClickListener(this);
         mFriendRequestsCountTv = (TextView) friendRequestsView.findViewById(R.id.friend_requests_count_tv);
         updateFriendRequestsCount(mFriendRequestsCount);
         listenForFriendRequests();
@@ -126,6 +131,28 @@ public class MainActivity extends AppCompatActivity implements
 
         // If none of the 'case' statements return true, we return false to let a specific fragment handle the option
         return false;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.action_friend_requests_item:
+                onOpenFriends();
+                break;
+        }
+    }
+
+    @Override
+    public void onFriendItemClick(FriendRequestModel item) {
+
+    }
+
+    private void onOpenFriends() {
+        mFragmentManager
+                .beginTransaction()
+                .replace(R.id.main_fragment_container, FriendsFragment.newInstance())
+                .addToBackStack(null)
+                .commit();
     }
 
     private void listenForFriendRequests() {
