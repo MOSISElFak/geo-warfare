@@ -44,12 +44,11 @@
         android:layout_height="100dp"
         android:layout_marginTop="@dimen/login_field_top_margin"
         app:layout_constraintTop_toBottomOf="@+id/phone_text"
+        android:layout_marginLeft="4dp"
         app:layout_constraintLeft_toLeftOf="@+id/phone_text"
         android:scaleType="fitXY"
-        android:padding="4dp"
-        android:src="@drawable/default_avatar"
         android:clickable="true"
-        android:background="@drawable/imageview_border"/>
+        android:background="@drawable/default_avatar"/>
 
     <Button
         android:id="@+id/choose_avatar_btn"

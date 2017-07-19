@@ -140,6 +140,9 @@ public class EditUserInfoFragment extends Fragment implements View.OnFocusChange
         mFullNameEt.setText(mFullName);
         mPhoneEt.setText(mPhone);
         if (mAvatarPath != null && !mAvatarPath.isEmpty()) {
+            // If we're on the edit profile page, it means the user already has
+            // an avatar so we can hide the imageview background and load up the avatar image
+            mAvatarImg.setBackground(null);
             Glide.with(mContext)
                     .load(mAvatarPath)
                     .into(mAvatarImg);
@@ -148,6 +151,7 @@ public class EditUserInfoFragment extends Fragment implements View.OnFocusChange
         mDisplayNameEt.setOnFocusChangeListener(this);
         mFullNameEt.setOnFocusChangeListener(this);
         mPhoneEt.setOnFocusChangeListener(this);
+        mAvatarImg.setOnClickListener(this);
 
         chooseAvatarButton.setOnClickListener(this);
 
@@ -317,25 +321,24 @@ public class EditUserInfoFragment extends Fragment implements View.OnFocusChange
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CHOOSE_IMAGE) {
-            if (resultCode == Activity.RESULT_OK) {
-                // If the user has actually picked another image and accepted it
-                Uri dataImageUri = data.getData();
+        if (requestCode == REQUEST_CHOOSE_IMAGE && resultCode == Activity.RESULT_OK) {
+            // If the user has actually picked another image and accepted it
+            Uri dataImageUri = data.getData();
 
-                if (dataImageUri != null) {
-                    // If an Uri is found in getData(), we need to get the real file path
-                    // from gallery, because imageUri is a "content://..." Uri
-                    mNewAvatarLocalPath = getRealPathFromURI(mContext, dataImageUri);
-                } else {
-                    // If no Uri is found in getData(), camera was used and we point to the generated file path
-                    mNewAvatarLocalPath = mGeneratedLocalPath;
-                }
-
-                Glide.with(mContext)
-                        .load(mNewAvatarLocalPath)
-                        .into(mAvatarImg);
-                mAvatarErrorTv.setError(null);
+            if (dataImageUri != null) {
+                // If an Uri is found in getData(), we need to get the real file path
+                // from gallery, because imageUri is a "content://..." Uri
+                mNewAvatarLocalPath = getRealPathFromURI(mContext, dataImageUri);
+            } else {
+                // If no Uri is found in getData(), camera was used and we point to the generated file path
+                mNewAvatarLocalPath = mGeneratedLocalPath;
             }
+
+            mAvatarImg.setBackground(null);
+            Glide.with(mContext)
+                    .load(mNewAvatarLocalPath)
+                    .into(mAvatarImg);
+            mAvatarErrorTv.setError(null);
         }
     }
 
