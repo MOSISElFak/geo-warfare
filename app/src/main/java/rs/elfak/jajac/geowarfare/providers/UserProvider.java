@@ -88,10 +88,14 @@ public class UserProvider {
 
     public Task<Void> removeFriendship(String firstUserId, String secondUserId) {
         Map<String, Object> updates = new HashMap<>();
-        updates.put(getUserFriendPath(firstUserId, secondUserId), false);
-        updates.put(getUserFriendPath(secondUserId, firstUserId), false);
+        updates.put(getUserFriendPath(firstUserId, secondUserId), null);
+        updates.put(getUserFriendPath(secondUserId, firstUserId), null);
 
         return mUsersDatabase.updateChildren(updates);
+    }
+
+    public DatabaseReference getFriendRequestsForUser(String userId) {
+        return mUsersDatabase.child(userId).child("friendRequests");
     }
 
     private String getUserFriendPath(String userId, String friendUserId) {

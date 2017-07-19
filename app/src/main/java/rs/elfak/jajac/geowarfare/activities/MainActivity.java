@@ -15,11 +15,15 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.fragments.EditUserInfoFragment;
 import rs.elfak.jajac.geowarfare.fragments.MapFragment;
 import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
+import rs.elfak.jajac.geowarfare.providers.UserProvider;
 
 public class MainActivity extends AppCompatActivity implements
         FragmentManager.OnBackStackChangedListener,
@@ -102,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements
         View friendRequestsView = menu.findItem(R.id.action_friend_requests_item).getActionView();
         mFriendRequestsCountTv = (TextView) friendRequestsView.findViewById(R.id.friend_requests_count_tv);
         updateFriendRequestsCount(mFriendRequestsCount);
+        listenForFriendRequests();
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -121,6 +126,22 @@ public class MainActivity extends AppCompatActivity implements
 
         // If none of the 'case' statements return true, we return false to let a specific fragment handle the option
         return false;
+    }
+
+    private void listenForFriendRequests() {
+        UserProvider userProvider = UserProvider.getInstance();
+        userProvider.getFriendRequestsForUser(mUser.getUid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mFriendRequestsCount = (int) dataSnapshot.getChildrenCount();
+                updateFriendRequestsCount(mFriendRequestsCount);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void updateFriendRequestsCount(final int newCount) {
