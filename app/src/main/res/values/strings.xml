@@ -64,5 +64,6 @@
     <string name="profile_friend_request_button_unfriend">Unfriend</string>
     <string name="profile_friend_request_button_add">Add friend</string>
     <string name="profile_friend_request_button_cancel">Cancel request</string>
+    <string name="profile_friend_request_button_accept">Accept request</string>
 
 </resources>

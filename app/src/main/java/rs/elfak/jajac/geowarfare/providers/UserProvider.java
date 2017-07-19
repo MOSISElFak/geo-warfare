@@ -63,4 +63,16 @@ public class UserProvider {
         return mUsersDatabase.child(userId).updateChildren(newUserValues);
     }
 
+    public DatabaseReference getReceivedFriendRequests(String toUserId) {
+        return mUsersDatabase.child(toUserId).child("friendRequests");
+    }
+
+    public Task<Void> sendFriendRequest(String fromUserId, String toUserId) {
+        return mUsersDatabase.child(toUserId).child("friendRequests").child(fromUserId).setValue(true);
+    }
+
+    public Task<Void> removeFriendRequest(String fromUserId, String toUserId) {
+        return mUsersDatabase.child(toUserId).child("friendRequests").child(fromUserId).removeValue();
+    }
+
 }

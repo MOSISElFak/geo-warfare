@@ -23,7 +23,7 @@ public class UserModel {
     public String phone;
     public String avatarUrl;
     public Map<String, Boolean> friends = new HashMap<>();
-    public Map<String, Boolean> receivedFriendRequests = new HashMap<>();
+    public Map<String, Boolean> friendRequests = new HashMap<>();
 
     public UserModel() {
         // Default constructor required for calls to DataSnapshot.getValue(UserModel.class)

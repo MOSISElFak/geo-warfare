@@ -19,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -34,7 +35,8 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
     private static final int STATUS_MYSELF = 0;
     private static final int STATUS_NOT_FRIEND = 1;
     private static final int STATUS_REQUEST_SENT = 2;
-    private static final int STATUS_FRIEND = 3;
+    private static final int STATUS_REQUEST_RECEIVED = 3;
+    private static final int STATUS_FRIEND = 4;
 
     private static final String ARG_USER_ID = "user_id";
 
@@ -49,6 +51,7 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
     TextView mDisplayName;
     TextView mFullName;
     LinearLayout mFriendRequestGroup;
+    Button mFriendRequestBtn;
 
     private OnFragmentInteractionListener mListener;
 
@@ -132,14 +135,31 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
         } else {
             if (mUser.friends.containsKey(loggedUserId)) {
                 mStatus = STATUS_FRIEND;
-            } else if (mUser.receivedFriendRequests.containsKey(loggedUserId)) {
+                setupFriendRequestButton();
+            } else if (mUser.friendRequests.containsKey(loggedUserId)) {
                 mStatus = STATUS_REQUEST_SENT;
+                setupFriendRequestButton();
             } else {
-                mStatus = STATUS_NOT_FRIEND;
+                UserProvider userProvider = UserProvider.getInstance();
+                userProvider.getReceivedFriendRequests(loggedUserId)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.hasChild(mUserId)) {
+                                    mStatus = STATUS_REQUEST_RECEIVED;
+                                } else {
+                                    mStatus = STATUS_NOT_FRIEND;
+                                }
+                                setupFriendRequestButton();
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
             }
         }
-
-        setupFriendRequestButton();
     }
 
     private void setupFriendRequestButton() {
@@ -165,6 +185,16 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
                 Drawable cancelIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_cancel_24dp);
                 button.setCompoundDrawablesWithIntrinsicBounds(cancelIcon, null, null, null);
                 break;
+            case STATUS_REQUEST_RECEIVED:
+                button.setText(getString(R.string.profile_friend_request_button_accept));
+                button.getBackground().setColorFilter(
+                        ContextCompat.getColor(mContext, R.color.colorAccent),
+                        PorterDuff.Mode.MULTIPLY
+                );
+                button.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimaryDark));
+                Drawable acceptIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_check_circle_24dp);
+                button.setCompoundDrawablesWithIntrinsicBounds(acceptIcon, null, null, null);
+                break;
             case STATUS_NOT_FRIEND:
                 button.setText(getString(R.string.profile_friend_request_button_add));
                 button.getBackground().setColorFilter(
@@ -177,13 +207,54 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
                 break;
         }
 
+        button.setOnClickListener(this);
         button.setCompoundDrawablePadding(16);
         mFriendRequestGroup.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.profile_fragment_friend_request_btn:
+                String myUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                switch (mStatus) {
+                    case STATUS_FRIEND:
 
+                        break;
+                    case STATUS_REQUEST_SENT:
+                        removeFriendRequest(myUserId, mUserId);
+                        break;
+                    case STATUS_NOT_FRIEND:
+                        sendFriendRequest(myUserId, mUserId);
+                        break;
+                }
+                setupFriendRequestButton();
+                break;
+        }
+    }
+
+    private void sendFriendRequest(String fromUserId, String toUserId) {
+        UserProvider userProvider = UserProvider.getInstance();
+        userProvider.sendFriendRequest(fromUserId, mUserId)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        mStatus = STATUS_REQUEST_SENT;
+                        setupFriendRequestButton();
+                    }
+                });
+    }
+
+    private void removeFriendRequest(String fromUserId, String toUserId) {
+        UserProvider userProvider = UserProvider.getInstance();
+        userProvider.removeFriendRequest(fromUserId, mUserId)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        mStatus = STATUS_NOT_FRIEND;
+                        setupFriendRequestButton();
+                    }
+                });
     }
 
     public void onAddFriendClick() {
