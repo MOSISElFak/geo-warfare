@@ -95,6 +95,9 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
         mDisplayName = (TextView) inflatedView.findViewById(R.id.profile_fragment_display_name);
         mFullName = (TextView) inflatedView.findViewById(R.id.profile_fragment_full_name);
         mFriendRequestGroup = (LinearLayout) inflatedView.findViewById(R.id.profile_fragment_friend_request_group);
+        mFriendRequestBtn = (Button) inflatedView.findViewById(R.id.profile_fragment_friend_request_btn);
+        mFriendRequestBtn.setCompoundDrawablePadding(16);
+        mFriendRequestBtn.setOnClickListener(this);
 
         getUserDataAndSetupUI(mUserId);
 
@@ -161,52 +164,48 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
     }
 
     private void setupFriendRequestButton() {
-        Button button = (Button) mFriendRequestGroup.findViewById(R.id.profile_fragment_friend_request_btn);
         switch (mStatus) {
             case STATUS_FRIEND:
-                button.setText(getString(R.string.profile_friend_request_button_unfriend));
-                button.getBackground().setColorFilter(
+                mFriendRequestBtn.setText(getString(R.string.profile_friend_request_button_unfriend));
+                mFriendRequestBtn.getBackground().setColorFilter(
                         ContextCompat.getColor(mContext, R.color.colorPrimaryLight),
                         PorterDuff.Mode.MULTIPLY
                 );
-                button.setTextColor(ContextCompat.getColor(mContext, android.R.color.white));
+                mFriendRequestBtn.setTextColor(ContextCompat.getColor(mContext, android.R.color.white));
                 Drawable removeIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_remove_circle_24dp);
-                button.setCompoundDrawablesWithIntrinsicBounds(removeIcon, null, null, null);
+                mFriendRequestBtn.setCompoundDrawablesWithIntrinsicBounds(removeIcon, null, null, null);
                 break;
             case STATUS_REQUEST_SENT:
-                button.setText(getString(R.string.profile_friend_request_button_cancel));
-                button.getBackground().setColorFilter(
+                mFriendRequestBtn.setText(getString(R.string.profile_friend_request_button_cancel));
+                mFriendRequestBtn.getBackground().setColorFilter(
                         ContextCompat.getColor(mContext, R.color.colorPrimaryLight),
                         PorterDuff.Mode.MULTIPLY
                 );
-                button.setTextColor(ContextCompat.getColor(mContext, android.R.color.white));
+                mFriendRequestBtn.setTextColor(ContextCompat.getColor(mContext, android.R.color.white));
                 Drawable cancelIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_cancel_24dp);
-                button.setCompoundDrawablesWithIntrinsicBounds(cancelIcon, null, null, null);
+                mFriendRequestBtn.setCompoundDrawablesWithIntrinsicBounds(cancelIcon, null, null, null);
                 break;
             case STATUS_REQUEST_RECEIVED:
-                button.setText(getString(R.string.profile_friend_request_button_accept));
-                button.getBackground().setColorFilter(
+                mFriendRequestBtn.setText(getString(R.string.profile_friend_request_button_accept));
+                mFriendRequestBtn.getBackground().setColorFilter(
                         ContextCompat.getColor(mContext, R.color.colorAccent),
                         PorterDuff.Mode.MULTIPLY
                 );
-                button.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimaryDark));
+                mFriendRequestBtn.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimaryDark));
                 Drawable acceptIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_check_circle_24dp);
-                button.setCompoundDrawablesWithIntrinsicBounds(acceptIcon, null, null, null);
+                mFriendRequestBtn.setCompoundDrawablesWithIntrinsicBounds(acceptIcon, null, null, null);
                 break;
             case STATUS_NOT_FRIEND:
-                button.setText(getString(R.string.profile_friend_request_button_add));
-                button.getBackground().setColorFilter(
+                mFriendRequestBtn.setText(getString(R.string.profile_friend_request_button_add));
+                mFriendRequestBtn.getBackground().setColorFilter(
                         ContextCompat.getColor(mContext, R.color.colorAccent),
                         PorterDuff.Mode.MULTIPLY
                 );
-                button.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimaryDark));
+                mFriendRequestBtn.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimaryDark));
                 Drawable addIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_person_add_24dp);
-                button.setCompoundDrawablesWithIntrinsicBounds(addIcon, null, null, null);
+                mFriendRequestBtn.setCompoundDrawablesWithIntrinsicBounds(addIcon, null, null, null);
                 break;
         }
-
-        button.setOnClickListener(this);
-        button.setCompoundDrawablePadding(16);
         mFriendRequestGroup.setVisibility(View.VISIBLE);
     }
 

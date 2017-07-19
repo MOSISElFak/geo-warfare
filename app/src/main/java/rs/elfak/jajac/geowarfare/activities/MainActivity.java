@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -24,7 +25,7 @@ import rs.elfak.jajac.geowarfare.fragments.EditUserInfoFragment;
 import rs.elfak.jajac.geowarfare.fragments.FriendsFragment;
 import rs.elfak.jajac.geowarfare.fragments.MapFragment;
 import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
-import rs.elfak.jajac.geowarfare.models.FriendRequestModel;
+import rs.elfak.jajac.geowarfare.models.FriendModel;
 import rs.elfak.jajac.geowarfare.providers.UserProvider;
 
 public class MainActivity extends AppCompatActivity implements
@@ -107,9 +108,9 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.action_bar_main_menu, menu);
 
-        View friendRequestsView = menu.findItem(R.id.action_friend_requests_item).getActionView();
-        friendRequestsView.setOnClickListener(this);
-        mFriendRequestsCountTv = (TextView) friendRequestsView.findViewById(R.id.friend_requests_count_tv);
+        View friendsItemView = menu.findItem(R.id.action_friends_item).getActionView();
+        friendsItemView.setOnClickListener(this);
+        mFriendRequestsCountTv = (TextView) friendsItemView.findViewById(R.id.friend_requests_count_tv);
         updateFriendRequestsCount(mFriendRequestsCount);
         listenForFriendRequests();
 
@@ -136,21 +137,54 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.action_friend_requests_item:
+            case R.id.action_friends_item:
                 onOpenFriends();
                 break;
         }
     }
 
     @Override
-    public void onFriendItemClick(FriendRequestModel item) {
+    public void onFriendItemClick(FriendModel friendItem) {
+        onOpenUserProfile(friendItem.id);
+    }
 
+    @Override
+    public void onFriendRequestAccept(final FriendModel item) {
+        UserProvider userProvider = UserProvider.getInstance();
+        userProvider.addFriendship(mUser.getUid(), item.id)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        FriendsFragment friendsFragment = (FriendsFragment) mFragmentManager
+                                .findFragmentByTag(FriendsFragment.FRAGMENT_TAG);
+                        if (friendsFragment != null) {
+                            friendsFragment.removeFriendRequest(item);
+                            friendsFragment.addFriend(item);
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onFriendRequestDecline(final FriendModel item) {
+        UserProvider userProvider = UserProvider.getInstance();
+        userProvider.removeFriendRequest(item.id, mUser.getUid())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        FriendsFragment friendsFragment = (FriendsFragment) mFragmentManager
+                                .findFragmentByTag(FriendsFragment.FRAGMENT_TAG);
+                        if (friendsFragment != null) {
+                            friendsFragment.removeFriendRequest(item);
+                        }
+                    }
+                });
     }
 
     private void onOpenFriends() {
         mFragmentManager
                 .beginTransaction()
-                .replace(R.id.main_fragment_container, FriendsFragment.newInstance())
+                .replace(R.id.main_fragment_container, FriendsFragment.newInstance(), FriendsFragment.FRAGMENT_TAG)
                 .addToBackStack(null)
                 .commit();
     }

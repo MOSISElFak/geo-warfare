@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingRight="16dp">
+    android:paddingRight="16dp"
+    android:background="?android:attr/selectableItemBackground">
 
     <ImageView
         android:id="@+id/friend_request_item_avatar_img"
@@ -52,7 +53,8 @@
         app:layout_constraintHorizontal_chainStyle="spread"
         android:text="Accept"
         android:drawableLeft="@drawable/ic_check_circle_24dp"
-        android:theme="@style/AccentButton"/>
+        android:theme="@style/AccentButton"
+        android:visibility="invisible"/>
 
     <Button
         android:id="@+id/friend_request_item_decline_btn"
@@ -63,7 +65,8 @@
         app:layout_constraintLeft_toRightOf="@+id/friend_request_item_accept_btn"
         app:layout_constraintRight_toRightOf="parent"
         android:text="Decline"
-        android:theme="@style/PrimaryLightButton"/>
+        android:theme="@style/PrimaryLightButton"
+        android:visibility="invisible"/>
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline"

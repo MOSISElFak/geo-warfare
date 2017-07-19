@@ -7,7 +7,7 @@
         android:orderInCategory="2">
 
         <item
-            android:id="@+id/action_friend_requests_item"
+            android:id="@+id/action_friends_item"
             app:showAsAction="ifRoom"
             android:title="Friend Requests"
             app:actionLayout="@layout/action_badge_button"
