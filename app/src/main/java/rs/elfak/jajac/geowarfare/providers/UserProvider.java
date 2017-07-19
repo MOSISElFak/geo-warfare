@@ -16,6 +16,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.models.UserModel;
@@ -73,6 +74,32 @@ public class UserProvider {
 
     public Task<Void> removeFriendRequest(String fromUserId, String toUserId) {
         return mUsersDatabase.child(toUserId).child("friendRequests").child(fromUserId).removeValue();
+    }
+
+    public Task<Void> addFriendship(String firstUserId, String secondUserId) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(getUserFriendRequestPath(firstUserId, secondUserId), null);
+        updates.put(getUserFriendRequestPath(secondUserId, firstUserId), null);
+        updates.put(getUserFriendPath(firstUserId, secondUserId), true);
+        updates.put(getUserFriendPath(secondUserId, firstUserId), true);
+
+        return mUsersDatabase.updateChildren(updates);
+    }
+
+    public Task<Void> removeFriendship(String firstUserId, String secondUserId) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(getUserFriendPath(firstUserId, secondUserId), false);
+        updates.put(getUserFriendPath(secondUserId, firstUserId), false);
+
+        return mUsersDatabase.updateChildren(updates);
+    }
+
+    private String getUserFriendPath(String userId, String friendUserId) {
+        return "/" + userId + "/friends/" + friendUserId;
+    }
+
+    private String getUserFriendRequestPath(String fromUserId, String toUserId) {
+        return "/" + toUserId + "/friendRequests/" + fromUserId;
     }
 
 }

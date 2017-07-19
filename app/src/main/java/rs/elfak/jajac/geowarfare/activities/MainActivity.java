@@ -46,8 +46,10 @@ public class MainActivity extends AppCompatActivity implements
         mUser = FirebaseAuth.getInstance().getCurrentUser();
 
         mFragmentManager = getSupportFragmentManager();
-        // Display map as the initial fragment
-        onOpenMap();
+        // Display map as the initial fragment if nothing is on the stack yet
+        if (mFragmentManager.getBackStackEntryCount() < 1) {
+            onOpenMap();
+        }
 
         // Monitor the backstack in order to show/hide the back button
         mFragmentManager.addOnBackStackChangedListener(this);

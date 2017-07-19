@@ -128,16 +128,12 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
     }
 
     private void checkStatusAndSetupFriendRequestButton() {
-        String loggedUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        final String loggedUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (loggedUserId.equals(mUserId)) {
             mStatus = STATUS_MYSELF;
-            return;
         } else {
             if (mUser.friends.containsKey(loggedUserId)) {
                 mStatus = STATUS_FRIEND;
-                setupFriendRequestButton();
-            } else if (mUser.friendRequests.containsKey(loggedUserId)) {
-                mStatus = STATUS_REQUEST_SENT;
                 setupFriendRequestButton();
             } else {
                 UserProvider userProvider = UserProvider.getInstance();
@@ -147,6 +143,8 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if (dataSnapshot.hasChild(mUserId)) {
                                     mStatus = STATUS_REQUEST_RECEIVED;
+                                } else if (mUser.friendRequests.containsKey(loggedUserId)) {
+                                    mStatus = STATUS_REQUEST_SENT;
                                 } else {
                                     mStatus = STATUS_NOT_FRIEND;
                                 }
@@ -219,16 +217,18 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
                 String myUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
                 switch (mStatus) {
                     case STATUS_FRIEND:
-
+                        removeFriendship(myUserId, mUserId);
                         break;
                     case STATUS_REQUEST_SENT:
                         removeFriendRequest(myUserId, mUserId);
+                        break;
+                    case STATUS_REQUEST_RECEIVED:
+                        acceptFriendRequest(mUserId, myUserId);
                         break;
                     case STATUS_NOT_FRIEND:
                         sendFriendRequest(myUserId, mUserId);
                         break;
                 }
-                setupFriendRequestButton();
                 break;
         }
     }
@@ -248,6 +248,30 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
     private void removeFriendRequest(String fromUserId, String toUserId) {
         UserProvider userProvider = UserProvider.getInstance();
         userProvider.removeFriendRequest(fromUserId, mUserId)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        mStatus = STATUS_NOT_FRIEND;
+                        setupFriendRequestButton();
+                    }
+                });
+    }
+
+    private void acceptFriendRequest(String fromUserId, String toUserId) {
+        UserProvider userProvider = UserProvider.getInstance();
+        userProvider.addFriendship(fromUserId, toUserId)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        mStatus = STATUS_FRIEND;
+                        setupFriendRequestButton();
+                    }
+                });
+    }
+
+    private void removeFriendship(String firstUserId, String secondUserId) {
+        UserProvider userProvider = UserProvider.getInstance();
+        userProvider.removeFriendship(firstUserId, secondUserId)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

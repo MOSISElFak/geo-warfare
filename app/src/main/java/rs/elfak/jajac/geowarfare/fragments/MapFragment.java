@@ -86,6 +86,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     private static final int REQUEST_LOCATION_PERMISSION = 1;
 
+    private Context mContext;
+
     private FirebaseUser mUser;
 
     private GoogleMap mGoogleMap;
@@ -387,26 +389,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                 mMarkerListeners.put(marker, mUserMarkerListener);
 
                 // Load the user avatar and make the marker visible when the picture is in place
-                Glide.with(MapFragment.this)
-                        .load(user.avatarUrl)
-                        .asBitmap()
-                        .listener(new RequestListener<String, Bitmap>() {
-                            @Override
-                            public boolean onException(Exception e, String model, Target<Bitmap> target,
-                                                       boolean isFirstResource) {
-                                return false;
-                            }
+                if (mContext != null) {
+                    Glide.with(mContext)
+                            .load(user.avatarUrl)
+                            .asBitmap()
+                            .listener(new RequestListener<String, Bitmap>() {
+                                @Override
+                                public boolean onException(Exception e, String model, Target<Bitmap> target,
+                                                           boolean isFirstResource) {
+                                    return false;
+                                }
 
-                            @Override
-                            public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap>
-                                    target, boolean isFromMemoryCache, boolean isFirstResource) {
-                                Bitmap smallAvatar = Bitmap.createScaledBitmap(resource, 75, 75, false);
-                                marker.setIcon(BitmapDescriptorFactory.fromBitmap(smallAvatar));
-                                marker.setVisible(true);
-                                return true;
-                            }
-                        })
-                        .preload();
+                                @Override
+                                public boolean onResourceReady(Bitmap resource, String model, Target<Bitmap>
+                                        target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                    Bitmap smallAvatar = Bitmap.createScaledBitmap(resource, 75, 75, false);
+                                    marker.setIcon(BitmapDescriptorFactory.fromBitmap(smallAvatar));
+                                    marker.setVisible(true);
+                                    return true;
+                                }
+                            })
+                            .preload();
+                }
             }
 
             @Override
@@ -464,8 +468,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     public void onPause() {
         super.onPause();
         mMapView.onPause();
-
-        stopLocationUpdates();
     }
 
     @Override
@@ -474,6 +476,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         mMapView.onStop();
 
         getActivity().findViewById(R.id.toolbar_filter_spinner).setVisibility(View.INVISIBLE);
+
+        stopLocationUpdates();
+        mUsersGeoQuery.removeAllListeners();
     }
 
     private void stopLocationUpdates() {
@@ -489,12 +494,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+
+        mContext = context;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        mContext = null;
     }
 
     @Override
