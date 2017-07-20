@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
+import rs.elfak.jajac.geowarfare.BackgroundLocationService;
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.utils.Validator;
 

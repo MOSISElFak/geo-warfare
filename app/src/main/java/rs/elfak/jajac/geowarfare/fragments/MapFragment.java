@@ -65,6 +65,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import rs.elfak.jajac.geowarfare.BackgroundLocationService;
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.UserProvider;
@@ -123,7 +124,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
 
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(5000);
-        mLocationRequest.setFastestInterval(3000);
+        mLocationRequest.setFastestInterval(1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         mLocationCallback = new LocationCallback() {
@@ -290,6 +291,10 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         try {
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
             mGoogleMap.setMyLocationEnabled(true);
+
+
+            Intent i = new Intent(mContext, BackgroundLocationService.class);
+            mContext.startService(i);
         } catch (SecurityException e) {
             // We're not handling the exception here because this won't be called without permission anyway.
             e.printStackTrace();
@@ -312,15 +317,17 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
 
             @Override
             public void onKeyExited(String key) {
-                Marker marker = mMarkers.get(key);
-                mMarkers.remove(key);
-                mMarkerListeners.remove(marker);
-                marker.remove();
+                if (mGoogleMap != null && !key.equals(mUser.getUid())) {
+                    Marker marker = mMarkers.get(key);
+                    mMarkers.remove(key);
+                    mMarkerListeners.remove(marker);
+                    marker.remove();
+                }
             }
 
             @Override
             public void onKeyMoved(String key, GeoLocation location) {
-                if (!key.equals(mUser.getUid())) {
+                if (mGoogleMap != null && !key.equals(mUser.getUid())) {
                     Marker marker = mMarkers.get(key);
                     marker.setPosition(new LatLng(location.latitude, location.longitude));
                 }
