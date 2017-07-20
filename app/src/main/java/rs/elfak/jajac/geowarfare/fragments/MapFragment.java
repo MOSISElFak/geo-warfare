@@ -109,6 +109,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         setActionBarTitle(null);
+        getActivity().findViewById(R.id.toolbar_filter_spinner).setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -439,8 +440,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     @Override
     public void onStart() {
         super.onStart();
-
-        getActivity().findViewById(R.id.toolbar_filter_spinner).setVisibility(View.VISIBLE);
+        mMapView.onStart();
     }
 
     @Override
@@ -461,8 +461,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     public void onStop() {
         super.onStop();
         mMapView.onStop();
-
-        getActivity().findViewById(R.id.toolbar_filter_spinner).setVisibility(View.INVISIBLE);
 
         stopLocationUpdates();
 

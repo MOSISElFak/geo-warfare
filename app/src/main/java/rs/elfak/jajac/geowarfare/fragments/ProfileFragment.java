@@ -69,6 +69,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         setActionBarTitle(null);
+        getActivity().findViewById(R.id.toolbar_filter_spinner).setVisibility(View.INVISIBLE);
     }
 
     @Override
