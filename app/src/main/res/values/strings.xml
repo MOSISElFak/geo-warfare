@@ -21,7 +21,7 @@
     <string name="login_wrong_password_error">Incorrect password.</string>
 
     <!-- EditUserInfoFragment -->
-    <string name="edit_user_info_title">Edit profile</string>
+    <string name="edit_user_info_title">Update your info</string>
     <string name="display_name_hint">Display name</string>
     <string name="full_name_hint">Full name</string>
     <string name="phone_number_hint">Phone number</string>

@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements
         mFilterSpinner.setAdapter(spinAdapter);
     }
 
+    // A public title setter so different fragments can set their own title
     public void setActionBarTitle(String newTitle) {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -254,11 +255,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onEditFinished() {
         mFragmentManager.popBackStack();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
     }
 
     @Override

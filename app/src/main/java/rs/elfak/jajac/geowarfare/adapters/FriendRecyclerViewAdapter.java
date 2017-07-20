@@ -1,4 +1,4 @@
-package rs.elfak.jajac.geowarfare.fragments;
+package rs.elfak.jajac.geowarfare.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;

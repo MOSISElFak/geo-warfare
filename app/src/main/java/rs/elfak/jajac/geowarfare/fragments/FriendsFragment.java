@@ -3,7 +3,6 @@ package rs.elfak.jajac.geowarfare.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
@@ -20,7 +19,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import rs.elfak.jajac.geowarfare.R;
-import rs.elfak.jajac.geowarfare.activities.MainActivity;
+import rs.elfak.jajac.geowarfare.adapters.FriendRecyclerViewAdapter;
 import rs.elfak.jajac.geowarfare.models.FriendModel;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.UserProvider;
@@ -29,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class FriendsFragment extends Fragment {
+public class FriendsFragment extends BaseFragment {
 
     public static final String FRAGMENT_TAG = "FriendsFragment";
 
@@ -66,7 +65,7 @@ public class FriendsFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ((MainActivity) getActivity()).setActionBarTitle(null);
+        setActionBarTitle(null);
     }
 
     @Override

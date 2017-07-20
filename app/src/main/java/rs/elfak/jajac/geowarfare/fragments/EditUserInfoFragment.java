@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -47,7 +48,7 @@ import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.UserProvider;
 import rs.elfak.jajac.geowarfare.utils.Validator;
 
-public class EditUserInfoFragment extends Fragment implements View.OnFocusChangeListener, View.OnClickListener {
+public class EditUserInfoFragment extends BaseFragment implements View.OnFocusChangeListener, View.OnClickListener {
 
     private static final int REQUEST_CHOOSE_IMAGE = 1;
     private static final int REQUEST_STORAGE_PERMISSION = 2;
@@ -103,11 +104,11 @@ public class EditUserInfoFragment extends Fragment implements View.OnFocusChange
         return fragment;
     }
 
-//    @Override
-//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-//        super.onActivityCreated(savedInstanceState);
-//        ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.edit_user_info_title));
-//    }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        setActionBarTitle(getString(R.string.edit_user_info_title));
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

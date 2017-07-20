@@ -30,7 +30,7 @@ import rs.elfak.jajac.geowarfare.activities.MainActivity;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.UserProvider;
 
-public class ProfileFragment extends DialogFragment implements View.OnClickListener {
+public class ProfileFragment extends BaseFragment implements View.OnClickListener {
 
     private static final int STATUS_MYSELF = 0;
     private static final int STATUS_NOT_FRIEND = 1;
@@ -68,7 +68,7 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ((MainActivity) getActivity()).setActionBarTitle(null);
+        setActionBarTitle(null);
     }
 
     @Override
