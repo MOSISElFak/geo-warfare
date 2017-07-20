@@ -87,6 +87,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     private double mRadius = 300;
     private Map<String, Marker> mMarkers = new HashMap<>();
     private Map<Marker, GoogleMap.OnMarkerClickListener> mMarkerListeners = new HashMap<>();
+    private Location mMyLocation;
 
     private GoogleMap.OnMarkerClickListener mUserMarkerListener;
 
@@ -211,6 +212,14 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
                 });
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CHECK_SETTINGS && resultCode == Activity.RESULT_OK) {
+            onLocationSettingsSatisfied();
+        }
+    }
+
     private void onLocationSettingsSatisfied() {
         // If all location settings are satisfied, we proceed to check/ask permission.
         checkLocationPermission();
@@ -260,14 +269,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CHECK_SETTINGS && resultCode == Activity.RESULT_OK) {
-            onLocationSettingsSatisfied();
-        }
-    }
-
-    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         switch (requestCode) {
@@ -286,36 +287,8 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     private void onLocationPermissionGranted() {
         // Get the latest location, center map on it, create and show circle and start receiving location updates
         try {
-            LocationServices.getFusedLocationProviderClient(getActivity()).getLastLocation()
-                    .addOnSuccessListener(new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            if (location != null) {
-                                LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
-                                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 16.0f));
-
-                                if (mCircle != null) {
-                                    mCircle.remove();
-                                }
-                                mCircle = mGoogleMap.addCircle(new CircleOptions()
-                                        .center(new LatLng(0.0, 0.0))
-                                        .radius(300)
-                                        .strokeWidth(10)
-                                        .strokeColor(Color.argb(80, 69, 90, 100))
-                                        .fillColor(Color.argb(40, 255, 171, 0))
-                                );
-
-                                // Start querying for nearby users
-                                GeoLocation geoLoc = new GeoLocation(location.getLatitude(), location.getLongitude());
-                                mUsersGeoQuery = mUsersGeoFire.queryAtLocation(geoLoc, mRadius / 1000);
-                                addUserGeoQueryEventListener();
-                            }
-                        }
-                    });
-
-            mGoogleMap.setMyLocationEnabled(true);
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
-
+            mGoogleMap.setMyLocationEnabled(true);
         } catch (SecurityException e) {
             // We're not handling the exception here because this won't be called without permission anyway.
             e.printStackTrace();
@@ -435,17 +408,32 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     private void onNewLocation(LocationResult locationResult) {
         Location loc = locationResult.getLastLocation();
         LatLng center = new LatLng(loc.getLatitude(), loc.getLongitude());
+        GeoLocation geoLoc = new GeoLocation(loc.getLatitude(), loc.getLongitude());
 
-        if (mCircle != null) {
+        // We need to setup some things only when we receive location for the first time,
+        // such as to move camera there, create the circle, starting querying the area...
+        if (mMyLocation == null) {
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 16.0f));
+
+            mCircle = mGoogleMap.addCircle(new CircleOptions()
+                    .center(new LatLng(loc.getLatitude(), loc.getLongitude()))
+                    .radius(mRadius)
+                    .strokeWidth(10)
+                    .strokeColor(Color.argb(80, 69, 90, 100))
+                    .fillColor(Color.argb(40, 255, 171, 0))
+            );
+
+            mUsersGeoQuery = mUsersGeoFire.queryAtLocation(geoLoc, mRadius / 1000);
+            addUserGeoQueryEventListener();
+        } else {
             mCircle.setCenter(center);
+            // Send our new location to the server
+            mUsersGeoFire.setLocation(mUser.getUid(), geoLoc);
+            // Update the center of the area we're querying for users
+            mUsersGeoQuery.setCenter(geoLoc);
         }
 
-        GeoLocation geoLoc = new GeoLocation(loc.getLatitude(), loc.getLongitude());
-        // Send our new location to the server
-        mUsersGeoFire.setLocation(mUser.getUid(), geoLoc);
-
-        // Update the center of the area we're querying for users
-        mUsersGeoQuery.setCenter(geoLoc);
+        mMyLocation = loc;
     }
 
     @Override
@@ -480,7 +468,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
 
         if (mUsersGeoQuery != null) {
             mUsersGeoQuery.removeAllListeners();
-            mUsersGeoQuery = null;
         }
     }
 

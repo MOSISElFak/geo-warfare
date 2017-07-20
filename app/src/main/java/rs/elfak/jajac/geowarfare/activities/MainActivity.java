@@ -262,7 +262,5 @@ public class MainActivity extends AppCompatActivity implements
         super.onDestroy();
         mFragmentManager = null;
         mUser = null;
-        mMyFriendRequestsDbRef.removeEventListener(mFriendRequestsListener);
-        mMyFriendRequestsDbRef = null;
     }
 }
