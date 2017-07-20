@@ -40,6 +40,10 @@ public class UserProvider {
         // private constructor required for singleton
     }
 
+    public FirebaseAuth getAuthInstance() {
+        return mAuth;
+    }
+
     public FirebaseUser getCurrentUser() {
         return mAuth.getCurrentUser();
     }

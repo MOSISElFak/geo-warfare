@@ -14,10 +14,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import rs.elfak.jajac.geowarfare.R;
@@ -31,19 +31,19 @@ import rs.elfak.jajac.geowarfare.providers.UserProvider;
 public class MainActivity extends AppCompatActivity implements
         View.OnClickListener,
         FragmentManager.OnBackStackChangedListener,
-        ProfileFragment.OnFragmentInteractionListener,
         EditUserInfoFragment.OnFragmentInteractionListener,
         MapFragment.OnFragmentInteractionListener,
         FriendsFragment.OnListFragmentInteractionListener {
 
     private int mFriendRequestsCount = 0;
+    private FirebaseUser mUser;
+    private FragmentManager mFragmentManager;
 
     Spinner mFilterSpinner;
     TextView mFriendRequestsCountTv;
 
-    private FirebaseUser mUser;
-
-    private FragmentManager mFragmentManager;
+    DatabaseReference mMyFriendRequestsDbRef;
+    ValueEventListener mFriendRequestsListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,14 +52,15 @@ public class MainActivity extends AppCompatActivity implements
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mUser = FirebaseAuth.getInstance().getCurrentUser();
+        UserProvider userProvider = UserProvider.getInstance();
+        mUser = userProvider.getCurrentUser();
+        mMyFriendRequestsDbRef = userProvider.getFriendRequestsForUser(mUser.getUid());
 
         mFragmentManager = getSupportFragmentManager();
         // Display map as the initial fragment if nothing is on the stack yet
         if (mFragmentManager.getBackStackEntryCount() < 1) {
             onOpenMap();
         }
-
         // Monitor the backstack in order to show/hide the back button
         mFragmentManager.addOnBackStackChangedListener(this);
         shouldDisplayHomeUp();
@@ -77,11 +78,13 @@ public class MainActivity extends AppCompatActivity implements
 
     public void setActionBarTitle(String newTitle) {
         ActionBar actionBar = getSupportActionBar();
-        if (newTitle != null) {
-            actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setTitle(newTitle);
-        } else {
-            actionBar.setDisplayShowTitleEnabled(false);
+        if (actionBar != null) {
+            if (newTitle != null) {
+                actionBar.setDisplayShowTitleEnabled(true);
+                actionBar.setTitle(newTitle);
+            } else {
+                actionBar.setDisplayShowTitleEnabled(false);
+            }
         }
     }
 
@@ -92,7 +95,9 @@ public class MainActivity extends AppCompatActivity implements
 
     private void shouldDisplayHomeUp() {
         boolean canBack = mFragmentManager.getBackStackEntryCount() > 0;
-        getSupportActionBar().setDisplayHomeAsUpEnabled(canBack);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(canBack);
+        }
     }
 
     /**
@@ -109,9 +114,13 @@ public class MainActivity extends AppCompatActivity implements
         getMenuInflater().inflate(R.menu.action_bar_main_menu, menu);
 
         View friendsItemView = menu.findItem(R.id.action_friends_item).getActionView();
+        // We need to manually set the click listener for our custom options item
+        // because we have used the "actionLayout" parameter in the xml
         friendsItemView.setOnClickListener(this);
         mFriendRequestsCountTv = (TextView) friendsItemView.findViewById(R.id.friend_requests_count_tv);
         updateFriendRequestsCount(mFriendRequestsCount);
+
+        // This will set up a listener for incoming friend requests if one isn't already attached
         listenForFriendRequests();
 
         return super.onCreateOptionsMenu(menu);
@@ -124,9 +133,10 @@ public class MainActivity extends AppCompatActivity implements
                 onOpenUserProfile(mUser.getUid());
                 return true;
             case R.id.action_bar_logout_item:
-                FirebaseAuth.getInstance().signOut();
+                UserProvider.getInstance().getAuthInstance().signOut();
                 Intent i = new Intent(MainActivity.this, LauncherActivity.class);
                 startActivity(i);
+                finish();
                 return true;
         }
 
@@ -149,33 +159,33 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onFriendRequestAccept(final FriendModel item) {
+    public void onFriendRequestAccept(final FriendModel friend) {
         UserProvider userProvider = UserProvider.getInstance();
-        userProvider.addFriendship(mUser.getUid(), item.id)
+        userProvider.addFriendship(mUser.getUid(), friend.id)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         FriendsFragment friendsFragment = (FriendsFragment) mFragmentManager
                                 .findFragmentByTag(FriendsFragment.FRAGMENT_TAG);
                         if (friendsFragment != null) {
-                            friendsFragment.removeFriendRequest(item);
-                            friendsFragment.addFriend(item);
+                            friendsFragment.removeFriendRequest(friend);
+                            friendsFragment.addFriend(friend);
                         }
                     }
                 });
     }
 
     @Override
-    public void onFriendRequestDecline(final FriendModel item) {
+    public void onFriendRequestDecline(final FriendModel fromUser) {
         UserProvider userProvider = UserProvider.getInstance();
-        userProvider.removeFriendRequest(item.id, mUser.getUid())
+        userProvider.removeFriendRequest(fromUser.id, mUser.getUid())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         FriendsFragment friendsFragment = (FriendsFragment) mFragmentManager
                                 .findFragmentByTag(FriendsFragment.FRAGMENT_TAG);
                         if (friendsFragment != null) {
-                            friendsFragment.removeFriendRequest(item);
+                            friendsFragment.removeFriendRequest(fromUser);
                         }
                     }
                 });
@@ -190,19 +200,22 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void listenForFriendRequests() {
-        UserProvider userProvider = UserProvider.getInstance();
-        userProvider.getFriendRequestsForUser(mUser.getUid()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mFriendRequestsCount = (int) dataSnapshot.getChildrenCount();
-                updateFriendRequestsCount(mFriendRequestsCount);
-            }
+        if (mFriendRequestsListener == null) {
+            // Save the event listener in a variable so we can remove it in onDestroy
+            mFriendRequestsListener = mMyFriendRequestsDbRef
+                    .addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            mFriendRequestsCount = (int) dataSnapshot.getChildrenCount();
+                            updateFriendRequestsCount(mFriendRequestsCount);
+                        }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+                        }
+                    });
+        }
     }
 
     public void updateFriendRequestsCount(final int newCount) {
@@ -223,8 +236,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void onOpenMap() {
-        mFragmentManager.beginTransaction()
-                .replace(R.id.main_fragment_container, new MapFragment())
+        mFragmentManager
+                .beginTransaction()
+                .replace(R.id.main_fragment_container, new MapFragment(), MapFragment.FRAGMENT_TAG)
                 .commit();
     }
 
@@ -245,31 +259,14 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        setupUI(mUser);
     }
-
-    private void setupUI(FirebaseUser user) {
-
-    }
-
-    @Override
-    public void onAddFriend(String userId) {
-        // TODO: Send friend request to user with id = userId
-    }
-
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        // Since Activity catches result before Fragment does, we pass it along
-//        if (requestCode == MapFragment.REQUEST_CHECK_SETTINGS) {
-//            mMapFragment.onActivityResult(requestCode, resultCode, data);
-//        }
-//        super.onActivityResult(requestCode, resultCode, data);
-//    }
-
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mFragmentManager = null;
+        mUser = null;
+        mMyFriendRequestsDbRef.removeEventListener(mFriendRequestsListener);
+        mMyFriendRequestsDbRef = null;
     }
 }

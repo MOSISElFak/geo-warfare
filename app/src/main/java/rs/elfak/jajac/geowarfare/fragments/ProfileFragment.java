@@ -53,12 +53,6 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
     LinearLayout mFriendRequestGroup;
     Button mFriendRequestBtn;
 
-    private OnFragmentInteractionListener mListener;
-
-    public interface OnFragmentInteractionListener {
-        void onAddFriend(String userId);
-    }
-
     public ProfileFragment() {
         // Required empty public constructor
     }
@@ -280,21 +274,15 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
                 });
     }
 
-    public void onAddFriendClick() {
-        if (mListener != null) {
-            mListener.onAddFriend(mUser.id);
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+//        if (context instanceof OnFragmentInteractionListener) {
+//            mListener = (OnFragmentInteractionListener) context;
+//        } else {
+//            throw new RuntimeException(context.toString()
+//                    + " must implement OnFragmentInteractionListener");
+//        }
 
         mContext = context;
         setHasOptionsMenu(true);
@@ -343,7 +331,6 @@ public class ProfileFragment extends DialogFragment implements View.OnClickListe
     public void onDetach() {
         super.onDetach();
         mContext = null;
-        mListener = null;
     }
 
 }

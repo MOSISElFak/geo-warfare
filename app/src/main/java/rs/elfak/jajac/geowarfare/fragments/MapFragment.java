@@ -82,6 +82,8 @@ import rs.elfak.jajac.geowarfare.providers.UserProvider;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
+    public static final String FRAGMENT_TAG = "MapFragment";
+
     public static final int REQUEST_CHECK_SETTINGS = 1;
 
     private static final int REQUEST_LOCATION_PERMISSION = 1;
