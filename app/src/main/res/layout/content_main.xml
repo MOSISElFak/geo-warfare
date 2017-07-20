@@ -13,91 +13,70 @@
         android:id="@+id/main_fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/info_container">
+        android:layout_above="@+id/info_bar_container">
 
     </FrameLayout>
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/info_container"
+        android:id="@+id/info_bar_container"
         android:layout_width="match_parent"
-        android:layout_height="32dp"
-        android:padding="8dp"
+        android:layout_height="@dimen/info_bar_height"
+        android:padding="@dimen/info_bar_padding"
         android:layout_alignParentBottom="true"
         android:background="@color/colorPrimaryDark">
 
         <ImageView
             android:id="@+id/info_soldier_icon"
-            android:layout_width="@dimen/info_icon_size"
-            android:layout_height="@dimen/info_icon_size"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:tint="@color/colorAccent"
-            app:srcCompat="@drawable/ic_sword"/>
+            app:srcCompat="@drawable/ic_sword"
+            style="@style/InfoBarIcon"/>
 
         <TextView
             android:id="@+id/info_soldier_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/info_icon_text_margin"
+            android:layout_marginStart="@dimen/info_bar_icon_text_margin"
             app:layout_constraintLeft_toRightOf="@+id/info_soldier_icon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:textSize="@dimen/info_text_size"
-            android:textColor="@android:color/white"
-            android:minEms="1"
-            android:maxEms="4"
-            tools:text="123"/>
+            tools:text="450"
+            style="@style/InfoBarText"/>
 
         <ImageView
             android:id="@+id/info_archer_icon"
-            android:layout_width="@dimen/info_icon_size"
-            android:layout_height="@dimen/info_icon_size"
-            android:layout_marginLeft="24dp"
+            android:layout_marginStart="@dimen/info_bar_icon_left_margin"
             app:layout_constraintLeft_toRightOf="@+id/info_soldier_tv"
             app:layout_constraintTop_toTopOf="@+id/info_soldier_tv"
             app:layout_constraintBottom_toBottomOf="@+id/info_soldier_tv"
-            android:tint="@color/colorAccent"
-            app:srcCompat="@drawable/ic_bow_and_arrow"/>
+            app:srcCompat="@drawable/ic_bow_and_arrow"
+            style="@style/InfoBarIcon"/>
 
         <TextView
             android:id="@+id/info_archer_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/info_icon_text_margin"
+            android:layout_marginStart="@dimen/info_bar_icon_text_margin"
             app:layout_constraintLeft_toRightOf="@+id/info_archer_icon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:textSize="@dimen/info_text_size"
-            android:textColor="@android:color/white"
-            android:minEms="1"
-            android:maxEms="4"
-            tools:text="78"/>
+            tools:text="78"
+            style="@style/InfoBarText"/>
 
         <ImageView
             android:id="@+id/info_gold_icon"
-            android:layout_width="@dimen/info_icon_size"
-            android:layout_height="@dimen/info_icon_size"
             app:layout_constraintTop_toTopOf="@+id/info_gold_tv"
             app:layout_constraintBottom_toBottomOf="@+id/info_gold_tv"
-            android:layout_marginRight="@dimen/info_icon_text_margin"
+            android:layout_marginEnd="@dimen/info_bar_icon_text_margin"
             app:layout_constraintRight_toLeftOf="@+id/info_gold_tv"
-            android:tint="@color/colorAccent"
-            app:srcCompat="@drawable/ic_money_bag"/>
+            app:srcCompat="@drawable/ic_money_bag"
+            style="@style/InfoBarIcon"/>
 
 
         <TextView
             android:id="@+id/info_gold_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:textSize="@dimen/info_text_size"
-            android:textColor="@android:color/white"
-            android:minEms="1"
-            android:maxEms="4"
-            tools:text="10700"/>
+            tools:text="1100"
+            style="@style/InfoBarText"/>
 
     </android.support.constraint.ConstraintLayout>
 
