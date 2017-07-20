@@ -86,7 +86,6 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
         void onEditFinished();
     }
 
-
     public EditUserInfoFragment() {
         // Required empty public constructor
     }
@@ -276,7 +275,7 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
     }
 
     /**
-     * If storage access id denied, we let the user take a picture with the camera
+     * If storage access is denied, we let the user take a picture with the camera
      */
     private void onStoragePermissionDenied() {
         Intent cameraIntent = getCameraIntent();
@@ -387,7 +386,8 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        menu.clear();
+        menu.setGroupVisible(R.id.main_menu_group, false);
+        menu.setGroupVisible(R.id.profile_menu_group, false);
         if (mShouldInjectOwnMenu) {
             inflater.inflate(R.menu.action_bar_edit_profile_menu, menu);
         }

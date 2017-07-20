@@ -10,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -18,16 +17,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestListener;
@@ -53,9 +47,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -64,7 +56,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -75,8 +66,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
-import rs.elfak.jajac.geowarfare.activities.LauncherActivity;
-import rs.elfak.jajac.geowarfare.activities.MainActivity;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.UserProvider;
 
@@ -84,12 +73,12 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
 
     public static final String FRAGMENT_TAG = "MapFragment";
 
-    public static final int REQUEST_CHECK_SETTINGS = 1;
-
-    private static final int REQUEST_LOCATION_PERMISSION = 1;
+    private static final int REQUEST_CHECK_SETTINGS = 1;
+    private static final int REQUEST_LOCATION_PERMISSION = 2;
 
     private Context mContext;
 
+    private UserProvider mUserProvider;
     private FirebaseUser mUser;
 
     private GoogleMap mGoogleMap;
@@ -108,7 +97,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     private GeoFire mUsersGeoFire;
     private GeoQuery mUsersGeoQuery;
 
-    private UserProvider mUserProvider;
 
     private OnFragmentInteractionListener mListener;
 
@@ -126,10 +114,10 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mUser = FirebaseAuth.getInstance().getCurrentUser();
         mUserProvider = UserProvider.getInstance();
+        mUser = mUserProvider.getCurrentUser();
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext);
 
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(5000);
@@ -160,14 +148,14 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
                              @Nullable Bundle savedInstanceState) {
         View inflatedView = inflater.inflate(R.layout.fragment_map, container, false);
 
-//        FloatingActionButton buildFab = (FloatingActionButton) inflatedView.findViewById(
-//                R.id.map_fragment_build_button);
-//        buildFab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                FirebaseAuth.getInstance().getCurrentUser().sendEmailVerification();
-//            }
-//        });
+        FloatingActionButton buildFab = (FloatingActionButton) inflatedView.findViewById(
+                R.id.map_fragment_build_button);
+        buildFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBuildClick();
+            }
+        });
 
         mMapView = (MapView) inflatedView.findViewById(R.id.map_fragment_map_view);
         mMapView.onCreate(savedInstanceState);
@@ -186,7 +174,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     }
 
     // Check if the user's location SETTINGS (not permissions) are satisfying for our LocationRequest
-    private void checkLocationSettings() {
+    private void checkLocationSettingsAndPermission() {
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(mLocationRequest);
 
@@ -251,14 +239,18 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
                             }
                         }).create().show();
             } else {
-                // User checked "never ask again", show explanation and switch to profile view
+                // User checked "never ask again", show explanation and switch to app settings
                 new AlertDialog.Builder(getActivity())
                         .setTitle(getString(R.string.location_permission_title))
                         .setMessage(getString(R.string.location_permission_message))
                         .setNeutralButton("Close", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                // TODO: redirect to profile view or to app settings activity
+                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                Uri uri = Uri.fromParts("package", mContext.getPackageName(), null);
+                                intent.setData(uri);
+                                startActivity(intent);
                             }
                         }).create().show();
             }
@@ -268,11 +260,19 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CHECK_SETTINGS && resultCode == Activity.RESULT_OK) {
+            onLocationSettingsSatisfied();
+        }
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_LOCATION_PERMISSION: {
-                // If request is granted, the result arrays won't be empty
+                // If request is granted, the results array won't be empty
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     onLocationPermissionGranted();
                 } else {
@@ -290,24 +290,26 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
                     .addOnSuccessListener(new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
-                            LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
-                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 16.0f));
+                            if (location != null) {
+                                LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
+                                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 16.0f));
 
-                            if (mCircle != null) {
-                                mCircle.remove();
+                                if (mCircle != null) {
+                                    mCircle.remove();
+                                }
+                                mCircle = mGoogleMap.addCircle(new CircleOptions()
+                                        .center(new LatLng(0.0, 0.0))
+                                        .radius(300)
+                                        .strokeWidth(10)
+                                        .strokeColor(Color.argb(80, 69, 90, 100))
+                                        .fillColor(Color.argb(40, 255, 171, 0))
+                                );
+
+                                // Start querying for nearby users
+                                GeoLocation geoLoc = new GeoLocation(location.getLatitude(), location.getLongitude());
+                                mUsersGeoQuery = mUsersGeoFire.queryAtLocation(geoLoc, mRadius / 1000);
+                                addUserGeoQueryEventListener();
                             }
-                            mCircle = mGoogleMap.addCircle(new CircleOptions()
-                                    .center(new LatLng(0.0, 0.0))
-                                    .radius(300)
-                                    .strokeWidth(10)
-                                    .strokeColor(Color.argb(80, 69, 90, 100))
-                                    .fillColor(Color.argb(40, 255, 171, 0))
-                            );
-
-                            // Start querying for nearby users
-                            GeoLocation geoLoc = new GeoLocation(location.getLatitude(), location.getLongitude());
-                            mUsersGeoQuery = mUsersGeoFire.queryAtLocation(geoLoc, mRadius / 1000);
-                            addUserGeoQueryEventListeners();
                         }
                     });
 
@@ -322,18 +324,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
 
     private void onLocationPermissionDenied() {
         // TODO: Handle the map somehow when the user denies location access
-        mCircle.setVisible(false);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CHECK_SETTINGS && resultCode == Activity.RESULT_OK) {
-            onLocationSettingsSatisfied();
-        }
-    }
-
-    private void addUserGeoQueryEventListeners() {
+    private void addUserGeoQueryEventListener() {
         mUsersGeoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
@@ -422,6 +415,10 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         });
     }
 
+    private void onBuildClick() {
+
+    }
+
     @Override
     public boolean onMarkerClick(Marker marker) {
         return mMarkerListeners.get(marker).onMarkerClick(marker);
@@ -463,7 +460,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         super.onResume();
         mMapView.onResume();
 
-        checkLocationSettings();
+        checkLocationSettingsAndPermission();
     }
 
     @Override
@@ -480,7 +477,11 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         getActivity().findViewById(R.id.toolbar_filter_spinner).setVisibility(View.INVISIBLE);
 
         stopLocationUpdates();
-        mUsersGeoQuery.removeAllListeners();
+
+        if (mUsersGeoQuery != null) {
+            mUsersGeoQuery.removeAllListeners();
+            mUsersGeoQuery = null;
+        }
     }
 
     private void stopLocationUpdates() {

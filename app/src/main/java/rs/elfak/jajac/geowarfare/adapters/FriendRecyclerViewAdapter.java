@@ -20,12 +20,12 @@ import java.util.List;
 public class FriendRecyclerViewAdapter extends
         RecyclerView.Adapter<FriendRecyclerViewAdapter.FriendViewHolder> {
 
-    private final List<FriendModel> mValues;
+    private final List<FriendModel> mItems;
     private final OnListFragmentInteractionListener mListener;
 
     public FriendRecyclerViewAdapter(List<FriendModel> items,
                                      OnListFragmentInteractionListener listener) {
-        mValues = items;
+        mItems = items;
         mListener = listener;
     }
 
@@ -38,7 +38,7 @@ public class FriendRecyclerViewAdapter extends
 
     @Override
     public void onBindViewHolder(final FriendViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
+        holder.mItem = mItems.get(position);
         holder.mFullName.setText(holder.mItem.fullName);
         holder.mDisplayName.setText(holder.mItem.displayName);
 
@@ -60,7 +60,7 @@ public class FriendRecyclerViewAdapter extends
 
     @Override
     public int getItemCount() {
-        return mValues.size();
+        return mItems.size();
     }
 
     public class FriendViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -94,7 +94,7 @@ public class FriendRecyclerViewAdapter extends
         @Override
         public void onClick(View v) {
             int viewId = v.getId();
-            FriendModel friendItem = mValues.get(getAdapterPosition());
+            FriendModel friendItem = mItems.get(getAdapterPosition());
 
             if (viewId == mItemView.getId()) {
                 mListener.onFriendItemClick(friendItem);
