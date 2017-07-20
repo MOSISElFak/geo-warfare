@@ -81,8 +81,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnFocusChan
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         progressDialog.dismiss();
                         if (task.isSuccessful()) {
-                            Intent profileIntent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(profileIntent);
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
                             finish();
                         } else {
                             try {

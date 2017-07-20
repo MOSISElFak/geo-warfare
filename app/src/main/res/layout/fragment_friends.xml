@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <android.support.v4.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -18,9 +17,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:textSize="20sp"
-            android:text="Friend requests"/>
+            android:layout_margin="@dimen/friends_title_margin"
+            android:textSize="@dimen/friends_title_text_size"
+            android:text="@string/friend_requests_title"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/fragment_friend_request_list"
@@ -48,9 +47,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:textSize="20sp"
-            android:text="Friends"/>
+            android:layout_margin="@dimen/friends_title_margin"
+            android:textSize="@dimen/friends_title_text_size"
+            android:text="@string/friends_title"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/fragment_friend_list"

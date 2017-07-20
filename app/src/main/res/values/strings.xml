@@ -67,7 +67,13 @@
     <string name="profile_friend_request_button_accept">Accept request</string>
 
     <!-- FriendsFragment -->
+    <string name="friend_requests_title">Friend requests</string>
+    <string name="friends_title">Friends</string>
     <string name="friend_requests_empty">You don\'t have any friend requests right now.</string>
     <string name="friends_empty">You have not made any friends yet.</string>
+
+    <!-- Friend/FriendRequest item -->
+    <string name="friend_item_accept_text">Accept</string>
+    <string name="friend_item_decline_text">Decline</string>
 
 </resources>
