@@ -62,7 +62,7 @@
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
-        <service android:name=".BackgroundLocationService" />
+        <service android:name=".services.BackgroundLocationService" />
 
     </application>
 

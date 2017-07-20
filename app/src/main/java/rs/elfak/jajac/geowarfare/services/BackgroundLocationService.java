@@ -1,20 +1,21 @@
-package rs.elfak.jajac.geowarfare;
+package rs.elfak.jajac.geowarfare.services;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.IntDef;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -32,19 +33,20 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import rs.elfak.jajac.geowarfare.Constants;
+import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.activities.MainActivity;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.UserProvider;
 
-import static com.google.android.gms.common.api.GoogleApiClient.*;
-
 public class BackgroundLocationService extends Service implements
-        ConnectionCallbacks,
-        OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
     public static final String TAG = BackgroundLocationService.class.getSimpleName();
 
+    private int mStartId;
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
 
@@ -74,6 +76,7 @@ public class BackgroundLocationService extends Service implements
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        mStartId = startId;
         mGoogleApiClient.connect();
         return super.onStartCommand(intent, flags, startId);
     }
@@ -93,13 +96,21 @@ public class BackgroundLocationService extends Service implements
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        try {
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-        } catch (SecurityException e) {
-            // We're not handling the exception here because we won't start the service
-            // if we don't have location permission from the user
-            e.printStackTrace();
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean serviceEnabled = sharedPref.getBoolean(Constants.SHARED_PREF_BACKGROUND_SERVICE, true);
+
+        // If the user disabled the service in settings, or we have no location permission, we stop the service
+        if (!serviceEnabled ||
+                (ActivityCompat.checkSelfPermission(this,
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this,
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+
+            // Just stop the service if there's no location permission
+            stopSelf(mStartId);
+            return;
         }
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
     @Override

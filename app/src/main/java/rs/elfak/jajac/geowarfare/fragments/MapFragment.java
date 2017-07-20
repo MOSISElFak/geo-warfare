@@ -65,7 +65,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
-import rs.elfak.jajac.geowarfare.BackgroundLocationService;
+import rs.elfak.jajac.geowarfare.services.BackgroundLocationService;
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.UserProvider;
