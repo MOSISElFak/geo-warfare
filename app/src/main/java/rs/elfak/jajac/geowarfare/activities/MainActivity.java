@@ -2,6 +2,7 @@ package rs.elfak.jajac.geowarfare.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -51,6 +52,10 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // Setup default shared preferences if they haven't been setup already
+        PreferenceManager.setDefaultValues(MainActivity.this,
+                R.xml.preferences, false);
 
         UserProvider userProvider = UserProvider.getInstance();
         mUser = userProvider.getCurrentUser();

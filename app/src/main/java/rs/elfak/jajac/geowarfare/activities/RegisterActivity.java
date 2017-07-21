@@ -134,10 +134,6 @@ public class RegisterActivity extends AppCompatActivity implements
                                             Map<String, Object> userInfoValues = newUser.toMap();
                                             userProvider.updateUserInfo(newUserId, userInfoValues);
 
-                                            // Setup default shared preferences
-                                            PreferenceManager.setDefaultValues(RegisterActivity.this,
-                                                    R.xml.preferences, false);
-
                                             progressDialog.dismiss();
                                             Intent profileIntent = new Intent(RegisterActivity.this,
                                                     MainActivity.class);

@@ -291,10 +291,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         try {
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
             mGoogleMap.setMyLocationEnabled(true);
-
-
-            Intent i = new Intent(mContext, BackgroundLocationService.class);
-            mContext.startService(i);
         } catch (SecurityException e) {
             // We're not handling the exception here because this won't be called without permission anyway.
             e.printStackTrace();
