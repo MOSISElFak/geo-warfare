@@ -3,6 +3,7 @@ package rs.elfak.jajac.geowarfare.activities;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -132,6 +133,10 @@ public class RegisterActivity extends AppCompatActivity implements
                                             UserModel newUser = getUserModel(newUserId, storageImageUri);
                                             Map<String, Object> userInfoValues = newUser.toMap();
                                             userProvider.updateUserInfo(newUserId, userInfoValues);
+
+                                            // Setup default shared preferences
+                                            PreferenceManager.setDefaultValues(RegisterActivity.this,
+                                                    R.xml.preferences, false);
 
                                             progressDialog.dismiss();
                                             Intent profileIntent = new Intent(RegisterActivity.this,

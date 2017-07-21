@@ -133,10 +133,14 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.action_bar_profile_item:
                 onOpenUserProfile(mUser.getUid());
                 return true;
+            case R.id.action_bar_settings_item:
+                Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
             case R.id.action_bar_logout_item:
                 UserProvider.getInstance().getAuthInstance().signOut();
-                Intent i = new Intent(MainActivity.this, LauncherActivity.class);
-                startActivity(i);
+                Intent logoutIntent = new Intent(MainActivity.this, LauncherActivity.class);
+                startActivity(logoutIntent);
                 finish();
                 return true;
         }

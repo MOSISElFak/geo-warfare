@@ -78,7 +78,10 @@ public class BackgroundLocationService extends Service implements
     public int onStartCommand(Intent intent, int flags, int startId) {
         mStartId = startId;
         mGoogleApiClient.connect();
-        return super.onStartCommand(intent, flags, startId);
+
+        // We want this service to restart if the system disabled it because of low
+        // memory at the very moment, so we return sticky.
+        return START_STICKY;
     }
 
     @Override
@@ -97,7 +100,7 @@ public class BackgroundLocationService extends Service implements
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean serviceEnabled = sharedPref.getBoolean(Constants.SHARED_PREF_BACKGROUND_SERVICE, true);
+        boolean serviceEnabled = sharedPref.getBoolean(getString(R.string.pref_background_service_key), true);
 
         // If the user disabled the service in settings, or we have no location permission, we stop the service
         if (!serviceEnabled ||

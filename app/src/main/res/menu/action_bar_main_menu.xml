@@ -19,6 +19,11 @@
             android:title="@string/action_bar_profile"/>
 
         <item
+            android:id="@+id/action_bar_settings_item"
+            app:showAsAction="never"
+            android:title="@string/action_bar_settings"/>
+
+        <item
             android:id="@+id/action_bar_about_item"
             app:showAsAction="never"
             android:title="@string/action_bar_about"/>
