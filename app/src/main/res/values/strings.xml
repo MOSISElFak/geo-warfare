@@ -88,4 +88,9 @@
     <string name="pref_background_service_summary">Tracks your location and notifies you of nearby users when the app
         is not running.</string>
 
+    <!-- BuildFragment -->
+    <string name="build_title">Build</string>
+    <string name="build_gold_mine_text">Gold mine</string>
+    <string name="build_barracks_text">Barracks</string>
+
 </resources>

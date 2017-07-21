@@ -393,7 +393,10 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     }
 
     private void onBuildClick() {
-
+        getFragmentManager().beginTransaction()
+                .replace(R.id.main_fragment_container, BuildFragment.newInstance(), BuildFragment.FRAGMENT_TAG)
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
