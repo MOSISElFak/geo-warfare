@@ -9,8 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="40dp"
-        android:background="@color/colorPrimaryDark"
-        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:background="@drawable/build_button_selector"
         android:tint="@android:color/white"
         android:scaleType="centerCrop"/>
 
@@ -31,7 +30,7 @@
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         android:paddingRight="8dp"
-        android:background="@color/colorPrimary"
+        android:background="@color/colorPrimaryDark"
         android:layout_gravity="bottom">
 
         <TextView
@@ -39,11 +38,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:textColor="@android:color/white"/>
+            android:textColor="@android:color/white"
+            android:textSize="14sp"/>
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:src="@drawable/ic_coin_stack"
             android:tint="@color/colorAccent"
             android:layout_alignParentEnd="true"/>

@@ -66,7 +66,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/info_gold_tv"
             android:layout_marginEnd="@dimen/info_bar_icon_text_margin"
             app:layout_constraintRight_toLeftOf="@+id/info_gold_tv"
-            app:srcCompat="@drawable/ic_money_bag"
+            app:srcCompat="@drawable/ic_coin_stack"
             style="@style/InfoBarIcon"/>
 
 
