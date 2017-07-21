@@ -1,10 +1,11 @@
-package rs.elfak.jajac.geowarfare.services;
+package rs.elfak.jajac.geowarfare.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
 import rs.elfak.jajac.geowarfare.App;
+import rs.elfak.jajac.geowarfare.services.BackgroundLocationService;
 
 public class BootCompletedReceiver extends BroadcastReceiver {
 

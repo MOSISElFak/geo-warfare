@@ -71,8 +71,8 @@ public class BackgroundLocationService extends Service implements
                 .build();
 
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(5000);
-        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(3000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         mUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -151,7 +151,7 @@ public class BackgroundLocationService extends Service implements
         GeoLocation geoLoc = new GeoLocation(loc.getLatitude(), loc.getLongitude());
 
         if (mMyLocation == null) {
-            mUsersGeoQuery = mUsersGeoFire.queryAtLocation(geoLoc, 0.050);
+            mUsersGeoQuery = mUsersGeoFire.queryAtLocation(geoLoc, 0.100);
             addUserGeoQueryEventListener();
         } else {
             mUsersGeoFire.setLocation(mUser.getUid(), geoLoc);

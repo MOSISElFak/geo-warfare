@@ -65,13 +65,13 @@
 
         <service android:name=".services.BackgroundLocationService"/>
 
-        <receiver android:name=".services.BootCompletedReceiver">
+        <receiver android:name=".receivers.BootCompletedReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".services.LocationProvidersChangedReceiver">
+        <receiver android:name=".receivers.LocationProvidersChangedReceiver">
             <intent-filter>
                 <action android:name="android.location.PROVIDERS_CHANGED"/>
             </intent-filter>

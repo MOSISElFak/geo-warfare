@@ -1,4 +1,4 @@
-package rs.elfak.jajac.geowarfare.services;
+package rs.elfak.jajac.geowarfare.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,6 +7,7 @@ import android.location.LocationManager;
 import android.util.Log;
 
 import rs.elfak.jajac.geowarfare.App;
+import rs.elfak.jajac.geowarfare.services.BackgroundLocationService;
 
 public class LocationProvidersChangedReceiver extends BroadcastReceiver {
 
