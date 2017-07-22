@@ -469,7 +469,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         mMapView.onStop();
 
         mMyLocation = null;
-        
+
         if (mCircle != null) {
             mCircle.remove();
             mCircle = null;

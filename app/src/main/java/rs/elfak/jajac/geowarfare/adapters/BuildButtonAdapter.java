@@ -11,8 +11,10 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 
 
 public class BuildButtonAdapter extends BaseAdapter {
@@ -26,8 +28,8 @@ public class BuildButtonAdapter extends BaseAdapter {
             R.string.build_gold_mine_text,
             R.string.build_barracks_text
     };
-    private Integer[] mCostId = {
-            500,
+    private int[] mCostId = {
+            GoldMineModel.COST,
             2000
     };
 
@@ -60,13 +62,20 @@ public class BuildButtonAdapter extends BaseAdapter {
             view.setTag(R.id.grid_item_cost_text, view.findViewById(R.id.grid_item_cost_text));
         }
 
-        ImageView picture = (ImageView) view.getTag(R.id.grid_item_image_btn);
+        ImageButton button = (ImageButton) view.getTag(R.id.grid_item_image_btn);
         TextView name = (TextView) view.getTag(R.id.grid_item_name_text);
         TextView cost = (TextView) view.getTag(R.id.grid_item_cost_text);
 
-        picture.setImageResource(mThumbId[position]);
+        button.setImageResource(mThumbId[position]);
         name.setText(mNameId[position]);
-        cost.setText(mCostId[position].toString());
+        cost.setText(Integer.toString(mCostId[position]));
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(mContext, "Build this shiat!", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         return view;
     }

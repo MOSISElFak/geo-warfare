@@ -477,7 +477,8 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
     }
 
     public String getAvatarFileName() {
-        return mDisplayNameEt.getText().toString().trim() + "_avatar.jpg";
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        return mDisplayNameEt.getText().toString().trim() + "_" + timeStamp + ".jpg";
     }
 
     @Override
