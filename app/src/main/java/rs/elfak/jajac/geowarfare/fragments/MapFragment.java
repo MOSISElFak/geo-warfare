@@ -468,6 +468,13 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         super.onStop();
         mMapView.onStop();
 
+        mMyLocation = null;
+        
+        if (mCircle != null) {
+            mCircle.remove();
+            mCircle = null;
+        }
+
         stopLocationUpdates();
 
         if (mUsersGeoQuery != null) {
