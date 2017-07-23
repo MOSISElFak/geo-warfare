@@ -15,6 +15,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.LocationCallback;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -267,6 +269,11 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void onOpenStructure(String structureId) {
+
+    }
+
+    @Override
     public void onEditFinished() {
         mFragmentManager.popBackStack();
     }
@@ -279,13 +286,32 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onBuildStructure(StructureType structureType) {
+    public void onBuildStructureClick(final StructureType structureType) {
+        UserProvider userProvider = UserProvider.getInstance();
+        // First we have to get the current user location
+        userProvider.getUsersGeoFire().getLocation(mUser.getUid(), new LocationCallback() {
+            @Override
+            public void onLocationResult(String key, GeoLocation location) {
+                buildStructure(structureType, location);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void buildStructure(StructureType structureType, GeoLocation location) {
+        UserProvider userProvider = UserProvider.getInstance();
+
         if (structureType == StructureType.GOLD_MINE) {
-            GoldMineModel newGoldMine = new GoldMineModel(structureType.getName(), mUser.getUid());
-            UserProvider.getInstance().addGoldMine(newGoldMine).addOnSuccessListener(new OnSuccessListener<Void>() {
+            GoldMineModel newGoldMine = new GoldMineModel(structureType.toString(), mUser.getUid());
+            userProvider.addGoldMine(newGoldMine, location).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     mFragmentManager.popBackStack();
+                    Toast.makeText(MainActivity.this, "New gold mine constructed.", Toast.LENGTH_SHORT).show();
                 }
             });
         }

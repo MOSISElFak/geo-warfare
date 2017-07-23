@@ -8,7 +8,9 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,6 +20,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,6 +51,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
@@ -59,15 +64,15 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import rs.elfak.jajac.geowarfare.models.StructureType;
-import rs.elfak.jajac.geowarfare.services.BackgroundLocationService;
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.models.GoldMineModel;
+import rs.elfak.jajac.geowarfare.models.StructureModel;
+import rs.elfak.jajac.geowarfare.models.StructureType;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.UserProvider;
 
@@ -92,19 +97,20 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     private Location mMyLocation;
 
     private GoogleMap.OnMarkerClickListener mUserMarkerListener;
+    private GoogleMap.OnMarkerClickListener mStructureMarkerListener;
 
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
 
-    private GeoFire mUsersGeoFire;
     private GeoQuery mUsersGeoQuery;
-
+    private GeoQuery mStructuresGeoQuery;
 
     private OnFragmentInteractionListener mListener;
 
     public interface OnFragmentInteractionListener {
         void onOpenUserProfile(String userId);
+        void onOpenStructure(String structureId);
     }
 
     @Override
@@ -135,12 +141,18 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
             }
         };
 
-        mUsersGeoFire = new GeoFire(FirebaseDatabase.getInstance().getReference().child("usersGeoFire"));
-
         mUserMarkerListener = new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 onUserMarkerClick(marker);
+                return true;
+            }
+        };
+
+        mStructureMarkerListener = new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                onStructureMarkerClick(marker);
                 return true;
             }
         };
@@ -342,6 +354,37 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         });
     }
 
+    private void addStructuresGeoQueryEventListener() {
+        mStructuresGeoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, GeoLocation location) {
+                if (mGoogleMap != null) {
+                    addStructureMarker(key, location);
+                }
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+
+            }
+        });
+    }
+
     private void addUserMarker(String userId, GeoLocation location) {
         // Create a (temporary) invisible marker
         MarkerOptions markerOptions = new MarkerOptions();
@@ -395,6 +438,61 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         });
     }
 
+    private void addStructureMarker(String structureId, GeoLocation location) {
+        // Create a (temporary) invisible marker
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(new LatLng(location.latitude, location.longitude));
+        markerOptions.visible(false);
+        markerOptions.anchor(0.5f, 0.5f);
+        final Marker marker = mGoogleMap.addMarker(markerOptions);
+
+        mUserProvider.getStructureById(structureId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Associate the structure data with the marker and add the marker to the HashMaps
+                StructureModel structure = dataSnapshot.getValue(StructureModel.class);
+                structure.id = dataSnapshot.getKey();
+
+                marker.setTag(structure);
+
+                mMarkers.put(structure.id, marker);
+                mMarkerListeners.put(marker, mStructureMarkerListener);
+
+                if (mContext != null) {
+                    int iconResourceId = getStructureIconId(StructureType.valueOf(structure.type));
+                    marker.setIcon(getBitmapFromVector(iconResourceId, ContextCompat.getColor(mContext,
+                            R.color.colorPrimaryDark)));
+                    marker.setVisible(true);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private int getStructureIconId(StructureType structureType) {
+        if (structureType == StructureType.GOLD_MINE) {
+            return R.drawable.ic_gold_cart;
+        } else if (structureType == StructureType.BARRACKS) {
+            return R.drawable.ic_barracks;
+        }
+
+        return 0;
+    }
+
+    private BitmapDescriptor getBitmapFromVector(int resourceId, int color) {
+        Drawable vectorDrawable = ResourcesCompat.getDrawable(getResources(), resourceId, null);
+        Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        DrawableCompat.setTint(vectorDrawable, color);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
     private void onBuildClick() {
         getFragmentManager().beginTransaction()
                 .replace(R.id.main_fragment_container, BuildFragment.newInstance(), BuildFragment.FRAGMENT_TAG)
@@ -415,10 +513,21 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
 
     }
 
+    private void onStructureMarkerClick(Marker marker) {
+        StructureModel structure = (StructureModel) marker.getTag();
+        if (mListener != null) {
+            mListener.onOpenStructure(structure.id);
+        }
+    }
+
     private void onNewLocation(LocationResult locationResult) {
         Location loc = locationResult.getLastLocation();
         LatLng center = new LatLng(loc.getLatitude(), loc.getLongitude());
         GeoLocation geoLoc = new GeoLocation(loc.getLatitude(), loc.getLongitude());
+
+        UserProvider userProvider = UserProvider.getInstance();
+        GeoFire usersGeoFire = userProvider.getUsersGeoFire();
+        GeoFire structuresGeoFire = userProvider.getStructuresGeoFire();
 
         // We need to setup some things only when we receive location for the first time,
         // such as to move camera there, create the circle, starting querying the area...
@@ -433,14 +542,17 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
                     .fillColor(Color.argb(40, 255, 171, 0))
             );
 
-            mUsersGeoQuery = mUsersGeoFire.queryAtLocation(geoLoc, mRadius / 1000);
+            mUsersGeoQuery = usersGeoFire.queryAtLocation(geoLoc, mRadius / 1000);
+            mStructuresGeoQuery = structuresGeoFire.queryAtLocation(geoLoc, mRadius / 1000);
             addUserGeoQueryEventListener();
+            addStructuresGeoQueryEventListener();
         } else {
             mCircle.setCenter(center);
             // Send our new location to the server
-            mUsersGeoFire.setLocation(mUser.getUid(), geoLoc);
+            usersGeoFire.setLocation(mUser.getUid(), geoLoc);
             // Update the center of the area we're querying for users
             mUsersGeoQuery.setCenter(geoLoc);
+            mStructuresGeoQuery.setCenter(geoLoc);
         }
 
         mMyLocation = loc;

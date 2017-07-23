@@ -23,7 +23,7 @@ public class BuildFragment extends BaseFragment implements BuildButtonAdapter.On
     private OnFragmentInteractionListener mListener;
 
     public interface OnFragmentInteractionListener {
-        void onBuildStructure(StructureType structureType);
+        void onBuildStructureClick(StructureType structureType);
     }
 
     public BuildFragment() {
@@ -80,7 +80,7 @@ public class BuildFragment extends BaseFragment implements BuildButtonAdapter.On
 
     @Override
     public void onBuildStuctureClick(StructureType structureType) {
-        mListener.onBuildStructure(structureType);
+        mListener.onBuildStructureClick(structureType);
     }
 
     @Override

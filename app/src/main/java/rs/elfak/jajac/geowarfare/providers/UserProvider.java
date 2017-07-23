@@ -5,6 +5,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,11 +29,16 @@ public class UserProvider {
     private static UserProvider mInstance = null;
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
     private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
     private DatabaseReference mUsersDatabase = mDatabase.child("users");
+    private DatabaseReference mStructuresDatabase = mDatabase.child("structures");
+
     private StorageReference mAvatarsStorage = FirebaseStorage.getInstance().getReference().child("avatars");
 
-    private DatabaseReference mStructuresDatabase = mDatabase.child("structures");
+    private GeoFire mUsersGeoFire = new GeoFire(mDatabase.child("usersGeoFire"));
+    private GeoFire mStructuresGeoFire = new GeoFire(mDatabase.child("structuresGeoFire"));
+
 
     public static synchronized UserProvider getInstance() {
         if (mInstance == null) {
@@ -106,6 +113,14 @@ public class UserProvider {
         return mUsersDatabase.child(userId).child("friendRequests");
     }
 
+    public GeoFire getUsersGeoFire() {
+        return mUsersGeoFire;
+    }
+
+    public GeoFire getStructuresGeoFire() {
+        return mStructuresGeoFire;
+    }
+
     private String getUserFriendPath(String userId, String friendUserId) {
         return "/" + userId + "/friends/" + friendUserId;
     }
@@ -114,14 +129,19 @@ public class UserProvider {
         return "/" + toUserId + "/friendRequests/" + fromUserId;
     }
 
-    public Task<Void> addGoldMine(GoldMineModel goldMine) {
+    public Task<Void> addGoldMine(GoldMineModel goldMine, GeoLocation location) {
         String newStructureKey = mStructuresDatabase.push().getKey();
 
         Map<String, Object> updates = new HashMap<>();
         updates.put("/structures/" + newStructureKey, goldMine);
         updates.put("/users/" + goldMine.ownerId + "/structures/" + newStructureKey, true);
+        mStructuresGeoFire.setLocation(newStructureKey, location);
 
         return mDatabase.updateChildren(updates);
+    }
+
+    public DatabaseReference getStructureById(String structureId) {
+        return mStructuresDatabase.child(structureId);
     }
 
 }

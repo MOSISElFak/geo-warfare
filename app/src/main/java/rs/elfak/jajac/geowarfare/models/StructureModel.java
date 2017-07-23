@@ -3,7 +3,7 @@ package rs.elfak.jajac.geowarfare.models;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class StructureModel {
+public class StructureModel {
 
     public String id;
     public String ownerId;
