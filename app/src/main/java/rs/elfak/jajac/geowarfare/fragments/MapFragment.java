@@ -65,6 +65,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import rs.elfak.jajac.geowarfare.models.StructureType;
 import rs.elfak.jajac.geowarfare.services.BackgroundLocationService;
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.UserModel;
@@ -355,6 +356,8 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Associate the user data with the marker and add the marker to the HashMaps
                 UserModel user = dataSnapshot.getValue(UserModel.class);
+                user.id = dataSnapshot.getKey();
+
                 marker.setTag(user);
 
                 mMarkers.put(user.id, marker);

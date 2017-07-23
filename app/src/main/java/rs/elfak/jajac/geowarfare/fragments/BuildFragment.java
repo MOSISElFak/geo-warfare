@@ -1,24 +1,20 @@
 package rs.elfak.jajac.geowarfare.fragments;
 
 import android.content.Context;
-import android.database.DataSetObserver;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ListAdapter;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.adapters.BuildButtonAdapter;
+import rs.elfak.jajac.geowarfare.models.StructureType;
 
-public class BuildFragment extends BaseFragment {
+public class BuildFragment extends BaseFragment implements BuildButtonAdapter.OnBuildItemClickListener {
 
     public static final String FRAGMENT_TAG = "BuildFragment";
 
@@ -27,7 +23,7 @@ public class BuildFragment extends BaseFragment {
     private OnFragmentInteractionListener mListener;
 
     public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
+        void onBuildStructure(StructureType structureType);
     }
 
     public BuildFragment() {
@@ -57,7 +53,7 @@ public class BuildFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.fragment_build, container, false);
 
         GridView gridView = (GridView) view.findViewById(R.id.fragment_build_grid);
-        gridView.setAdapter(new BuildButtonAdapter(mContext));
+        gridView.setAdapter(new BuildButtonAdapter(mContext, this));
 
         return view;
     }
@@ -71,15 +67,20 @@ public class BuildFragment extends BaseFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-//        if (context instanceof OnFragmentInteractionListener) {
-//            mListener = (OnFragmentInteractionListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
 
         setHasOptionsMenu(true);
         mContext = context;
+    }
+
+    @Override
+    public void onBuildStuctureClick(StructureType structureType) {
+        mListener.onBuildStructure(structureType);
     }
 
     @Override

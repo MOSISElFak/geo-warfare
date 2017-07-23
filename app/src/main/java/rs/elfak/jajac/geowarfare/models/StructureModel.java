@@ -6,6 +6,7 @@ import java.util.Map;
 public abstract class StructureModel {
 
     public String id;
+    public String ownerId;
     public String type;
     public int level = 1;
     public Map<String, Integer> defense = new HashMap<>();
@@ -14,11 +15,9 @@ public abstract class StructureModel {
         // Default constructor required for calls to DataSnapshot.getValue(StructureModel.class)
     }
 
-    public StructureModel(String id, String type, int level, Map<String, Integer> defense) {
-        this.id = id;
+    public StructureModel(String type, String ownerId) {
         this.type = type;
-        this.level = level;
-        this.defense = defense;
+        this.ownerId = ownerId;
     }
 
 }

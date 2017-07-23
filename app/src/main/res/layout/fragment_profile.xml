@@ -38,7 +38,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_fragment_top_background"
         app:layout_constraintBottom_toBottomOf="@+id/profile_fragment_top_background"
-        android:scaleType="fitXY"
+        android:scaleType="centerCrop"
         android:adjustViewBounds="true"
         android:background="@drawable/imageview_border"/>
 

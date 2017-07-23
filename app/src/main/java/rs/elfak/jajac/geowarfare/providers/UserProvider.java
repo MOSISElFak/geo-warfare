@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 
 public class UserProvider {
@@ -26,8 +27,11 @@ public class UserProvider {
     private static UserProvider mInstance = null;
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
-    private DatabaseReference mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("users");
+    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+    private DatabaseReference mUsersDatabase = mDatabase.child("users");
     private StorageReference mAvatarsStorage = FirebaseStorage.getInstance().getReference().child("avatars");
+
+    private DatabaseReference mStructuresDatabase = mDatabase.child("structures");
 
     public static synchronized UserProvider getInstance() {
         if (mInstance == null) {
@@ -108,6 +112,16 @@ public class UserProvider {
 
     private String getUserFriendRequestPath(String fromUserId, String toUserId) {
         return "/" + toUserId + "/friendRequests/" + fromUserId;
+    }
+
+    public Task<Void> addGoldMine(GoldMineModel goldMine) {
+        String newStructureKey = mStructuresDatabase.push().getKey();
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("/structures/" + newStructureKey, goldMine);
+        updates.put("/users/" + goldMine.ownerId + "/structures/" + newStructureKey, true);
+
+        return mDatabase.updateChildren(updates);
     }
 
 }

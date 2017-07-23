@@ -5,17 +5,20 @@ public enum StructureType {
     GOLD_MINE("Gold mine", 0),
     BARRACKS("Barracks", 1);
 
-    private String stringValue;
-    private int intValue;
+    private String name;
+    private int value;
 
-    private StructureType(String toString, int value){
-        stringValue = toString;
-        intValue = value;
+    private StructureType(String name, int value){
+        this.name = name;
+        this.value = value;
     }
 
-    @Override
-    public String toString() {
-        return stringValue;
+    public String getName() {
+        return this.name;
+    }
+
+    public int getValue() {
+        return this.value;
     }
 
 }

@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
@@ -22,11 +23,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.fragments.BuildFragment;
 import rs.elfak.jajac.geowarfare.fragments.EditUserInfoFragment;
 import rs.elfak.jajac.geowarfare.fragments.FriendsFragment;
 import rs.elfak.jajac.geowarfare.fragments.MapFragment;
 import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
 import rs.elfak.jajac.geowarfare.models.FriendModel;
+import rs.elfak.jajac.geowarfare.models.GoldMineModel;
+import rs.elfak.jajac.geowarfare.models.StructureType;
 import rs.elfak.jajac.geowarfare.providers.UserProvider;
 
 public class MainActivity extends AppCompatActivity implements
@@ -34,7 +38,8 @@ public class MainActivity extends AppCompatActivity implements
         FragmentManager.OnBackStackChangedListener,
         EditUserInfoFragment.OnFragmentInteractionListener,
         MapFragment.OnFragmentInteractionListener,
-        FriendsFragment.OnListFragmentInteractionListener {
+        FriendsFragment.OnListFragmentInteractionListener,
+        BuildFragment.OnFragmentInteractionListener {
 
     private int mFriendRequestsCount = 0;
     private FirebaseUser mUser;
@@ -272,4 +277,18 @@ public class MainActivity extends AppCompatActivity implements
         mFragmentManager = null;
         mUser = null;
     }
+
+    @Override
+    public void onBuildStructure(StructureType structureType) {
+        if (structureType == StructureType.GOLD_MINE) {
+            GoldMineModel newGoldMine = new GoldMineModel(structureType.getName(), mUser.getUid());
+            UserProvider.getInstance().addGoldMine(newGoldMine).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    mFragmentManager.popBackStack();
+                }
+            });
+        }
+    }
+
 }

@@ -34,6 +34,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
@@ -430,15 +431,6 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
                         }
                     });
         } else {
-            // If he did, we need to remove the old image from the server and upload the new one
-            userProvider.removeAvatarImage(mAvatarPath)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-
-                        }
-                    });
-
             userProvider.uploadAvatarImage(getAvatarFileName(), mNewAvatarLocalPath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -477,8 +469,7 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
     }
 
     public String getAvatarFileName() {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        return mDisplayNameEt.getText().toString().trim() + "_" + timeStamp + ".jpg";
+        return FirebaseAuth.getInstance().getCurrentUser().getUid() + ".jpg";
     }
 
     @Override
