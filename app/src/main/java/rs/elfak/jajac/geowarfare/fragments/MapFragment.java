@@ -70,11 +70,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
-import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
 import rs.elfak.jajac.geowarfare.models.StructureType;
 import rs.elfak.jajac.geowarfare.models.UserModel;
-import rs.elfak.jajac.geowarfare.providers.UserProvider;
+import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 
 public class MapFragment extends BaseFragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
@@ -85,7 +84,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
 
     private Context mContext;
 
-    private UserProvider mUserProvider;
+    private FirebaseProvider mFirebaseProvider;
     private FirebaseUser mUser;
 
     private GoogleMap mGoogleMap;
@@ -124,8 +123,8 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mUserProvider = UserProvider.getInstance();
-        mUser = mUserProvider.getCurrentUser();
+        mFirebaseProvider = FirebaseProvider.getInstance();
+        mUser = mFirebaseProvider.getCurrentUser();
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext);
 
@@ -394,7 +393,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         final Marker marker = mGoogleMap.addMarker(markerOptions);
 
 
-        mUserProvider.getUserById(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+        mFirebaseProvider.getUserById(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Associate the user data with the marker and add the marker to the HashMaps
@@ -446,7 +445,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         markerOptions.anchor(0.5f, 0.5f);
         final Marker marker = mGoogleMap.addMarker(markerOptions);
 
-        mUserProvider.getStructureById(structureId).addListenerForSingleValueEvent(new ValueEventListener() {
+        mFirebaseProvider.getStructureById(structureId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Associate the structure data with the marker and add the marker to the HashMaps
@@ -525,9 +524,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         LatLng center = new LatLng(loc.getLatitude(), loc.getLongitude());
         GeoLocation geoLoc = new GeoLocation(loc.getLatitude(), loc.getLongitude());
 
-        UserProvider userProvider = UserProvider.getInstance();
-        GeoFire usersGeoFire = userProvider.getUsersGeoFire();
-        GeoFire structuresGeoFire = userProvider.getStructuresGeoFire();
+        FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
+        GeoFire usersGeoFire = firebaseProvider.getUsersGeoFire();
+        GeoFire structuresGeoFire = firebaseProvider.getStructuresGeoFire();
 
         // We need to setup some things only when we receive location for the first time,
         // such as to move camera there, create the circle, starting querying the area...

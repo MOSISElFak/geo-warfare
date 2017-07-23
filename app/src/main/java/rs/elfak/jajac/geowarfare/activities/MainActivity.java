@@ -33,7 +33,7 @@ import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
 import rs.elfak.jajac.geowarfare.models.FriendModel;
 import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 import rs.elfak.jajac.geowarfare.models.StructureType;
-import rs.elfak.jajac.geowarfare.providers.UserProvider;
+import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 
 public class MainActivity extends AppCompatActivity implements
         View.OnClickListener,
@@ -64,9 +64,9 @@ public class MainActivity extends AppCompatActivity implements
         PreferenceManager.setDefaultValues(MainActivity.this,
                 R.xml.preferences, false);
 
-        UserProvider userProvider = UserProvider.getInstance();
-        mUser = userProvider.getCurrentUser();
-        mMyFriendRequestsDbRef = userProvider.getFriendRequestsForUser(mUser.getUid());
+        FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
+        mUser = firebaseProvider.getCurrentUser();
+        mMyFriendRequestsDbRef = firebaseProvider.getFriendRequestsForUser(mUser.getUid());
 
         mFragmentManager = getSupportFragmentManager();
         // Display map as the initial fragment if nothing is on the stack yet
@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements
                 startActivity(settingsIntent);
                 return true;
             case R.id.action_bar_logout_item:
-                UserProvider.getInstance().getAuthInstance().signOut();
+                FirebaseProvider.getInstance().getAuthInstance().signOut();
                 Intent logoutIntent = new Intent(MainActivity.this, LauncherActivity.class);
                 startActivity(logoutIntent);
                 finish();
@@ -177,8 +177,8 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onFriendRequestAccept(final FriendModel friend) {
-        UserProvider userProvider = UserProvider.getInstance();
-        userProvider.addFriendship(mUser.getUid(), friend.id)
+        FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
+        firebaseProvider.addFriendship(mUser.getUid(), friend.id)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -194,8 +194,8 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onFriendRequestDecline(final FriendModel fromUser) {
-        UserProvider userProvider = UserProvider.getInstance();
-        userProvider.removeFriendRequest(fromUser.id, mUser.getUid())
+        FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
+        firebaseProvider.removeFriendRequest(fromUser.id, mUser.getUid())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -287,9 +287,9 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onBuildStructureClick(final StructureType structureType) {
-        UserProvider userProvider = UserProvider.getInstance();
+        FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
         // First we have to get the current user location
-        userProvider.getUsersGeoFire().getLocation(mUser.getUid(), new LocationCallback() {
+        firebaseProvider.getUsersGeoFire().getLocation(mUser.getUid(), new LocationCallback() {
             @Override
             public void onLocationResult(String key, GeoLocation location) {
                 buildStructure(structureType, location);
@@ -303,11 +303,11 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void buildStructure(StructureType structureType, GeoLocation location) {
-        UserProvider userProvider = UserProvider.getInstance();
+        FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
 
         if (structureType == StructureType.GOLD_MINE) {
             GoldMineModel newGoldMine = new GoldMineModel(structureType.toString(), mUser.getUid());
-            userProvider.addGoldMine(newGoldMine, location).addOnSuccessListener(new OnSuccessListener<Void>() {
+            firebaseProvider.addGoldMine(newGoldMine, location).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     mFragmentManager.popBackStack();

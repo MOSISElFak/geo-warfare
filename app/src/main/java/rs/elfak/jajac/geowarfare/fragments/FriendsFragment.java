@@ -22,7 +22,7 @@ import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.adapters.FriendRecyclerViewAdapter;
 import rs.elfak.jajac.geowarfare.models.FriendModel;
 import rs.elfak.jajac.geowarfare.models.UserModel;
-import rs.elfak.jajac.geowarfare.providers.UserProvider;
+import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,10 +105,10 @@ public class FriendsFragment extends BaseFragment {
     }
 
     private void loadFriendRequestsAndFriends() {
-        UserProvider userProvider = UserProvider.getInstance();
-        String myUserId = userProvider.getCurrentUser().getUid();
+        FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
+        String myUserId = firebaseProvider.getCurrentUser().getUid();
 
-        userProvider.getUserById(myUserId)
+        firebaseProvider.getUserById(myUserId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -128,9 +128,9 @@ public class FriendsFragment extends BaseFragment {
         if (userIds.size() == 0) {
             mRequestsEmptyText.setVisibility(View.VISIBLE);
         } else {
-            UserProvider userProvider = UserProvider.getInstance();
+            FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
             for (String userId : userIds) {
-                userProvider.getUserById(userId)
+                firebaseProvider.getUserById(userId)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -154,9 +154,9 @@ public class FriendsFragment extends BaseFragment {
         if (userIds.size() == 0) {
             mFriendsEmptyText.setVisibility(View.VISIBLE);
         } else {
-            UserProvider userProvider = UserProvider.getInstance();
+            FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
             for (String userId : userIds) {
-                userProvider.getUserById(userId)
+                firebaseProvider.getUserById(userId)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {

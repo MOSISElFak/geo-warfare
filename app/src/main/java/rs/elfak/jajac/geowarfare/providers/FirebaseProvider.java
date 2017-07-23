@@ -1,8 +1,5 @@
 package rs.elfak.jajac.geowarfare.providers;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
 
 import com.firebase.geofire.GeoFire;
@@ -22,32 +19,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.models.GoldMineModel;
-import rs.elfak.jajac.geowarfare.models.UserModel;
 
-public class UserProvider {
+public class FirebaseProvider {
 
-    private static UserProvider mInstance = null;
+    private static FirebaseProvider mInstance = null;
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
-    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-    private DatabaseReference mUsersDatabase = mDatabase.child("users");
-    private DatabaseReference mStructuresDatabase = mDatabase.child("structures");
+    // Firebase Realtime Database references
+    private DatabaseReference mDbRef = FirebaseDatabase.getInstance().getReference();
+    private DatabaseReference mUsersDbRef = mDbRef.child("users");
+    private DatabaseReference mStructuresDbRef = mDbRef.child("structures");
 
-    private StorageReference mAvatarsStorage = FirebaseStorage.getInstance().getReference().child("avatars");
+    // Firebase Storage references
+    private StorageReference mAvatarsStorageRef = FirebaseStorage.getInstance().getReference().child("avatars");
 
-    private GeoFire mUsersGeoFire = new GeoFire(mDatabase.child("usersGeoFire"));
-    private GeoFire mStructuresGeoFire = new GeoFire(mDatabase.child("structuresGeoFire"));
+    // Geofire
+    private GeoFire mUsersGeoFire = new GeoFire(mDbRef.child("usersGeoFire"));
+    private GeoFire mStructuresGeoFire = new GeoFire(mDbRef.child("structuresGeoFire"));
 
-
-    public static synchronized UserProvider getInstance() {
+    public static synchronized FirebaseProvider getInstance() {
         if (mInstance == null) {
-            mInstance = new UserProvider();
+            mInstance = new FirebaseProvider();
         }
         return mInstance;
     }
 
-    private UserProvider() {
+    private FirebaseProvider() {
         // private constructor required for singleton
     }
 
@@ -55,12 +53,14 @@ public class UserProvider {
         return mAuth;
     }
 
+    // *********************************************** USERS *********************************************** //
+
     public FirebaseUser getCurrentUser() {
         return mAuth.getCurrentUser();
     }
 
     public DatabaseReference getUserById(String userId) {
-        return mUsersDatabase.child(userId);
+        return mUsersDbRef.child(userId);
     }
 
     public Task<AuthResult> createUserWithEmailAndPassword(String email, String password) {
@@ -68,27 +68,23 @@ public class UserProvider {
     }
 
     public UploadTask uploadAvatarImage(String fileName, String localImgUri) {
-        return mAvatarsStorage.child(fileName).putFile(Uri.fromFile(new File(localImgUri)));
-    }
-
-    public Task<Void> removeAvatarImage(String storageImgUri) {
-        return mAvatarsStorage.child(storageImgUri).delete();
+        return mAvatarsStorageRef.child(fileName).putFile(Uri.fromFile(new File(localImgUri)));
     }
 
     public Task<Void> updateUserInfo(String userId, Map<String, Object> newUserValues) {
-        return mUsersDatabase.child(userId).updateChildren(newUserValues);
+        return mUsersDbRef.child(userId).updateChildren(newUserValues);
     }
 
     public DatabaseReference getReceivedFriendRequests(String toUserId) {
-        return mUsersDatabase.child(toUserId).child("friendRequests");
+        return mUsersDbRef.child(toUserId).child("friendRequests");
     }
 
     public Task<Void> sendFriendRequest(String fromUserId, String toUserId) {
-        return mUsersDatabase.child(toUserId).child("friendRequests").child(fromUserId).setValue(true);
+        return mUsersDbRef.child(toUserId).child("friendRequests").child(fromUserId).setValue(true);
     }
 
     public Task<Void> removeFriendRequest(String fromUserId, String toUserId) {
-        return mUsersDatabase.child(toUserId).child("friendRequests").child(fromUserId).removeValue();
+        return mUsersDbRef.child(toUserId).child("friendRequests").child(fromUserId).removeValue();
     }
 
     public Task<Void> addFriendship(String firstUserId, String secondUserId) {
@@ -98,7 +94,7 @@ public class UserProvider {
         updates.put(getUserFriendPath(firstUserId, secondUserId), true);
         updates.put(getUserFriendPath(secondUserId, firstUserId), true);
 
-        return mUsersDatabase.updateChildren(updates);
+        return mUsersDbRef.updateChildren(updates);
     }
 
     public Task<Void> removeFriendship(String firstUserId, String secondUserId) {
@@ -106,19 +102,15 @@ public class UserProvider {
         updates.put(getUserFriendPath(firstUserId, secondUserId), null);
         updates.put(getUserFriendPath(secondUserId, firstUserId), null);
 
-        return mUsersDatabase.updateChildren(updates);
+        return mUsersDbRef.updateChildren(updates);
     }
 
     public DatabaseReference getFriendRequestsForUser(String userId) {
-        return mUsersDatabase.child(userId).child("friendRequests");
+        return mUsersDbRef.child(userId).child("friendRequests");
     }
 
     public GeoFire getUsersGeoFire() {
         return mUsersGeoFire;
-    }
-
-    public GeoFire getStructuresGeoFire() {
-        return mStructuresGeoFire;
     }
 
     private String getUserFriendPath(String userId, String friendUserId) {
@@ -129,19 +121,25 @@ public class UserProvider {
         return "/" + toUserId + "/friendRequests/" + fromUserId;
     }
 
+    // ********************************************* STRUCTURES ********************************************* //
+
+    public DatabaseReference getStructureById(String structureId) {
+        return mStructuresDbRef.child(structureId);
+    }
+
     public Task<Void> addGoldMine(GoldMineModel goldMine, GeoLocation location) {
-        String newStructureKey = mStructuresDatabase.push().getKey();
+        String newStructureKey = mStructuresDbRef.push().getKey();
 
         Map<String, Object> updates = new HashMap<>();
         updates.put("/structures/" + newStructureKey, goldMine);
         updates.put("/users/" + goldMine.ownerId + "/structures/" + newStructureKey, true);
         mStructuresGeoFire.setLocation(newStructureKey, location);
 
-        return mDatabase.updateChildren(updates);
+        return mDbRef.updateChildren(updates);
     }
 
-    public DatabaseReference getStructureById(String structureId) {
-        return mStructuresDatabase.child(structureId);
+    public GeoFire getStructuresGeoFire() {
+        return mStructuresGeoFire;
     }
 
 }

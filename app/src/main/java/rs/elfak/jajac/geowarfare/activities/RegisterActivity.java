@@ -3,7 +3,6 @@ package rs.elfak.jajac.geowarfare.activities;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -25,7 +24,7 @@ import java.util.Map;
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.fragments.EditUserInfoFragment;
 import rs.elfak.jajac.geowarfare.models.UserModel;
-import rs.elfak.jajac.geowarfare.providers.UserProvider;
+import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 import rs.elfak.jajac.geowarfare.utils.Validator;
 
 public class RegisterActivity extends AppCompatActivity implements
@@ -112,10 +111,10 @@ public class RegisterActivity extends AppCompatActivity implements
         String email = mEmail.getText().toString().trim();
         String password = mPassword.getText().toString().trim();
 
-        final UserProvider userProvider = UserProvider.getInstance();
+        final FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
 
         // First we create the user using FirebaseAuth so he/she's authenticated
-        userProvider.createUserWithEmailAndPassword(email, password)
+        firebaseProvider.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -124,15 +123,15 @@ public class RegisterActivity extends AppCompatActivity implements
                         if (task.isSuccessful()) {
                             String imageFileName = mUserInfoFragment.getAvatarFileName();
                             String localImageUri = mUserInfoFragment.getAvatarPath();
-                            userProvider.uploadAvatarImage(imageFileName, localImageUri)
+                            firebaseProvider.uploadAvatarImage(imageFileName, localImageUri)
                                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                         @Override
                                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                            String newUserId = userProvider.getCurrentUser().getUid();
+                                            String newUserId = firebaseProvider.getCurrentUser().getUid();
                                             String storageImageUri = taskSnapshot.getDownloadUrl().toString();
                                             UserModel newUser = getUserModel(newUserId, storageImageUri);
                                             Map<String, Object> userInfoValues = newUser.toMap();
-                                            userProvider.updateUserInfo(newUserId, userInfoValues);
+                                            firebaseProvider.updateUserInfo(newUserId, userInfoValues);
 
                                             progressDialog.dismiss();
                                             Intent profileIntent = new Intent(RegisterActivity.this,

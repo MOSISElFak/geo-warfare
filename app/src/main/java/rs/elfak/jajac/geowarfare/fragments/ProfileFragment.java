@@ -5,7 +5,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,9 +25,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import rs.elfak.jajac.geowarfare.R;
-import rs.elfak.jajac.geowarfare.activities.MainActivity;
 import rs.elfak.jajac.geowarfare.models.UserModel;
-import rs.elfak.jajac.geowarfare.providers.UserProvider;
+import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 
 public class ProfileFragment extends BaseFragment implements View.OnClickListener {
 
@@ -100,7 +98,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void getUserDataAndSetupUI(String userId) {
-        UserProvider.getInstance().getUserById(userId)
+        FirebaseProvider.getInstance().getUserById(userId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -134,8 +132,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 mStatus = STATUS_FRIEND;
                 setupFriendRequestButton();
             } else {
-                UserProvider userProvider = UserProvider.getInstance();
-                userProvider.getReceivedFriendRequests(loggedUserId)
+                FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
+                firebaseProvider.getReceivedFriendRequests(loggedUserId)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -228,8 +226,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void sendFriendRequest(String fromUserId, String toUserId) {
-        UserProvider userProvider = UserProvider.getInstance();
-        userProvider.sendFriendRequest(fromUserId, mUserId)
+        FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
+        firebaseProvider.sendFriendRequest(fromUserId, mUserId)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -240,8 +238,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void removeFriendRequest(String fromUserId, String toUserId) {
-        UserProvider userProvider = UserProvider.getInstance();
-        userProvider.removeFriendRequest(fromUserId, mUserId)
+        FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
+        firebaseProvider.removeFriendRequest(fromUserId, mUserId)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -252,8 +250,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void acceptFriendRequest(String fromUserId, String toUserId) {
-        UserProvider userProvider = UserProvider.getInstance();
-        userProvider.addFriendship(fromUserId, toUserId)
+        FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
+        firebaseProvider.addFriendship(fromUserId, toUserId)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -264,8 +262,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void removeFriendship(String firstUserId, String secondUserId) {
-        UserProvider userProvider = UserProvider.getInstance();
-        userProvider.removeFriendship(firstUserId, secondUserId)
+        FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
+        firebaseProvider.removeFriendship(firstUserId, secondUserId)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

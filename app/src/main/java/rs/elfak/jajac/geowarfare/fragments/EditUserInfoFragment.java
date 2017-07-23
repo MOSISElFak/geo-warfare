@@ -15,7 +15,6 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
@@ -46,7 +45,7 @@ import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.UserModel;
-import rs.elfak.jajac.geowarfare.providers.UserProvider;
+import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 import rs.elfak.jajac.geowarfare.utils.Validator;
 
 public class EditUserInfoFragment extends BaseFragment implements View.OnFocusChangeListener, View.OnClickListener {
@@ -413,16 +412,16 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        final UserProvider userProvider = UserProvider.getInstance();
+        final FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
 
-        final String newUserId = userProvider.getCurrentUser().getUid();
+        final String newUserId = firebaseProvider.getCurrentUser().getUid();
         final String storageImageUri = mAvatarPath;
         final Map<String, Object> newUserValues = getUserValuesMap(storageImageUri);
 
         if (mNewAvatarLocalPath == null) {
             // If the user didn't change the avatar, we remove that from the fields that will be updated
             newUserValues.remove(UserModel.KEY_USER_AVATAR_URL);
-            userProvider.updateUserInfo(newUserId, newUserValues)
+            firebaseProvider.updateUserInfo(newUserId, newUserValues)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
@@ -431,13 +430,13 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
                         }
                     });
         } else {
-            userProvider.uploadAvatarImage(getAvatarFileName(), mNewAvatarLocalPath)
+            firebaseProvider.uploadAvatarImage(getAvatarFileName(), mNewAvatarLocalPath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             String newStorageImgUri = taskSnapshot.getDownloadUrl().toString();
                             newUserValues.put(UserModel.KEY_USER_AVATAR_URL, newStorageImgUri);
-                            userProvider.updateUserInfo(newUserId, newUserValues)
+                            firebaseProvider.updateUserInfo(newUserId, newUserValues)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {

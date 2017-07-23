@@ -4,7 +4,6 @@ import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -38,11 +37,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
-import rs.elfak.jajac.geowarfare.Constants;
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.activities.MainActivity;
 import rs.elfak.jajac.geowarfare.models.UserModel;
-import rs.elfak.jajac.geowarfare.providers.UserProvider;
+import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 
 public class BackgroundLocationService extends Service implements
         GoogleApiClient.ConnectionCallbacks,
@@ -192,7 +190,7 @@ public class BackgroundLocationService extends Service implements
                 // and if the registered nearby key is not our own
                 if (!isAppInForeground() && !key.equals(mUser.getUid())) {
                     Log.i(TAG, "key is not our own and the app is in the background");
-                    UserProvider.getInstance().getUserById(key).addListenerForSingleValueEvent(new ValueEventListener() {
+                    FirebaseProvider.getInstance().getUserById(key).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             UserModel nearbyUser = dataSnapshot.getValue(UserModel.class);
