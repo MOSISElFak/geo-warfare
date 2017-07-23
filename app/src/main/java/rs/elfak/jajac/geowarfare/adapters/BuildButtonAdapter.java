@@ -1,37 +1,18 @@
 package rs.elfak.jajac.geowarfare.adapters;
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.LayoutInflaterCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import rs.elfak.jajac.geowarfare.R;
-import rs.elfak.jajac.geowarfare.fragments.BuildFragment;
 import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 import rs.elfak.jajac.geowarfare.models.StructureType;
-
-class BuildButtonItem {
-    int imageResourceId;
-    StructureType structureType;
-    int cost;
-
-    BuildButtonItem(int imageResourceId, StructureType structureType, int cost) {
-        this.imageResourceId = imageResourceId;
-        this.structureType = structureType;
-        this.cost = cost;
-    }
-}
 
 public class BuildButtonAdapter extends BaseAdapter {
 
@@ -40,7 +21,7 @@ public class BuildButtonAdapter extends BaseAdapter {
     private final OnBuildItemClickListener mListener;
 
     public interface OnBuildItemClickListener {
-        void onBuildStuctureClick(StructureType structureType);
+        void onBuildStructureClick(StructureType structureType);
     }
 
     public BuildButtonAdapter(Context context, OnBuildItemClickListener listener) {
@@ -70,14 +51,17 @@ public class BuildButtonAdapter extends BaseAdapter {
         BuildButtonViewHolder holder;
         View view = convertView;
 
+        // If the view is being created, inflate the layout and attach a new holder as a tag
         if (view == null) {
             view = LayoutInflater.from(mContext).inflate(R.layout.grid_item, parent, false);
             holder = new BuildButtonViewHolder(view, parent);
             view.setTag(holder);
         } else {
+            // If the view exists and is being recycled, just get the holder from the tag
             holder = (BuildButtonViewHolder) view.getTag();
         }
 
+        // Set the appropriate item
         holder.mItem = mItems.get(position);
 
         holder.mImageButton.setImageResource(holder.mItem.imageResourceId);
@@ -87,13 +71,27 @@ public class BuildButtonAdapter extends BaseAdapter {
         return view;
     }
 
-    public class BuildButtonViewHolder implements View.OnClickListener {
-        public BuildButtonItem mItem;
-        public ImageButton mImageButton;
-        public TextView mName;
-        public TextView mCost;
+    // Simple class holding data related to one item on the Build menu/fragment
+    private class BuildButtonItem {
+        int imageResourceId;
+        StructureType structureType;
+        int cost;
 
-        public BuildButtonViewHolder(View view, ViewGroup parent) {
+        BuildButtonItem(int imageResourceId, StructureType structureType, int cost) {
+            this.imageResourceId = imageResourceId;
+            this.structureType = structureType;
+            this.cost = cost;
+        }
+    }
+
+    // View holder class for the item
+    private class BuildButtonViewHolder implements View.OnClickListener {
+        private BuildButtonItem mItem;
+        private ImageButton mImageButton;
+        private TextView mName;
+        private TextView mCost;
+
+        private BuildButtonViewHolder(View view, ViewGroup parent) {
             mImageButton = (ImageButton) view.findViewById(R.id.grid_item_image_btn);
             mName = (TextView) view.findViewById(R.id.grid_item_name_text);
             mCost = (TextView) view.findViewById(R.id.grid_item_cost_text);
@@ -103,7 +101,7 @@ public class BuildButtonAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
-            mListener.onBuildStuctureClick(mItem.structureType);
+            mListener.onBuildStructureClick(mItem.structureType);
         }
     }
 }

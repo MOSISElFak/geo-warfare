@@ -23,8 +23,7 @@ public class FriendRecyclerViewAdapter extends
     private final List<FriendModel> mItems;
     private final OnListFragmentInteractionListener mListener;
 
-    public FriendRecyclerViewAdapter(List<FriendModel> items,
-                                     OnListFragmentInteractionListener listener) {
+    public FriendRecyclerViewAdapter(List<FriendModel> items, OnListFragmentInteractionListener listener) {
         mItems = items;
         mListener = listener;
     }

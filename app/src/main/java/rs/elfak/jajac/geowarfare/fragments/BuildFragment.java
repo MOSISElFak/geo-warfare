@@ -79,7 +79,7 @@ public class BuildFragment extends BaseFragment implements BuildButtonAdapter.On
     }
 
     @Override
-    public void onBuildStuctureClick(StructureType structureType) {
+    public void onBuildStructureClick(StructureType structureType) {
         mListener.onBuildStructureClick(structureType);
     }
 
