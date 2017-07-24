@@ -1,10 +1,8 @@
 package rs.elfak.jajac.geowarfare.fragments;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -89,10 +87,10 @@ public class StructureInfoFragment extends BaseFragment implements View.OnClickL
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_structure_info, container, false);
 
-        mStructureIconImg = (ImageView) view.findViewById(R.id.structure_header_icon_img);
-        mStructureTypeTv = (TextView) view.findViewById(R.id.structure_header_type);
-        mOwnerDisplayNameTv = (TextView) view.findViewById(R.id.structure_header_owner_display_name);
-        mOwnerAvatarImg = (ImageView) view.findViewById(R.id.structure_header_owner_avatar_img);
+        mStructureIconImg = (ImageView) view.findViewById(R.id.structure_info_icon_img);
+        mStructureTypeTv = (TextView) view.findViewById(R.id.structure_info_type);
+        mOwnerDisplayNameTv = (TextView) view.findViewById(R.id.structure_info_owner_display_name);
+        mOwnerAvatarImg = (ImageView) view.findViewById(R.id.structure_info_owner_avatar_img);
 
         mStructureIconImg.setImageDrawable(ContextCompat.getDrawable(mContext, mStructureType.getIconResourceId()));
         mStructureTypeTv.setText(mStructureType.getName());
@@ -108,7 +106,7 @@ public class StructureInfoFragment extends BaseFragment implements View.OnClickL
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.structure_header_owner_avatar_img:
+            case R.id.structure_info_owner_avatar_img:
                 if (mListener != null) {
                     mListener.onOwnerAvatarClick(mOwnerUserId);
                 }
