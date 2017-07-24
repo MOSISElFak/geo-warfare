@@ -7,12 +7,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -23,9 +25,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestListener;
@@ -70,19 +74,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.activities.MainActivity;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
 import rs.elfak.jajac.geowarfare.models.StructureType;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 
-public class MapFragment extends BaseFragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+public class MapFragment extends BaseFragment implements
+        OnMapReadyCallback,
+        GoogleMap.OnMarkerClickListener {
 
     public static final String FRAGMENT_TAG = "MapFragment";
 
-    private static final int REQUEST_CHECK_SETTINGS = 1;
-    private static final int REQUEST_LOCATION_PERMISSION = 2;
+    public static final int REQUEST_LOCATION_PERMISSION = 2;
 
     private Context mContext;
+    private FloatingActionButton mBuildButton;
 
     private FirebaseProvider mFirebaseProvider;
     private FirebaseUser mUser;
@@ -98,7 +105,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     private GoogleMap.OnMarkerClickListener mUserMarkerListener;
     private GoogleMap.OnMarkerClickListener mStructureMarkerListener;
 
-    private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
 
@@ -127,11 +133,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         mUser = mFirebaseProvider.getCurrentUser();
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext);
-
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(5000);
-        mLocationRequest.setFastestInterval(1000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         mLocationCallback = new LocationCallback() {
             @Override
@@ -163,14 +164,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
                              @Nullable Bundle savedInstanceState) {
         View inflatedView = inflater.inflate(R.layout.fragment_map, container, false);
 
-        FloatingActionButton buildFab = (FloatingActionButton) inflatedView.findViewById(
-                R.id.map_fragment_build_button);
-        buildFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBuildClick();
-            }
-        });
+        mBuildButton = (FloatingActionButton) inflatedView.findViewById(R.id.map_fragment_build_button);
 
         mMapView = (MapView) inflatedView.findViewById(R.id.map_fragment_map_view);
         mMapView.onCreate(savedInstanceState);
@@ -186,62 +180,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
         mGoogleMap = googleMap;
         mGoogleMap.setMapStyle(new MapStyleOptions(getResources().getString(R.string.style_json)));
         mGoogleMap.setOnMarkerClickListener(this);
-    }
-
-    // Check if the user's location SETTINGS (not permissions) are satisfying for our LocationRequest
-    private void checkLocationSettingsAndPermission() {
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(mLocationRequest);
-
-        SettingsClient settingsClient = LocationServices.getSettingsClient(getContext());
-        settingsClient.checkLocationSettings(builder.build())
-                .addOnSuccessListener(getActivity(), new OnSuccessListener<LocationSettingsResponse>() {
-                    @Override
-                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        onLocationSettingsSatisfied();
-                    }
-                })
-                .addOnFailureListener(getActivity(), new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        int statusCode = ((ApiException) e).getStatusCode();
-                        switch (statusCode) {
-                            case CommonStatusCodes.RESOLUTION_REQUIRED:
-                                // Location settings are not satisfied, but this can be fixed
-                                // by showing the user a dialog to change them.
-                                try {
-                                    ResolvableApiException resolvable = (ResolvableApiException) e;
-                                    resolvable.startResolutionForResult(getActivity(), REQUEST_CHECK_SETTINGS);
-                                } catch (IntentSender.SendIntentException sendEx) {
-                                    // Ignore the error.
-                                }
-                                break;
-                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                                // Location settings are not satisfied. However, we have no way
-                                // to fix the settings so we won't show the dialog.
-                                onLocationSettingsUnsatisfied();
-                                break;
-                        }
-                    }
-                });
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CHECK_SETTINGS && resultCode == Activity.RESULT_OK) {
-            onLocationSettingsSatisfied();
-        }
-    }
-
-    private void onLocationSettingsSatisfied() {
-        // If all location settings are satisfied, we proceed to check/ask permission.
         checkLocationPermission();
-    }
-
-    private void onLocationSettingsUnsatisfied() {
-        // TODO: Tell user the app might not perform as expected.
-        mCircle.setVisible(false);
     }
 
     private void checkLocationPermission() {
@@ -299,9 +238,20 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     }
 
     private void onLocationPermissionGranted() {
+        LocationRequest locationRequest = new LocationRequest();
+        locationRequest.setInterval(5000);
+        locationRequest.setFastestInterval(1000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         // Get the latest location, center map on it, create and show circle and start receiving location updates
         try {
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
+            // Can only build structures if location settings and permissions are satisfied
+            mBuildButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onBuildClick();
+                }
+            });
+            mFusedLocationClient.requestLocationUpdates(locationRequest, mLocationCallback, null);
             mGoogleMap.setMyLocationEnabled(true);
         } catch (SecurityException e) {
             // We're not handling the exception here because this won't be called without permission anyway.
@@ -567,8 +517,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Goo
     public void onResume() {
         super.onResume();
         mMapView.onResume();
-
-        checkLocationSettingsAndPermission();
     }
 
     @Override

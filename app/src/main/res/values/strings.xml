@@ -93,4 +93,9 @@
     <string name="build_gold_mine_text">Gold mine</string>
     <string name="build_barracks_text">Barracks</string>
 
+    <!-- NoLocationFragment -->
+    <string name="no_location_text">In order to play <b>GeoWarfare</b> we need you to enable Location on your
+        phone. After you have done that, click the button below.</string>
+    <string name="no_location_button_continue">Continue</string>
+
 </resources>

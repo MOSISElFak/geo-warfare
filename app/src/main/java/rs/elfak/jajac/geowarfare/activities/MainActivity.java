@@ -1,8 +1,11 @@
 package rs.elfak.jajac.geowarfare.activities;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +20,16 @@ import android.widget.Toast;
 
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.LocationCallback;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -29,6 +42,7 @@ import rs.elfak.jajac.geowarfare.fragments.BuildFragment;
 import rs.elfak.jajac.geowarfare.fragments.EditUserInfoFragment;
 import rs.elfak.jajac.geowarfare.fragments.FriendsFragment;
 import rs.elfak.jajac.geowarfare.fragments.MapFragment;
+import rs.elfak.jajac.geowarfare.fragments.NoLocationFragment;
 import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
 import rs.elfak.jajac.geowarfare.models.FriendModel;
 import rs.elfak.jajac.geowarfare.models.GoldMineModel;
@@ -41,7 +55,10 @@ public class MainActivity extends AppCompatActivity implements
         EditUserInfoFragment.OnFragmentInteractionListener,
         MapFragment.OnFragmentInteractionListener,
         FriendsFragment.OnListFragmentInteractionListener,
-        BuildFragment.OnFragmentInteractionListener {
+        BuildFragment.OnFragmentInteractionListener,
+        NoLocationFragment.OnFragmentInteractionListener {
+
+    public static final int REQUEST_CHECK_SETTINGS = 1;
 
     private int mFriendRequestsCount = 0;
     private FirebaseUser mUser;
@@ -59,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         // Setup default shared preferences if they haven't been setup already
         PreferenceManager.setDefaultValues(MainActivity.this,
@@ -69,9 +87,10 @@ public class MainActivity extends AppCompatActivity implements
         mMyFriendRequestsDbRef = firebaseProvider.getFriendRequestsForUser(mUser.getUid());
 
         mFragmentManager = getSupportFragmentManager();
-        // Display map as the initial fragment if nothing is on the stack yet
+        // Check location settings if nothing is on the stack yet and display
+        // MapFragment if they are satisfied or NoLocationFragment if they are not
         if (mFragmentManager.getBackStackEntryCount() < 1) {
-            onOpenMap();
+            checkLocationSettings();
         }
         // Monitor the backstack in order to show/hide the back button
         mFragmentManager.addOnBackStackChangedListener(this);
@@ -88,17 +107,71 @@ public class MainActivity extends AppCompatActivity implements
         mFilterSpinner.setAdapter(spinAdapter);
     }
 
-    // A public title setter so different fragments can set their own title
-    public void setActionBarTitle(String newTitle) {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            if (newTitle != null) {
-                actionBar.setDisplayShowTitleEnabled(true);
-                actionBar.setTitle(newTitle);
+    // Check if the user's location SETTINGS (not permissions) are satisfying for our LocationRequest
+    private void checkLocationSettings() {
+        LocationRequest locationRequest = new LocationRequest();
+        locationRequest.setInterval(5000);
+        locationRequest.setFastestInterval(1000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+
+        SettingsClient settingsClient = LocationServices.getSettingsClient(this);
+        settingsClient.checkLocationSettings(builder.build())
+                .addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
+                    @Override
+                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                        onLocationSettingsSatisfied();
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        int statusCode = ((ApiException) e).getStatusCode();
+                        switch (statusCode) {
+                            case CommonStatusCodes.RESOLUTION_REQUIRED:
+                                // Location settings are not satisfied, but this can be fixed
+                                // by showing the user a dialog to change them.
+                                try {
+                                    ResolvableApiException resolvable = (ResolvableApiException) e;
+                                    resolvable.startResolutionForResult(MainActivity.this, REQUEST_CHECK_SETTINGS);
+                                } catch (IntentSender.SendIntentException sendEx) {
+                                    // Ignore the error.
+                                }
+                                break;
+                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                // Location settings are not satisfied. However, we have no way
+                                // to fix the settings so we won't show the dialog.
+                                onLocationSettingsUnsatisfied();
+                                break;
+                        }
+                    }
+                });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CHECK_SETTINGS) {
+            if (resultCode == Activity.RESULT_OK) {
+                onLocationSettingsSatisfied();
             } else {
-                actionBar.setDisplayShowTitleEnabled(false);
+                onLocationSettingsUnsatisfied();
             }
         }
+    }
+
+    private void onLocationSettingsSatisfied() {
+        onOpenMap();
+    }
+
+    private void onLocationSettingsUnsatisfied() {
+        mFragmentManager
+                .beginTransaction()
+                .replace(R.id.main_fragment_container, NoLocationFragment.newInstance(),
+                        NoLocationFragment.FRAGMENT_TAG)
+                .commit();
     }
 
     @Override
@@ -315,6 +388,11 @@ public class MainActivity extends AppCompatActivity implements
                 }
             });
         }
+    }
+
+    @Override
+    public void onNoLocationContinueClick() {
+        checkLocationSettings();
     }
 
 }
