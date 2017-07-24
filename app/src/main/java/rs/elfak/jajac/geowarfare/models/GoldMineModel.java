@@ -8,7 +8,7 @@ public class GoldMineModel extends StructureModel {
 
     public int gold = 0;
 
-    public GoldMineModel(String type, String ownerId) {
+    public GoldMineModel(StructureType type, String ownerId) {
         super(type, ownerId);
     }
 

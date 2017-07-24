@@ -396,7 +396,7 @@ public class MainActivity extends AppCompatActivity implements
         FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
 
         if (structureType == StructureType.GOLD_MINE) {
-            GoldMineModel newGoldMine = new GoldMineModel(structureType.toString(), mUser.getUid());
+            GoldMineModel newGoldMine = new GoldMineModel(structureType, mUser.getUid());
             firebaseProvider.addGoldMine(newGoldMine, location).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
