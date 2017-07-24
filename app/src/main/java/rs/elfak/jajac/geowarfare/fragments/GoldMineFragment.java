@@ -9,8 +9,15 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
+
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 import rs.elfak.jajac.geowarfare.models.StructureType;
+import rs.elfak.jajac.geowarfare.models.UserModel;
+import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 
 public class GoldMineFragment extends BaseFragment {
 
@@ -19,6 +26,8 @@ public class GoldMineFragment extends BaseFragment {
     private static final String ARG_STRUCTURE_ID = "structure_id";
 
     private String mStructureId;
+    private GoldMineModel mGoldMine;
+    private UserModel mOwner;
 
     private OnFragmentInteractionListener mListener;
 
@@ -59,7 +68,48 @@ public class GoldMineFragment extends BaseFragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_gold_mine, container, false);
 
+        getStructureDataAndSetupUI(mStructureId);
+
         return view;
+    }
+
+    private void getStructureDataAndSetupUI(String structureId) {
+        final FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
+        firebaseProvider.getStructureById(structureId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        mGoldMine = dataSnapshot.getValue(GoldMineModel.class);
+                        mGoldMine.id = dataSnapshot.getKey();
+                        firebaseProvider.getUserById(mGoldMine.ownerId)
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        mOwner = dataSnapshot.getValue(UserModel.class);
+                                        mOwner.id = dataSnapshot.getKey();
+                                        setupUI();
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    private void setupUI() {
+        getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.structure_info_container, StructureInfoFragment.newInstance(mGoldMine.type,
+                        mGoldMine.level, mOwner.id, mOwner.displayName, mOwner.avatarUrl), StructureInfoFragment
+                        .FRAGMENT_TAG)
+                .commit();
     }
 
     @Override

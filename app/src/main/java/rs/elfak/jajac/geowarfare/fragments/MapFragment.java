@@ -387,7 +387,7 @@ public class MapFragment extends BaseFragment implements
         });
     }
 
-    private void addStructureMarker(String structureId, GeoLocation location) {
+    private void addStructureMarker(final String structureId, GeoLocation location) {
         // Create a (temporary) invisible marker
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(new LatLng(location.latitude, location.longitude));
@@ -408,7 +408,7 @@ public class MapFragment extends BaseFragment implements
                 mMarkerListeners.put(marker, mStructureMarkerListener);
 
                 if (mContext != null) {
-                    int iconResourceId = getStructureIconId(structure.type);
+                    int iconResourceId = structure.type.getIconResourceId();
                     marker.setIcon(getBitmapFromVector(iconResourceId, ContextCompat.getColor(mContext,
                             R.color.colorPrimaryDark)));
                     marker.setVisible(true);
@@ -420,17 +420,6 @@ public class MapFragment extends BaseFragment implements
 
             }
         });
-    }
-
-    private int getStructureIconId(StructureType structureType) {
-        switch (structureType) {
-            case GOLD_MINE:
-                return R.drawable.ic_gold_cart;
-            case BARRACKS:
-                return R.drawable.ic_barracks;
-            default:
-                return 0;
-        }
     }
 
     private BitmapDescriptor getBitmapFromVector(int resourceId, int color) {

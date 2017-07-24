@@ -8,8 +8,8 @@
 
     <ImageView
         android:id="@+id/structure_header_background_img"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/structure_header_background_height"
+        android:layout_width="0dp"
+        android:layout_height="80dp"
         app:srcCompat="@color/colorPrimary"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -17,12 +17,12 @@
 
     <ImageView
         android:id="@+id/structure_header_icon_img"
-        android:layout_width="@dimen/structure_icon_size"
-        android:layout_height="@dimen/structure_icon_size"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_marginStart="@dimen/structure_icon_text_margin"
         app:layout_constraintLeft_toLeftOf="@+id/structure_header_background_img"
         app:layout_constraintTop_toTopOf="@+id/structure_header_background_img"
-        app:layout_constraintBottom_toBottomOf="@id/structure_header_background_img"
+        app:layout_constraintBottom_toBottomOf="@+id/structure_header_background_img"
         android:src="@drawable/ic_gold_cart"
         android:tint="@android:color/white"/>
 
@@ -32,8 +32,8 @@
         android:layout_height="24dp"
         android:orientation="horizontal"
         android:layout_marginStart="12dp"
-        app:layout_constraintTop_toTopOf="@id/structure_header_icon_img"
-        app:layout_constraintLeft_toRightOf="@id/structure_header_icon_img">
+        app:layout_constraintTop_toTopOf="@+id/structure_header_icon_img"
+        app:layout_constraintLeft_toRightOf="@+id/structure_header_icon_img">
 
         <!-- We dynamically insert stars like the one here -->
         <ImageView
@@ -59,7 +59,7 @@
     <TextView
         android:id="@+id/structure_header_type"
         android:layout_width="wrap_content"
-        android:layout_height="@dimen/structure_type_text_size"
+        android:layout_height="20dp"
         app:layout_constraintLeft_toLeftOf="@+id/structure_header_level_container"
         app:layout_constraintBottom_toBottomOf="@+id/structure_header_icon_img"
         android:includeFontPadding="false"
@@ -69,13 +69,17 @@
 
     <ImageView
         android:id="@+id/structure_header_owner_avatar_img"
-        android:layout_width="@dimen/structure_icon_size"
-        android:layout_height="@dimen/structure_icon_size"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_marginEnd="@dimen/structure_icon_text_margin"
         app:layout_constraintRight_toRightOf="@+id/structure_header_background_img"
         app:layout_constraintTop_toTopOf="@+id/structure_header_background_img"
-        app:layout_constraintBottom_toBottomOf="@id/structure_header_background_img"
-        tools:src="@drawable/default_avatar"/>
+        app:layout_constraintBottom_toBottomOf="@+id/structure_header_background_img"
+        tools:src="@drawable/default_avatar"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"
+        android:background="@drawable/imageview_border"
+        android:clickable="true"/>
 
     <TextView
         android:id="@+id/structure_header_owner_display_name"

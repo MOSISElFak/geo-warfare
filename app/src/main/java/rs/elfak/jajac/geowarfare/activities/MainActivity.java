@@ -48,6 +48,7 @@ import rs.elfak.jajac.geowarfare.fragments.GoldMineFragment;
 import rs.elfak.jajac.geowarfare.fragments.MapFragment;
 import rs.elfak.jajac.geowarfare.fragments.NoLocationFragment;
 import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
+import rs.elfak.jajac.geowarfare.fragments.StructureInfoFragment;
 import rs.elfak.jajac.geowarfare.models.FriendModel;
 import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements
         FriendsFragment.OnListFragmentInteractionListener,
         BuildFragment.OnFragmentInteractionListener,
         NoLocationFragment.OnFragmentInteractionListener,
+        StructureInfoFragment.OnFragmentInteractionListener,
         GoldMineFragment.OnFragmentInteractionListener,
         Observer {
 
@@ -435,4 +437,8 @@ public class MainActivity extends AppCompatActivity implements
         checkLocationSettings();
     }
 
+    @Override
+    public void onOwnerAvatarClick(String ownerUserId) {
+        onOpenUserProfile(ownerUserId);
+    }
 }
