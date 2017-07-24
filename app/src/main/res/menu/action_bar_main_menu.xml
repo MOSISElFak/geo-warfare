@@ -28,11 +28,11 @@
             app:showAsAction="never"
             android:title="@string/action_bar_about"/>
 
+    </group>
+
         <item
             android:id="@+id/action_bar_logout_item"
             app:showAsAction="never"
             android:title="@string/action_bar_logout"/>
-
-    </group>
 
 </menu>
