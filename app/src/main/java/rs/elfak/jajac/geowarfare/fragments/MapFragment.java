@@ -86,7 +86,7 @@ public class MapFragment extends BaseFragment implements
 
     public static final String FRAGMENT_TAG = "MapFragment";
 
-    public static final int REQUEST_LOCATION_PERMISSION = 2;
+    public static final int REQUEST_LOCATION_PERMISSION = 1;
 
     private Context mContext;
     private FloatingActionButton mBuildButton;
@@ -115,7 +115,7 @@ public class MapFragment extends BaseFragment implements
 
     public interface OnFragmentInteractionListener {
         void onOpenUserProfile(String userId);
-        void onOpenStructure(String structureId);
+        void onOpenStructure(StructureModel structureId);
     }
 
     @Override
@@ -423,13 +423,14 @@ public class MapFragment extends BaseFragment implements
     }
 
     private int getStructureIconId(StructureType structureType) {
-        if (structureType == StructureType.GOLD_MINE) {
-            return R.drawable.ic_gold_cart;
-        } else if (structureType == StructureType.BARRACKS) {
-            return R.drawable.ic_barracks;
+        switch (structureType) {
+            case GOLD_MINE:
+                return R.drawable.ic_gold_cart;
+            case BARRACKS:
+                return R.drawable.ic_barracks;
+            default:
+                return 0;
         }
-
-        return 0;
     }
 
     private BitmapDescriptor getBitmapFromVector(int resourceId, int color) {
@@ -465,7 +466,7 @@ public class MapFragment extends BaseFragment implements
     private void onStructureMarkerClick(Marker marker) {
         StructureModel structure = (StructureModel) marker.getTag();
         if (mListener != null) {
-            mListener.onOpenStructure(structure.id);
+            mListener.onOpenStructure(structure);
         }
     }
 

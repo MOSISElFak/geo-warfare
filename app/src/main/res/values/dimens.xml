@@ -37,4 +37,10 @@
 
     <dimen name="no_location_icon_size">100dp</dimen>
     <dimen name="no_location_vertical_margin">40dp</dimen>
+
+    <dimen name="structure_header_background_height">80dp</dimen>
+    <dimen name="structure_icon_size">56dp</dimen>
+    <dimen name="structure_icon_text_margin">12dp</dimen>
+    <dimen name="structure_type_text_size">20sp</dimen>
+    <dimen name="structure_owner_name_text_size">20sp</dimen>
 </resources>

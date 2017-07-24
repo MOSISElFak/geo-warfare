@@ -63,7 +63,6 @@
     <string name="location_permission_title">Location required</string>
     <string name="location_permission_message">In order to see your position on the map, build structures
         and interact with other players, you must allow this app to access your location.</string>
-    <string name="title_activity_main2">Main2Activity</string>
 
     <!-- ProfileFragment -->
     <string name="profile_friend_request_button_unfriend">Unfriend</string>
@@ -99,5 +98,8 @@
         phone. After you have done that, you will instantly be able to play. \n\nIf this screen doesn\'t
         automatically close after enabling device Location, click the button below.</string>
     <string name="no_location_button_continue">Continue</string>
+
+    <!-- GoldMineFragment -->
+
 
 </resources>

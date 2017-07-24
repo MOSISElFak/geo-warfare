@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -41,14 +40,17 @@ import java.util.Observable;
 import java.util.Observer;
 
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.fragments.BaseFragment;
 import rs.elfak.jajac.geowarfare.fragments.BuildFragment;
 import rs.elfak.jajac.geowarfare.fragments.EditUserInfoFragment;
 import rs.elfak.jajac.geowarfare.fragments.FriendsFragment;
+import rs.elfak.jajac.geowarfare.fragments.GoldMineFragment;
 import rs.elfak.jajac.geowarfare.fragments.MapFragment;
 import rs.elfak.jajac.geowarfare.fragments.NoLocationFragment;
 import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
 import rs.elfak.jajac.geowarfare.models.FriendModel;
 import rs.elfak.jajac.geowarfare.models.GoldMineModel;
+import rs.elfak.jajac.geowarfare.models.StructureModel;
 import rs.elfak.jajac.geowarfare.models.StructureType;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 import rs.elfak.jajac.geowarfare.utils.LocationSettingObservable;
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements
         FriendsFragment.OnListFragmentInteractionListener,
         BuildFragment.OnFragmentInteractionListener,
         NoLocationFragment.OnFragmentInteractionListener,
+        GoldMineFragment.OnFragmentInteractionListener,
         Observer {
 
     public static final int REQUEST_CHECK_SETTINGS = 1;
@@ -231,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case R.id.action_bar_profile_item:
                 onOpenUserProfile(mUser.getUid());
                 return true;
@@ -359,8 +362,26 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onOpenStructure(String structureId) {
+    public void onOpenStructure(StructureModel structure) {
+        String tag;
+        BaseFragment fragment;
 
+        switch (structure.type) {
+            case GOLD_MINE:
+                fragment = GoldMineFragment.newInstance(structure.id);
+                tag = GoldMineFragment.FRAGMENT_TAG;
+                break;
+            default:
+                // TODO: add some empty frag or something
+                tag = "";
+                fragment = null;
+        }
+
+        mFragmentManager
+                .beginTransaction()
+                .replace(R.id.main_fragment_container, fragment, tag)
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
@@ -395,15 +416,17 @@ public class MainActivity extends AppCompatActivity implements
     private void buildStructure(StructureType structureType, GeoLocation location) {
         FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
 
-        if (structureType == StructureType.GOLD_MINE) {
-            GoldMineModel newGoldMine = new GoldMineModel(structureType, mUser.getUid());
-            firebaseProvider.addGoldMine(newGoldMine, location).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    mFragmentManager.popBackStack();
-                    Toast.makeText(MainActivity.this, "New gold mine constructed.", Toast.LENGTH_SHORT).show();
-                }
-            });
+        switch (structureType) {
+            case GOLD_MINE:
+                GoldMineModel newGoldMine = new GoldMineModel(structureType, mUser.getUid());
+                firebaseProvider.addGoldMine(newGoldMine, location).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        mFragmentManager.popBackStack();
+                        Toast.makeText(MainActivity.this, "New gold mine constructed.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                break;
         }
     }
 
