@@ -37,6 +37,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Observable;
+import java.util.Observer;
+
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.fragments.BuildFragment;
 import rs.elfak.jajac.geowarfare.fragments.EditUserInfoFragment;
@@ -48,6 +51,7 @@ import rs.elfak.jajac.geowarfare.models.FriendModel;
 import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 import rs.elfak.jajac.geowarfare.models.StructureType;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
+import rs.elfak.jajac.geowarfare.utils.LocationSettingObservable;
 
 public class MainActivity extends AppCompatActivity implements
         View.OnClickListener,
@@ -56,7 +60,8 @@ public class MainActivity extends AppCompatActivity implements
         MapFragment.OnFragmentInteractionListener,
         FriendsFragment.OnListFragmentInteractionListener,
         BuildFragment.OnFragmentInteractionListener,
-        NoLocationFragment.OnFragmentInteractionListener {
+        NoLocationFragment.OnFragmentInteractionListener,
+        Observer {
 
     public static final int REQUEST_CHECK_SETTINGS = 1;
 
@@ -79,8 +84,7 @@ public class MainActivity extends AppCompatActivity implements
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         // Setup default shared preferences if they haven't been setup already
-        PreferenceManager.setDefaultValues(MainActivity.this,
-                R.xml.preferences, false);
+        PreferenceManager.setDefaultValues(MainActivity.this, R.xml.preferences, false);
 
         FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
         mUser = firebaseProvider.getCurrentUser();
@@ -105,6 +109,19 @@ public class MainActivity extends AppCompatActivity implements
         );
         spinAdapter.setDropDownViewResource(R.layout.toolbar_spinner_dropdown_item);
         mFilterSpinner.setAdapter(spinAdapter);
+
+        LocationSettingObservable.getInstance().addObserver(this);
+    }
+
+    // Triggered when the user enables/disables Location
+    @Override
+    public void update(Observable o, Object arg) {
+        boolean locationEnabled = (boolean) arg;
+        if (locationEnabled) {
+            onLocationSettingsSatisfied();
+        } else {
+            onLocationSettingsUnsatisfied();
+        }
     }
 
     // Check if the user's location SETTINGS (not permissions) are satisfying for our LocationRequest

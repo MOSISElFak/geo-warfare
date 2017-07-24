@@ -200,7 +200,8 @@ public class BackgroundLocationService extends Service implements
                                             .setLargeIcon(BitmapFactory.decodeResource(getResources(),
                                                     R.mipmap.ic_launcher))
                                             .setContentTitle("User " + nearbyUser.fullName + " is nearby!")
-                                            .setContentText("Touch to see what they're up to.");
+                                            .setContentText("Touch to see what they're up to.")
+                                            .setAutoCancel(true);
 
                             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                             PendingIntent resultPendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,

@@ -94,8 +94,10 @@
     <string name="build_barracks_text">Barracks</string>
 
     <!-- NoLocationFragment -->
-    <string name="no_location_text">In order to play <b>GeoWarfare</b> we need you to enable Location on your
-        phone. After you have done that, click the button below.</string>
+    <string name="no_location_title">Location Disabled</string>
+    <string name="no_location_message">In order to play <b>GeoWarfare</b> we need you to enable Location on your
+        phone. After you have done that, you will instantly be able to play. \n\nIf this screen doesn\'t
+        automatically close after enabling device Location, click the button below.</string>
     <string name="no_location_button_continue">Continue</string>
 
 </resources>

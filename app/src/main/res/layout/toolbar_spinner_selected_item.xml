@@ -4,5 +4,5 @@
     android:id="@+id/toolbar_spinner_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textSize="18sp"
+    android:textSize="@dimen/toolbar_spinner_text_size"
     android:textColor="@android:color/white"/>

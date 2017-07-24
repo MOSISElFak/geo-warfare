@@ -4,9 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/colorPrimaryDark"
-    android:paddingLeft="20dp"
-    android:paddingRight="20dp"
-    android:paddingTop="12dp"
-    android:paddingBottom="12dp"
-    android:textSize="18sp"
+    android:padding="@dimen/toolbar_spinner_dropdown_item_padding"
+    android:textSize="@dimen/toolbar_spinner_text_size"
     android:textColor="@android:color/white"/>
