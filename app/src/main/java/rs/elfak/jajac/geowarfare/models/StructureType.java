@@ -5,19 +5,21 @@ import rs.elfak.jajac.geowarfare.R;
 public enum StructureType {
 
     // The string names are for views in the app
-    GOLD_MINE("Gold mine", 0, R.drawable.ic_gold_cart, 3),
-    BARRACKS("Barracks", 1, R.drawable.ic_barracks, 3);
+    GOLD_MINE("Gold mine", 0, R.drawable.ic_gold_cart, 3, 500),
+    BARRACKS("Barracks", 1, R.drawable.ic_barracks, 3, 2000);
 
     private String name;
     private int value;
     private int iconResourceId;
     private int maxLevel;
+    private int baseCost;
 
-    StructureType(String name, int value, int iconResourceId, int maxLevel) {
+    StructureType(String name, int value, int iconResourceId, int maxLevel, int baseCost) {
         this.name = name;
         this.value = value;
         this.iconResourceId = iconResourceId;
         this.maxLevel = maxLevel;
+        this.baseCost = baseCost;
     }
 
     public String getName() {
@@ -30,6 +32,10 @@ public enum StructureType {
 
     public int getMaxLevel() {
         return this.maxLevel;
+    }
+
+    public int getBaseCost() {
+        return this.baseCost;
     }
 
 }

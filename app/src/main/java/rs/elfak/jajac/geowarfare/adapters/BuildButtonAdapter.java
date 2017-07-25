@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.GoldMineModel;
@@ -17,7 +18,7 @@ import rs.elfak.jajac.geowarfare.models.StructureType;
 public class BuildButtonAdapter extends BaseAdapter {
 
     private Context mContext;
-    private ArrayList<BuildButtonItem> mItems = new ArrayList<>();
+    private ArrayList<StructureType> mItems = new ArrayList<>();
     private final OnBuildItemClickListener mListener;
 
     public interface OnBuildItemClickListener {
@@ -27,8 +28,8 @@ public class BuildButtonAdapter extends BaseAdapter {
     public BuildButtonAdapter(Context context, OnBuildItemClickListener listener) {
         mContext = context;
         mListener = listener;
-        mItems.add(new BuildButtonItem(R.drawable.ic_gold_cart, StructureType.GOLD_MINE, GoldMineModel.COST));
-        mItems.add(new BuildButtonItem(R.drawable.ic_barracks, StructureType.BARRACKS, 2000));
+        // get all types and add them to the array
+        mItems.addAll(Arrays.asList(StructureType.values()));
     }
 
     @Override
@@ -64,29 +65,16 @@ public class BuildButtonAdapter extends BaseAdapter {
         // Set the appropriate item
         holder.mItem = mItems.get(position);
 
-        holder.mImageButton.setImageResource(holder.mItem.imageResourceId);
-        holder.mName.setText(holder.mItem.structureType.getName());
-        holder.mCost.setText(String.valueOf(holder.mItem.cost));
+        holder.mImageButton.setImageResource(holder.mItem.getIconResourceId());
+        holder.mName.setText(holder.mItem.getName());
+        holder.mCost.setText(String.valueOf(holder.mItem.getBaseCost()));
 
         return view;
     }
 
-    // Simple class holding data related to one item on the Build menu/fragment
-    private class BuildButtonItem {
-        int imageResourceId;
-        StructureType structureType;
-        int cost;
-
-        BuildButtonItem(int imageResourceId, StructureType structureType, int cost) {
-            this.imageResourceId = imageResourceId;
-            this.structureType = structureType;
-            this.cost = cost;
-        }
-    }
-
     // View holder class for the item
     private class BuildButtonViewHolder implements View.OnClickListener {
-        private BuildButtonItem mItem;
+        private StructureType mItem;
         private ImageButton mImageButton;
         private TextView mName;
         private TextView mCost;
@@ -101,7 +89,7 @@ public class BuildButtonAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
-            mListener.onBuildStructureClick(mItem.structureType);
+            mListener.onBuildStructureClick(mItem);
         }
     }
 }
