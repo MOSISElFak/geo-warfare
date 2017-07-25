@@ -1,6 +1,7 @@
 package rs.elfak.jajac.geowarfare.fragments;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -10,6 +11,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -92,13 +94,28 @@ public class StructureInfoFragment extends BaseFragment implements View.OnClickL
         mOwnerDisplayNameTv = (TextView) view.findViewById(R.id.structure_info_owner_display_name);
         mOwnerAvatarImg = (ImageView) view.findViewById(R.id.structure_info_owner_avatar_img);
 
-        mStructureIconImg.setImageDrawable(ContextCompat.getDrawable(mContext, mStructureType.getIconResourceId()));
+        mStructureIconImg.setImageResource(mStructureType.getIconResourceId());
         mStructureTypeTv.setText(mStructureType.getName());
         mOwnerDisplayNameTv.setText(mOwnerDisplayName);
         Glide.with(mContext)
                 .load(mOwnerAvatarUrl)
                 .into(mOwnerAvatarImg);
         mOwnerAvatarImg.setOnClickListener(this);
+
+        ViewGroup starImagesContainer = (ViewGroup) view.findViewById(R.id.structure_info_level_container);
+
+        for (int i = 0; i < mStructureType.getMaxLevel(); i++) {
+            ImageView starImage = new ImageView(mContext);
+            starImage.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            starImage.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(mContext, R.color.colorAccent)));
+            if (i < mStructureLevel) {
+                starImage.setImageResource(R.drawable.ic_star_24dp);
+            } else {
+                starImage.setImageResource(R.drawable.ic_star_border_24dp);
+            }
+            starImagesContainer.addView(starImage);
+        }
 
         return view;
     }
@@ -115,12 +132,6 @@ public class StructureInfoFragment extends BaseFragment implements View.OnClickL
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.setGroupVisible(R.menu.action_bar_main_menu, false);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
@@ -131,7 +142,6 @@ public class StructureInfoFragment extends BaseFragment implements View.OnClickL
         }
 
         mContext = context;
-        setHasOptionsMenu(true);
     }
 
     @Override

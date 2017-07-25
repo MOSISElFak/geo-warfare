@@ -106,8 +106,13 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        setActionBarTitle(getString(R.string.edit_user_info_title));
-        getActivity().findViewById(R.id.toolbar_filter_spinner).setVisibility(View.INVISIBLE);
+        if (mShouldInjectOwnMenu) {
+            setActionBarTitle(getString(R.string.edit_user_info_title));
+        }
+        View spinnerView = getActivity().findViewById(R.id.toolbar_filter_spinner);
+        if (spinnerView != null) {
+            spinnerView.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override

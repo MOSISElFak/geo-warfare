@@ -43,4 +43,14 @@
     <dimen name="structure_icon_text_margin">12dp</dimen>
     <dimen name="structure_type_text_size">20sp</dimen>
     <dimen name="structure_owner_name_text_size">20sp</dimen>
+    <dimen name="structure_section_title_top_margin">16dp</dimen>
+    <dimen name="structure_section_title_bottom_margin">24dp</dimen>
+    <dimen name="structure_section_divider_top_margin">16dp</dimen>
+    <dimen name="structure_upgrade_label_icon_margin">20dp</dimen>
+    <dimen name="structure_upgrade_icon_value_margin">12dp</dimen>
+    <dimen name="structure_upgrade_label_vertical_margin">12dp</dimen>
+
+    <dimen name="gold_mine_upgrade_title_text_size">24sp</dimen>
+    <dimen name="gold_mine_upgrade_label_text_size">16sp</dimen>
+    <dimen name="gold_mine_upgrade_value_text_size">18sp</dimen>
 </resources>

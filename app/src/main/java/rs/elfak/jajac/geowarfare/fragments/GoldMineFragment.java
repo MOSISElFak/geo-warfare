@@ -110,11 +110,13 @@ public class GoldMineFragment extends BaseFragment {
                         mGoldMine.level, mOwner.id, mOwner.displayName, mOwner.avatarUrl), StructureInfoFragment
                         .FRAGMENT_TAG)
                 .commit();
+
+
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.setGroupVisible(R.menu.action_bar_main_menu, false);
+        menu.setGroupVisible(R.id.main_menu_group, false);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
