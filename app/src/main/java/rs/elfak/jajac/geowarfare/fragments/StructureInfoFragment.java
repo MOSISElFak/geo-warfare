@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 import rs.elfak.jajac.geowarfare.models.StructureType;
 
 public class StructureInfoFragment extends BaseFragment implements View.OnClickListener {
@@ -37,6 +38,7 @@ public class StructureInfoFragment extends BaseFragment implements View.OnClickL
     private String mOwnerDisplayName;
     private String mOwnerAvatarUrl;
 
+    private ViewGroup mStructureLevelContainer;
     private ImageView mStructureIconImg;
     private TextView mStructureTypeTv;
     private TextView mOwnerDisplayNameTv;
@@ -102,8 +104,22 @@ public class StructureInfoFragment extends BaseFragment implements View.OnClickL
                 .into(mOwnerAvatarImg);
         mOwnerAvatarImg.setOnClickListener(this);
 
-        ViewGroup starImagesContainer = (ViewGroup) view.findViewById(R.id.structure_info_level_container);
+        mStructureLevelContainer = (ViewGroup) view.findViewById(R.id.structure_info_level_container);
+        drawStructureLevelIndicators();
 
+        return view;
+    }
+
+    // We're only concerned whether the structure level changed so we can update the star indicators
+    public void onStructureDataChanged(int structureLevel) {
+        if (mStructureLevel != structureLevel) {
+            mStructureLevel = structureLevel;
+            drawStructureLevelIndicators();
+        }
+    }
+
+    private void drawStructureLevelIndicators() {
+        mStructureLevelContainer.removeAllViews();
         for (int i = 0; i < mStructureType.getMaxLevel(); i++) {
             ImageView starImage = new ImageView(mContext);
             starImage.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -114,10 +130,8 @@ public class StructureInfoFragment extends BaseFragment implements View.OnClickL
             } else {
                 starImage.setImageResource(R.drawable.ic_star_border_24dp);
             }
-            starImagesContainer.addView(starImage);
+            mStructureLevelContainer.addView(starImage);
         }
-
-        return view;
     }
 
     @Override

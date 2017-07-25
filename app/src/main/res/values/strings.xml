@@ -102,8 +102,13 @@
     <!-- GoldMineFragment -->
     <string name="gold_mine_collect_title">Collect gold</string>
     <string name="gold_mine_collect_label">Gold mined:</string>
+    <string name="gold_mine_collect_button">Collect</string>
     <string name="gold_mine_upgrade_title">Upgrade</string>
     <string name="gold_mine_upgrade_current">Current level:</string>
     <string name="gold_mine_upgrade_next">Next level:</string>
+
+    <string name="gold_mine_empty_message">Nothing to collect at the moment.</string>
+    <string name="gold_mine_upgrade_no_gold_message">You don\'t have enough gold.</string>
+    <string name="gold_mine_max_level_message">Already at max level.</string>
 
 </resources>

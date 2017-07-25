@@ -63,6 +63,10 @@ public class FirebaseProvider {
         return mUsersDbRef.child(userId);
     }
 
+    public DatabaseReference getUserGold(String userId) {
+        return mUsersDbRef.child(userId).child("gold");
+    }
+
     public Task<AuthResult> createUserWithEmailAndPassword(String email, String password) {
         return mAuth.createUserWithEmailAndPassword(email, password);
     }
@@ -140,6 +144,25 @@ public class FirebaseProvider {
 
     public GeoFire getStructuresGeoFire() {
         return mStructuresGeoFire;
+    }
+
+    public Task<Void> updateGold(String toUserId, int newGoldAmount, String fromGoldMineId) {
+        Map<String, Object> updates = new HashMap<>();
+
+        updates.put("/structures/" + fromGoldMineId + "/gold", 0);
+        updates.put("/users/" + toUserId + "/gold", newGoldAmount);
+
+        return mDbRef.updateChildren(updates);
+    }
+
+    public Task<Void> upgradeStructureLevel(String userId, int newGoldAmount,
+                                            String structureId, int newStructureLevel) {
+        Map<String, Object> updates = new HashMap<>();
+
+        updates.put("/structures/" + structureId + "/level", newStructureLevel);
+        updates.put("/users/" + userId + "/gold", newGoldAmount);
+
+        return mDbRef.updateChildren(updates);
     }
 
 }

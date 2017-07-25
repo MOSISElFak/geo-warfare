@@ -5,8 +5,8 @@ import rs.elfak.jajac.geowarfare.R;
 public enum StructureType {
 
     // The string names are for views in the app
-    GOLD_MINE("Gold mine", 0, R.drawable.ic_gold_cart, 3, 500),
-    BARRACKS("Barracks", 1, R.drawable.ic_barracks, 3, 2000);
+    GOLD_MINE("Gold mine", 0, R.drawable.ic_gold_cart, 3, 250),
+    BARRACKS("Barracks", 1, R.drawable.ic_barracks, 3, 1000);
 
     private String name;
     private int value;
