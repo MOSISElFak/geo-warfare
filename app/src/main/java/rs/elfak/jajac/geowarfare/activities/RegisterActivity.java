@@ -127,7 +127,7 @@ public class RegisterActivity extends AppCompatActivity implements
                                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                         @Override
                                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                            String newUserId = firebaseProvider.getCurrentUser().getUid();
+                                            String newUserId = firebaseProvider.getCurrentFirebaseUser().getUid();
                                             String storageImageUri = taskSnapshot.getDownloadUrl().toString();
                                             UserModel newUser = getUserModel(newUserId, storageImageUri);
                                             Map<String, Object> userInfoValues = newUser.toMap();

@@ -55,12 +55,16 @@ public class FirebaseProvider {
 
     // *********************************************** USERS *********************************************** //
 
-    public FirebaseUser getCurrentUser() {
+    public FirebaseUser getCurrentFirebaseUser() {
         return mAuth.getCurrentUser();
     }
 
     public DatabaseReference getUserById(String userId) {
         return mUsersDbRef.child(userId);
+    }
+
+    public DatabaseReference getCurrentUser() {
+        return mUsersDbRef.child(mAuth.getCurrentUser().getUid());
     }
 
     public DatabaseReference getUserGold(String userId) {

@@ -21,7 +21,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.GoldMineModel;
-import rs.elfak.jajac.geowarfare.models.StructureType;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 
@@ -181,7 +180,7 @@ public class GoldMineFragment extends BaseFragment implements View.OnClickListen
             mCollectButton.setOnClickListener(null);
 
             final FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
-            final String myUserId = firebaseProvider.getCurrentUser().getUid();
+            final String myUserId = firebaseProvider.getCurrentFirebaseUser().getUid();
             firebaseProvider.getUserGold(myUserId)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -210,7 +209,7 @@ public class GoldMineFragment extends BaseFragment implements View.OnClickListen
         mUpgradeButton.setOnClickListener(null);
 
         final FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
-        final String myUserId = firebaseProvider.getCurrentUser().getUid();
+        final String myUserId = firebaseProvider.getCurrentFirebaseUser().getUid();
         firebaseProvider.getUserGold(myUserId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override

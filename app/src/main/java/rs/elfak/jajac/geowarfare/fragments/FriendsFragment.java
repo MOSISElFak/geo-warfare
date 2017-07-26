@@ -106,7 +106,7 @@ public class FriendsFragment extends BaseFragment {
 
     private void loadFriendRequestsAndFriends() {
         FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
-        String myUserId = firebaseProvider.getCurrentUser().getUid();
+        String myUserId = firebaseProvider.getCurrentFirebaseUser().getUid();
 
         firebaseProvider.getUserById(myUserId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {

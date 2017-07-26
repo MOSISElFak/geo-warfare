@@ -65,6 +65,8 @@
 
         <service android:name=".services.BackgroundLocationService"/>
 
+        <service android:name=".services.UserUpdatesService"/>
+
         <receiver android:name=".receivers.BootCompletedReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>

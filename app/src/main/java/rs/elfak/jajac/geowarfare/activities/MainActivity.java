@@ -1,12 +1,19 @@
 package rs.elfak.jajac.geowarfare.activities;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -54,7 +61,9 @@ import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
 import rs.elfak.jajac.geowarfare.models.StructureType;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
-import rs.elfak.jajac.geowarfare.utils.LocationSettingObservable;
+import rs.elfak.jajac.geowarfare.receivers.LocationProvidersChangedReceiver;
+import rs.elfak.jajac.geowarfare.services.BackgroundLocationService;
+import rs.elfak.jajac.geowarfare.services.UserUpdatesService;
 
 public class MainActivity extends AppCompatActivity implements
         View.OnClickListener,
@@ -66,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements
         NoLocationFragment.OnFragmentInteractionListener,
         StructureInfoFragment.OnFragmentInteractionListener,
         GoldMineFragment.OnFragmentInteractionListener,
-        Observer {
+        ServiceConnection {
 
     public static final int REQUEST_CHECK_SETTINGS = 1;
 
@@ -80,6 +89,20 @@ public class MainActivity extends AppCompatActivity implements
     DatabaseReference mMyFriendRequestsDbRef;
     ValueEventListener mFriendRequestsListener;
 
+    private BroadcastReceiver mUserUpdatesReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            onUserDataUpdated();
+        }
+    };
+    private BroadcastReceiver mLocationProvidersChangedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean isEnabled = intent.getBooleanExtra(LocationProvidersChangedReceiver.PROVIDERS_STATUS_KEY, false);
+            onLocationProvidersChanged(isEnabled);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements
         PreferenceManager.setDefaultValues(MainActivity.this, R.xml.preferences, false);
 
         FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
-        mUser = firebaseProvider.getCurrentUser();
+        mUser = firebaseProvider.getCurrentFirebaseUser();
         mMyFriendRequestsDbRef = firebaseProvider.getFriendRequestsForUser(mUser.getUid());
 
         mFragmentManager = getSupportFragmentManager();
@@ -114,15 +137,50 @@ public class MainActivity extends AppCompatActivity implements
         );
         spinAdapter.setDropDownViewResource(R.layout.toolbar_spinner_dropdown_item);
         mFilterSpinner.setAdapter(spinAdapter);
-
-        LocationSettingObservable.getInstance().addObserver(this);
     }
 
-    // Triggered when the user enables/disables Location
     @Override
-    public void update(Observable o, Object arg) {
-        boolean locationEnabled = (boolean) arg;
-        if (locationEnabled) {
+    protected void onStart() {
+        super.onStart();
+        // Bind to the user updates service so it starts running if it's not already
+        Intent userUpdatesIntent = new Intent(this, UserUpdatesService.class);
+        bindService(userUpdatesIntent, this, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        // Register a receiver for any changes in the user data (eg. from UserUpdatesService)
+        localBroadcastManager.registerReceiver(mUserUpdatesReceiver,
+                new IntentFilter(UserUpdatesService.USER_UPDATED_INTENT_ACTION));
+        // Register a receiver for any changes in location providers (eg. from LocationProvidersChangedReceiver)
+        localBroadcastManager.registerReceiver(mLocationProvidersChangedReceiver,
+                new IntentFilter(LocationProvidersChangedReceiver.PROVIDERS_CHANGED_INTENT_ACTION));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        // Unregister the receivers in onPause because we can guarantee its execution
+        localBroadcastManager.unregisterReceiver(mUserUpdatesReceiver);
+        localBroadcastManager.unregisterReceiver(mLocationProvidersChangedReceiver);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Unbind from any services this activity is bound to
+        unbindService(this);
+    }
+
+    private void onUserDataUpdated() {
+        Toast.makeText(this, "User shiat updated.", Toast.LENGTH_SHORT).show();
+    }
+
+    private void onLocationProvidersChanged(boolean isEnabled) {
+        if (isEnabled) {
             onLocationSettingsSatisfied();
         } else {
             onLocationSettingsUnsatisfied();
@@ -441,4 +499,10 @@ public class MainActivity extends AppCompatActivity implements
     public void onOwnerAvatarClick(String ownerUserId) {
         onOpenUserProfile(ownerUserId);
     }
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {}
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {}
 }

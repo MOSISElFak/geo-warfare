@@ -419,7 +419,7 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
 
         final FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
 
-        final String newUserId = firebaseProvider.getCurrentUser().getUid();
+        final String newUserId = firebaseProvider.getCurrentFirebaseUser().getUid();
         final String storageImageUri = mAvatarPath;
         final Map<String, Object> newUserValues = getUserValuesMap(storageImageUri);
 
