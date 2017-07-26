@@ -6,7 +6,7 @@
     tools:context="rs.elfak.jajac.geowarfare.fragments.GoldMineFragment">
 
     <FrameLayout
-        android:id="@+id/structure_info_container"
+        android:id="@+id/fragment_gold_mine_info_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true">
@@ -15,12 +15,12 @@
 
     <!-- COLLECT GOLD -->
     <GridLayout
-        android:id="@+id/fragment_gold_mine_collect_container"
+        android:id="@+id/fragment_gold_mine_collect_upgrade_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:layout_below="@id/structure_info_container"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:layout_below="@+id/fragment_gold_mine_info_container"
         android:layout_centerHorizontal="true"
         android:alignmentMode="alignBounds"
         android:columnCount="3"
@@ -34,7 +34,7 @@
             android:layout_marginTop="@dimen/structure_section_title_top_margin"
             android:layout_marginBottom="@dimen/structure_section_title_bottom_margin"
             android:textAlignment="center"
-            android:textSize="@dimen/gold_mine_upgrade_title_text_size"
+            android:textSize="@dimen/structure_section_title_size"
             android:text="@string/gold_mine_collect_title"/>
 
         <TextView
@@ -43,7 +43,7 @@
             android:layout_columnWeight="1"
             android:layout_gravity="fill"
             android:gravity="center_vertical"
-            android:textSize="@dimen/gold_mine_upgrade_label_text_size"
+            android:textSize="@dimen/structure_label_text_size"
             android:text="@string/gold_mine_collect_label"/>
 
         <LinearLayout
@@ -64,8 +64,8 @@
                 android:id="@+id/fragment_gold_mine_collect_amount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/structure_upgrade_icon_value_margin"
-                android:textSize="@dimen/gold_mine_upgrade_value_text_size"
+                android:layout_marginStart="@dimen/structure_icon_value_margin"
+                android:textSize="@dimen/structure_value_text_size"
                 tools:text="500"/>
 
         </LinearLayout>
@@ -95,8 +95,8 @@
             android:layout_marginTop="@dimen/structure_section_title_top_margin"
             android:layout_marginBottom="@dimen/structure_section_title_bottom_margin"
             android:textAlignment="center"
-            android:textSize="@dimen/gold_mine_upgrade_title_text_size"
-            android:text="@string/gold_mine_upgrade_title"/>
+            android:textSize="@dimen/structure_section_title_size"
+            android:text="@string/structure_upgrade_title"/>
 
         <TextView
             android:id="@+id/fragment_gold_mine_upgrade_current_label"
@@ -104,8 +104,8 @@
             android:layout_columnWeight="1"
             android:layout_gravity="fill"
             android:gravity="center_vertical"
-            android:textSize="@dimen/gold_mine_upgrade_label_text_size"
-            android:text="@string/gold_mine_upgrade_current"/>
+            android:textSize="@dimen/structure_label_text_size"
+            android:text="@string/structure_upgrade_current_label"/>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -125,8 +125,8 @@
                 android:id="@+id/fragment_gold_mine_upgrade_current"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/structure_upgrade_icon_value_margin"
-                android:textSize="@dimen/gold_mine_upgrade_value_text_size"
+                android:layout_marginStart="@dimen/structure_icon_value_margin"
+                android:textSize="@dimen/structure_value_text_size"
                 tools:text="500"/>
 
         </LinearLayout>
@@ -138,7 +138,7 @@
             android:layout_columnWeight="1"
             android:layout_gravity="center_vertical"
             android:drawableStart="@drawable/ic_coin_stack"
-            android:textSize="@dimen/gold_mine_upgrade_value_text_size"
+            android:textSize="@dimen/structure_value_text_size"
             tools:text="5000"
             android:theme="@style/AccentButton"
             android:visibility="invisible"/>
@@ -151,8 +151,8 @@
             android:layout_columnWeight="1"
             android:layout_gravity="fill"
             android:gravity="center_vertical"
-            android:textSize="@dimen/gold_mine_upgrade_label_text_size"
-            android:text="@string/gold_mine_upgrade_next"/>
+            android:textSize="@dimen/structure_label_text_size"
+            android:text="@string/structure_upgrade_next_label"/>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -172,8 +172,8 @@
                 android:id="@+id/fragment_gold_mine_upgrade_next"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/structure_upgrade_icon_value_margin"
-                android:textSize="@dimen/gold_mine_upgrade_value_text_size"
+                android:layout_marginStart="@dimen/structure_icon_value_margin"
+                android:textSize="@dimen/structure_value_text_size"
                 tools:text="500"/>
 
         </LinearLayout>
@@ -187,5 +187,12 @@
             android:background="@color/colorDivider"/>
 
     </GridLayout>
+
+    <FrameLayout
+        android:id="@+id/fragment_gold_mine_defense_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/fragment_gold_mine_collect_upgrade_container">
+    </FrameLayout>
 
 </RelativeLayout>

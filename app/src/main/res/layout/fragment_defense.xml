@@ -1,0 +1,137 @@
+<GridLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="12dp"
+    android:paddingRight="12dp"
+    android:layout_centerHorizontal="true"
+    android:alignmentMode="alignBounds"
+    android:columnCount="3"
+    android:rowOrderPreserved="false">
+
+    <TextView
+        android:id="@+id/fragment_defense_title"
+        android:layout_width="0dp"
+        android:layout_columnSpan="3"
+        android:layout_columnWeight="1"
+        android:layout_marginTop="@dimen/structure_section_title_top_margin"
+        android:layout_marginBottom="@dimen/structure_section_title_bottom_margin"
+        android:textAlignment="center"
+        android:textSize="@dimen/structure_section_title_size"
+        android:text="@string/structure_defense_title"/>
+
+    <!-- SWORD -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill"
+        android:gravity="start|center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:tint="@color/colorPrimaryDark"
+            android:src="@drawable/ic_sword"/>
+
+        <TextView
+            android:id="@+id/fragment_defense_sword_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/structure_icon_value_margin"
+            android:textSize="@dimen/structure_value_text_size"
+            tools:text="50"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill"
+        android:gravity="start|center_vertical"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/fragment_defense_sword_transfer_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:inputType="number"
+            android:ems="4"
+            android:textSize="@dimen/structure_value_text_size"
+            tools:text="50"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_rowSpan="2"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill"
+        android:gravity="center_vertical">
+
+        <ImageButton
+            android:id="@+id/fragment_defense_transfer_up_btn"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="3dp"
+            android:src="@drawable/ic_arrow_up_24dp"
+            android:theme="@style/AccentButton"/>
+
+        <ImageButton
+            android:id="@+id/fragment_defense_transfer_down_btn"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="3dp"
+            android:src="@drawable/ic_arrow_down_24dp"
+            android:theme="@style/AccentButton"/>
+
+    </LinearLayout>
+
+    <!-- BOW & ARROW -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill"
+        android:gravity="start|center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:tint="@color/colorPrimaryDark"
+            android:src="@drawable/ic_bow_and_arrow"/>
+
+        <TextView
+            android:id="@+id/fragment_defense_bow_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/structure_icon_value_margin"
+            android:textSize="@dimen/structure_value_text_size"
+            tools:text="15"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill"
+        android:gravity="start|center_vertical"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/fragment_defense_bow_transfer_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:inputType="number"
+            android:ems="4"
+            android:textSize="@dimen/structure_value_text_size"
+            tools:text="7"/>
+
+    </LinearLayout>
+
+</GridLayout>

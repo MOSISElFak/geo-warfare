@@ -50,13 +50,6 @@ public class StructureInfoFragment extends BaseFragment implements View.OnClickL
         void onOwnerAvatarClick(String mOwnerUserId);
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        setActionBarTitle(null);
-        getActivity().findViewById(R.id.toolbar_filter_spinner).setVisibility(View.INVISIBLE);
-    }
-
     public StructureInfoFragment() {
         // Required empty public constructor
     }

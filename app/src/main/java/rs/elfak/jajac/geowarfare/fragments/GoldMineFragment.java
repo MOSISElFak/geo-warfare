@@ -138,9 +138,10 @@ public class GoldMineFragment extends BaseFragment implements View.OnClickListen
             mUpgradeButton.setText(String.valueOf(mGoldMine.getUpgradeCost()));
         } else {
             mNextLevelCoinsIcon.setVisibility(View.GONE);
-            mNextLevelIncome.setText(getString(R.string.gold_mine_max_level_message));
+            mNextLevelIncome.setText(getString(R.string.structure_max_level_message));
         }
 
+        updateDefenseInfo();
     }
 
     private void updateBasicStructureInfo() {
@@ -156,7 +157,28 @@ public class GoldMineFragment extends BaseFragment implements View.OnClickListen
 
         childFragmentManager
                 .beginTransaction()
-                .replace(R.id.structure_info_container, infoFrag, StructureInfoFragment.FRAGMENT_TAG)
+                .replace(R.id.fragment_gold_mine_info_container, infoFrag, StructureInfoFragment.FRAGMENT_TAG)
+                .commit();
+    }
+
+    private void updateDefenseInfo() {
+        FragmentManager childFragmentManager = getChildFragmentManager();
+        DefenseFragment defenseFrag = (DefenseFragment) childFragmentManager.
+                findFragmentByTag(DefenseFragment.FRAGMENT_TAG);
+        if (defenseFrag == null) {
+            defenseFrag = DefenseFragment.newInstance(
+                    mGoldMine.defense.get("swords"),
+                    mGoldMine.defense.get("bows"),
+                    mOwner.army.get("swords"),
+                    mOwner.army.get("bows")
+            );
+        } else {
+//            defenseFrag.onDefenseDataChanged(mGoldMine.level);
+        }
+
+        childFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_gold_mine_defense_container, defenseFrag, StructureInfoFragment.FRAGMENT_TAG)
                 .commit();
     }
 
@@ -227,7 +249,7 @@ public class GoldMineFragment extends BaseFragment implements View.OnClickListen
                                         }
                                     });
                         } else {
-                            Toast.makeText(mContext, getString(R.string.gold_mine_upgrade_no_gold_message),
+                            Toast.makeText(mContext, getString(R.string.structure_upgrade_no_gold_message),
                                     Toast.LENGTH_SHORT).show();
                             mUpgradeButton.setOnClickListener(GoldMineFragment.this);
                         }

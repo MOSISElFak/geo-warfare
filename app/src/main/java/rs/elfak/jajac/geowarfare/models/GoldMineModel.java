@@ -1,5 +1,6 @@
 package rs.elfak.jajac.geowarfare.models;
 
+import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.Map;
@@ -16,26 +17,32 @@ public class GoldMineModel extends StructureModel {
         super(type, ownerId);
     }
 
+    @Exclude
     private int getIncomeAtLevel(int level) {
         return getCostForLevel(level) / (level * 5);
     }
 
+    @Exclude
     public int getCurrentIncome() {
         return getIncomeAtLevel(this.level);
     }
 
+    @Exclude
     public int getNextIncome() {
         return getIncomeAtLevel(this.level + 1);
     }
 
+    @Exclude
     public boolean canUpgrade() {
         return this.level < this.type.getMaxLevel();
     }
 
+    @Exclude
     public int getUpgradeCost() {
         return getCostForLevel(this.level + 1);
     }
 
+    @Exclude
     private int getCostForLevel(int level) {
         if (level == 1) {
             return this.type.getBaseCost();

@@ -18,6 +18,8 @@ public class StructureModel {
     public StructureModel(StructureType type, String ownerId) {
         this.type = type;
         this.ownerId = ownerId;
+        this.defense.put("swords", 0);
+        this.defense.put("bows", 0);
     }
 
 }

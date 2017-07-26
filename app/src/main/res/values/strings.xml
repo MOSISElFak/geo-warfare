@@ -99,16 +99,20 @@
         automatically close after enabling device Location, click the button below.</string>
     <string name="no_location_button_continue">Continue</string>
 
+    <!-- Structure common -->
+    <string name="structure_upgrade_title">Upgrade</string>
+    <string name="structure_upgrade_current_label">Current level:</string>
+    <string name="structure_upgrade_next_label">Next level:</string>
+    <string name="structure_upgrade_no_gold_message">You don\'t have enough gold.</string>
+    <string name="structure_max_level_message">Already at max level.</string>
+    <string name="structure_defense_title">Defense</string>
+    <string name="structure_defense_transfer_button">Apply</string>
+
     <!-- GoldMineFragment -->
     <string name="gold_mine_collect_title">Collect gold</string>
     <string name="gold_mine_collect_label">Gold mined:</string>
     <string name="gold_mine_collect_button">Collect</string>
-    <string name="gold_mine_upgrade_title">Upgrade</string>
-    <string name="gold_mine_upgrade_current">Current level:</string>
-    <string name="gold_mine_upgrade_next">Next level:</string>
 
     <string name="gold_mine_empty_message">Nothing to collect at the moment.</string>
-    <string name="gold_mine_upgrade_no_gold_message">You don\'t have enough gold.</string>
-    <string name="gold_mine_max_level_message">Already at max level.</string>
 
 </resources>

@@ -42,6 +42,7 @@ import com.google.firebase.database.DatabaseError;
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.fragments.BaseFragment;
 import rs.elfak.jajac.geowarfare.fragments.BuildFragment;
+import rs.elfak.jajac.geowarfare.fragments.DefenseFragment;
 import rs.elfak.jajac.geowarfare.fragments.EditUserInfoFragment;
 import rs.elfak.jajac.geowarfare.fragments.FriendsFragment;
 import rs.elfak.jajac.geowarfare.fragments.GoldMineFragment;
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements
         BuildFragment.OnFragmentInteractionListener,
         NoLocationFragment.OnFragmentInteractionListener,
         StructureInfoFragment.OnFragmentInteractionListener,
+        DefenseFragment.OnFragmentInteractionListener,
         GoldMineFragment.OnFragmentInteractionListener,
         ServiceConnection {
 
