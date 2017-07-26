@@ -58,8 +58,7 @@ public class FriendsFragment extends BaseFragment {
 
     @SuppressWarnings("unused")
     public static FriendsFragment newInstance() {
-        FriendsFragment fragment = new FriendsFragment();
-        return fragment;
+        return new FriendsFragment();
     }
 
     @Override
@@ -88,6 +87,7 @@ public class FriendsFragment extends BaseFragment {
 
         Context context = view.getContext();
 
+        // We create and add a simple divider that will be used after every item
         DividerItemDecoration divider = new DividerItemDecoration(context, DividerItemDecoration.VERTICAL);
         divider.setDrawable(ContextCompat.getDrawable(context, R.drawable.list_divider));
         mRequestsRecyclerView.addItemDecoration(divider);
@@ -113,6 +113,7 @@ public class FriendsFragment extends BaseFragment {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         UserModel user = dataSnapshot.getValue(UserModel.class);
+                        user.id = dataSnapshot.getKey();
                         setupFriendRequests(user.friendRequests.keySet());
                         setupFriends(user.friends.keySet());
                     }
@@ -135,6 +136,7 @@ public class FriendsFragment extends BaseFragment {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 FriendModel request = dataSnapshot.getValue(FriendModel.class);
+                                request.userId = dataSnapshot.getKey();
                                 mRequests.add(request);
                                 mRequestsAdapter.notifyItemInserted(mRequests.size() - 1);
                             }
@@ -161,6 +163,7 @@ public class FriendsFragment extends BaseFragment {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 FriendModel friend = dataSnapshot.getValue(FriendModel.class);
+                                friend.userId = dataSnapshot.getKey();
                                 mFriends.add(friend);
                                 mFriendsAdapter.notifyItemInserted(mFriends.size() - 1);
                             }

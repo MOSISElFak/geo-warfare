@@ -33,7 +33,6 @@
         android:paddingRight="4dp"
         android:text="@null"
         android:textColor="@color/colorPrimaryDark"
-        android:textSize="12sp"
-        android:visibility="invisible"/>
+        android:textSize="12sp"/>
 
 </RelativeLayout>

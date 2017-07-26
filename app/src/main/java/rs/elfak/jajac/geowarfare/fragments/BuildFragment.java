@@ -31,8 +31,7 @@ public class BuildFragment extends BaseFragment implements BuildButtonAdapter.On
     }
 
     public static BuildFragment newInstance() {
-        BuildFragment fragment = new BuildFragment();
-        return fragment;
+        return new BuildFragment();
     }
 
     @Override

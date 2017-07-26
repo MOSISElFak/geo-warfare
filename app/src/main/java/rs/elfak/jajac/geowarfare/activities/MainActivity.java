@@ -276,6 +276,7 @@ public class MainActivity extends AppCompatActivity implements
         // because we have used the "actionLayout" parameter in the xml
         friendsItemView.setOnClickListener(this);
         mFriendRequestsCountTv = (TextView) friendsItemView.findViewById(R.id.friend_requests_count_tv);
+        updateFriendRequestsCount();
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -313,12 +314,12 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onFriendItemClick(FriendModel friendItem) {
-        onOpenUserProfile(friendItem.id);
+        onOpenUserProfile(friendItem.userId);
     }
 
     @Override
     public void onFriendRequestAccept(final FriendModel friend) {
-        FirebaseProvider.getInstance().addFriendship(mLoggedUserId, friend.id)
+        FirebaseProvider.getInstance().addFriendship(mLoggedUserId, friend.userId)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -334,7 +335,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onFriendRequestDecline(final FriendModel fromUser) {
-        FirebaseProvider.getInstance().removeFriendRequest(fromUser.id, mLoggedUserId)
+        FirebaseProvider.getInstance().removeFriendRequest(fromUser.userId, mLoggedUserId)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -354,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (mLoggedUser.friendRequests.size() == 0) {
+                if (mLoggedUser == null || mLoggedUser.friendRequests.size() == 0) {
                     mFriendRequestsCountTv.setVisibility(View.INVISIBLE);
                 } else {
                     mFriendRequestsCountTv.setText(String.valueOf(mLoggedUser.friendRequests.size()));

@@ -30,11 +30,12 @@ import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 
 public class ProfileFragment extends BaseFragment implements View.OnClickListener {
 
-    private static final int STATUS_MYSELF = 0;
-    private static final int STATUS_NOT_FRIEND = 1;
-    private static final int STATUS_REQUEST_SENT = 2;
-    private static final int STATUS_REQUEST_RECEIVED = 3;
-    private static final int STATUS_FRIEND = 4;
+    private static final int STATUS_UNKNOWN = 0;
+    private static final int STATUS_MYSELF = 1;
+    private static final int STATUS_NOT_FRIEND = 2;
+    private static final int STATUS_REQUEST_SENT = 3;
+    private static final int STATUS_REQUEST_RECEIVED = 4;
+    private static final int STATUS_FRIEND = 5;
 
     private static final String ARG_USER_ID = "user_id";
 
@@ -42,7 +43,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     private String mUserId;
     private UserModel mUser;
-    private int mStatus;
+    private int mStatus = STATUS_UNKNOWN;
 
     // UI elements
     ImageView mAvatarImage;
@@ -90,7 +91,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         mFriendRequestGroup = (LinearLayout) inflatedView.findViewById(R.id.profile_fragment_friend_request_group);
         mFriendRequestBtn = (Button) inflatedView.findViewById(R.id.profile_fragment_friend_request_btn);
         mFriendRequestBtn.setCompoundDrawablePadding(16);
-        mFriendRequestBtn.setOnClickListener(this);
 
         getUserDataAndSetupUI(mUserId);
 
@@ -99,11 +99,17 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     private void getUserDataAndSetupUI(String userId) {
         FirebaseProvider.getInstance().getUserById(userId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+                .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         mUser = dataSnapshot.getValue(UserModel.class);
-                        setupUI();
+                        mUser.id = dataSnapshot.getKey();
+                        if (mStatus == STATUS_UNKNOWN) {
+                            setupUI();
+                            checkStatusAndSetupFriendRequestButton();
+                        } else {
+                            checkStatusAndSetupFriendRequestButton();
+                        }
                     }
 
                     @Override
@@ -119,8 +125,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 .into(mAvatarImage);
         mDisplayName.setText(mUser.displayName);
         mFullName.setText(mUser.fullName);
-
-        checkStatusAndSetupFriendRequestButton();
     }
 
     private void checkStatusAndSetupFriendRequestButton() {
@@ -134,7 +138,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
             } else {
                 FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
                 firebaseProvider.getReceivedFriendRequests(loggedUserId)
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                        .addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if (dataSnapshot.hasChild(mUserId)) {
@@ -199,6 +203,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 mFriendRequestBtn.setCompoundDrawablesWithIntrinsicBounds(addIcon, null, null, null);
                 break;
         }
+        mFriendRequestBtn.setOnClickListener(this);
         mFriendRequestGroup.setVisibility(View.VISIBLE);
     }
 
@@ -206,6 +211,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.profile_fragment_friend_request_btn:
+                mFriendRequestBtn.setOnClickListener(null);
                 String myUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
                 switch (mStatus) {
                     case STATUS_FRIEND:
@@ -221,6 +227,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                         sendFriendRequest(myUserId, mUserId);
                         break;
                 }
+
+                checkStatusAndSetupFriendRequestButton();
                 break;
         }
     }

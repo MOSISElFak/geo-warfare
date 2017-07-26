@@ -33,7 +33,6 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
@@ -66,7 +65,7 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
     private String mFullName;
     private String mPhone;
     private String mAvatarPath;
-    private boolean mShouldInjectOwnMenu = false;
+    private boolean mShouldShotSaveButton = false;
 
     // UI elements
     private EditText mDisplayNameEt;
@@ -106,9 +105,11 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (mShouldInjectOwnMenu) {
+        if (mShouldShotSaveButton) {
             setActionBarTitle(getString(R.string.edit_user_info_title));
         }
+        // The spinner will be null if we're on the Register activity where this fragment
+        // is also used so we have to test for it
         View spinnerView = getActivity().findViewById(R.id.toolbar_filter_spinner);
         if (spinnerView != null) {
             spinnerView.setVisibility(View.INVISIBLE);
@@ -124,7 +125,7 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
             mFullName = args.getString(ARG_FULL_NAME);
             mPhone = args.getString(ARG_PHONE);
             mAvatarPath = args.getString(ARG_AVATAR_PATH);
-            mShouldInjectOwnMenu = args.getBoolean(ARG_SHOULD_INJECT_OWN_MENU);
+            mShouldShotSaveButton = args.getBoolean(ARG_SHOULD_INJECT_OWN_MENU);
         }
     }
 
@@ -261,9 +262,7 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
         }
     }
 
-    /**
-     * If storage access is granted, we can offer the user to choose image from gallery or camera
-     */
+    // If storage access is granted, we can offer the user to choose image from gallery or camera
     private void onStoragePermissionGranted() {
         Intent galleryIntent = new Intent(Intent.ACTION_PICK);
         galleryIntent.setType("image/*");
@@ -280,9 +279,7 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
         }
     }
 
-    /**
-     * If storage access is denied, we let the user take a picture with the camera
-     */
+    // If storage access is denied, we can only offer the Camera app if it's available
     private void onStoragePermissionDenied() {
         Intent cameraIntent = getCameraIntent();
 
@@ -321,9 +318,7 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
         return null;
     }
 
-    /**
-     * Called when the user has selected an image from the gallery or taken one with the Camera
-     */
+    // Called when the user has selected an image from the gallery or taken one with the Camera
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -394,7 +389,7 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
         super.onCreateOptionsMenu(menu, inflater);
         menu.setGroupVisible(R.id.main_menu_group, false);
         menu.setGroupVisible(R.id.profile_menu_group, false);
-        if (mShouldInjectOwnMenu) {
+        if (mShouldShotSaveButton) {
             inflater.inflate(R.menu.action_bar_edit_profile_menu, menu);
         }
     }
@@ -419,14 +414,14 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
 
         final FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
 
-        final String newUserId = firebaseProvider.getCurrentFirebaseUser().getUid();
+        final String userId = firebaseProvider.getCurrentFirebaseUser().getUid();
         final String storageImageUri = mAvatarPath;
         final Map<String, Object> newUserValues = getUserValuesMap(storageImageUri);
 
         if (mNewAvatarLocalPath == null) {
             // If the user didn't change the avatar, we remove that from the fields that will be updated
             newUserValues.remove(UserModel.KEY_USER_AVATAR_URL);
-            firebaseProvider.updateUserInfo(newUserId, newUserValues)
+            firebaseProvider.updateUserInfo(userId, newUserValues)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
@@ -441,7 +436,7 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             String newStorageImgUri = taskSnapshot.getDownloadUrl().toString();
                             newUserValues.put(UserModel.KEY_USER_AVATAR_URL, newStorageImgUri);
-                            firebaseProvider.updateUserInfo(newUserId, newUserValues)
+                            firebaseProvider.updateUserInfo(userId, newUserValues)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
@@ -473,7 +468,7 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
     }
 
     public String getAvatarFileName() {
-        return FirebaseAuth.getInstance().getCurrentUser().getUid() + ".jpg";
+        return FirebaseProvider.getInstance().getCurrentFirebaseUser().getUid() + ".jpg";
     }
 
     @Override
