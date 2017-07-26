@@ -25,6 +25,7 @@ public class UserModel {
     public String avatarUrl;
     public Map<String, Boolean> friends = new HashMap<>();
     public Map<String, Boolean> friendRequests = new HashMap<>();
+    public Map<String, Boolean> structures = new HashMap<>();
     public int gold = 0;
 
     public UserModel() {

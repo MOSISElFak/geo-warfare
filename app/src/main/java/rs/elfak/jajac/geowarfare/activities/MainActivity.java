@@ -37,14 +37,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.Observable;
-import java.util.Observer;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.fragments.BaseFragment;
@@ -60,9 +53,9 @@ import rs.elfak.jajac.geowarfare.models.FriendModel;
 import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
 import rs.elfak.jajac.geowarfare.models.StructureType;
+import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 import rs.elfak.jajac.geowarfare.receivers.LocationProvidersChangedReceiver;
-import rs.elfak.jajac.geowarfare.services.BackgroundLocationService;
 import rs.elfak.jajac.geowarfare.services.UserUpdatesService;
 
 public class MainActivity extends AppCompatActivity implements
@@ -79,15 +72,15 @@ public class MainActivity extends AppCompatActivity implements
 
     public static final int REQUEST_CHECK_SETTINGS = 1;
 
-    private int mFriendRequestsCount = 0;
-    private FirebaseUser mUser;
     private FragmentManager mFragmentManager;
+    private boolean mUserUpdatesBound = false;
+    private UserUpdatesService mUserUpdatesService;
+
+    private String mLoggedUserId;
+    private UserModel mLoggedUser;
 
     Spinner mFilterSpinner;
     TextView mFriendRequestsCountTv;
-
-    DatabaseReference mMyFriendRequestsDbRef;
-    ValueEventListener mFriendRequestsListener;
 
     private BroadcastReceiver mUserUpdatesReceiver = new BroadcastReceiver() {
         @Override
@@ -115,8 +108,7 @@ public class MainActivity extends AppCompatActivity implements
         PreferenceManager.setDefaultValues(MainActivity.this, R.xml.preferences, false);
 
         FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
-        mUser = firebaseProvider.getCurrentFirebaseUser();
-        mMyFriendRequestsDbRef = firebaseProvider.getFriendRequestsForUser(mUser.getUid());
+        mLoggedUserId = firebaseProvider.getCurrentFirebaseUser().getUid();
 
         mFragmentManager = getSupportFragmentManager();
         // Check location settings if nothing is on the stack yet and display
@@ -172,11 +164,17 @@ public class MainActivity extends AppCompatActivity implements
     protected void onStop() {
         super.onStop();
         // Unbind from any services this activity is bound to
-        unbindService(this);
+        if (mUserUpdatesBound) {
+            unbindService(this);
+            mUserUpdatesBound = false;
+        }
     }
 
-    private void onUserDataUpdated() {
-        Toast.makeText(this, "User shiat updated.", Toast.LENGTH_SHORT).show();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mFragmentManager = null;
+        mLoggedUserId = null;
     }
 
     private void onLocationProvidersChanged(boolean isEnabled) {
@@ -247,11 +245,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void onLocationSettingsUnsatisfied() {
-        mFragmentManager
-                .beginTransaction()
-                .replace(R.id.main_fragment_container, NoLocationFragment.newInstance(),
-                        NoLocationFragment.FRAGMENT_TAG)
-                .commit();
+        onOpenNoLocationScreen();
     }
 
     @Override
@@ -266,9 +260,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    /**
-     * This is called when the up button is pressed. Just pop the back stack.
-     */
+    // This is called when the up button is pressed. Just pop the back stack.
     @Override
     public boolean onSupportNavigateUp() {
         mFragmentManager.popBackStack();
@@ -284,10 +276,6 @@ public class MainActivity extends AppCompatActivity implements
         // because we have used the "actionLayout" parameter in the xml
         friendsItemView.setOnClickListener(this);
         mFriendRequestsCountTv = (TextView) friendsItemView.findViewById(R.id.friend_requests_count_tv);
-        updateFriendRequestsCount(mFriendRequestsCount);
-
-        // This will set up a listener for incoming friend requests if one isn't already attached
-        listenForFriendRequests();
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -296,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_bar_profile_item:
-                onOpenUserProfile(mUser.getUid());
+                onOpenUserProfile(mLoggedUserId);
                 return true;
             case R.id.action_bar_settings_item:
                 Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
@@ -330,8 +318,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onFriendRequestAccept(final FriendModel friend) {
-        FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
-        firebaseProvider.addFriendship(mUser.getUid(), friend.id)
+        FirebaseProvider.getInstance().addFriendship(mLoggedUserId, friend.id)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -347,8 +334,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onFriendRequestDecline(final FriendModel fromUser) {
-        FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
-        firebaseProvider.removeFriendRequest(fromUser.id, mUser.getUid())
+        FirebaseProvider.getInstance().removeFriendRequest(fromUser.id, mLoggedUserId)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -361,6 +347,23 @@ public class MainActivity extends AppCompatActivity implements
                 });
     }
 
+    public void updateFriendRequestsCount() {
+        // Exit if for some reason the UI element is not present
+        if (mFriendRequestsCountTv == null) return;
+        // Call the updating code on the main thread so we can call this asynchronously
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mLoggedUser.friendRequests.size() == 0) {
+                    mFriendRequestsCountTv.setVisibility(View.INVISIBLE);
+                } else {
+                    mFriendRequestsCountTv.setText(String.valueOf(mLoggedUser.friendRequests.size()));
+                    mFriendRequestsCountTv.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+    }
+
     private void onOpenFriends() {
         mFragmentManager
                 .beginTransaction()
@@ -369,46 +372,18 @@ public class MainActivity extends AppCompatActivity implements
                 .commit();
     }
 
-    private void listenForFriendRequests() {
-        if (mFriendRequestsListener == null) {
-            // Save the event listener in a variable so we can remove it in onDestroy
-            mFriendRequestsListener = mMyFriendRequestsDbRef
-                    .addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            mFriendRequestsCount = (int) dataSnapshot.getChildrenCount();
-                            updateFriendRequestsCount(mFriendRequestsCount);
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-        }
-    }
-
-    public void updateFriendRequestsCount(final int newCount) {
-        mFriendRequestsCount = newCount;
-        if (mFriendRequestsCountTv == null) return;
-        // Call the updating code on the main thread so we can call this asynchronously
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (newCount == 0) {
-                    mFriendRequestsCountTv.setVisibility(View.INVISIBLE);
-                } else {
-                    mFriendRequestsCountTv.setText(String.valueOf(newCount));
-                    mFriendRequestsCountTv.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-    }
-
     public void onOpenMap() {
         mFragmentManager
                 .beginTransaction()
                 .replace(R.id.main_fragment_container, new MapFragment(), MapFragment.FRAGMENT_TAG)
+                .commit();
+    }
+
+    private void onOpenNoLocationScreen() {
+        mFragmentManager
+                .beginTransaction()
+                .replace(R.id.main_fragment_container, NoLocationFragment.newInstance(),
+                        NoLocationFragment.FRAGMENT_TAG)
                 .commit();
     }
 
@@ -422,7 +397,21 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void onEditFinished() {
+        mFragmentManager.popBackStack();
+    }
+
+    @Override
     public void onOpenStructure(StructureModel structure) {
+        boolean isLoggedUserOwner = structure.ownerId.equals(mLoggedUserId);
+        if (isLoggedUserOwner) {
+            onOpenMyStructure(structure);
+        } else {
+            onOpenAttackStructure(structure);
+        }
+    }
+
+    private void onOpenMyStructure(StructureModel structure) {
         String tag;
         BaseFragment fragment;
 
@@ -444,23 +433,16 @@ public class MainActivity extends AppCompatActivity implements
                 .commit();
     }
 
-    @Override
-    public void onEditFinished() {
-        mFragmentManager.popBackStack();
+    private void onOpenAttackStructure(StructureModel structure) {
+        Toast.makeText(this, "Attack not implemented yet.", Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mFragmentManager = null;
-        mUser = null;
-    }
-
+    // This is called when a specific structure is chosen, not when the build FAB is clicked
     @Override
     public void onBuildStructureClick(final StructureType structureType) {
         FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
         // First we have to get the current user location
-        firebaseProvider.getUsersGeoFire().getLocation(mUser.getUid(), new LocationCallback() {
+        firebaseProvider.getUsersGeoFire().getLocation(mLoggedUserId, new LocationCallback() {
             @Override
             public void onLocationResult(String key, GeoLocation location) {
                 buildStructure(structureType, location);
@@ -478,7 +460,7 @@ public class MainActivity extends AppCompatActivity implements
 
         switch (structureType) {
             case GOLD_MINE:
-                GoldMineModel newGoldMine = new GoldMineModel(structureType, mUser.getUid());
+                GoldMineModel newGoldMine = new GoldMineModel(structureType, mLoggedUserId);
                 firebaseProvider.addGoldMine(newGoldMine, location).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -488,6 +470,11 @@ public class MainActivity extends AppCompatActivity implements
                 });
                 break;
         }
+    }
+
+    private void onUserDataUpdated() {
+        mLoggedUser = mUserUpdatesService.getUser();
+        updateFriendRequestsCount();
     }
 
     @Override
@@ -501,8 +488,14 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {}
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        UserUpdatesService.LocalBinder binder = (UserUpdatesService.LocalBinder) service;
+        mUserUpdatesService = binder.getService();
+        mUserUpdatesBound = true;
+    }
 
     @Override
-    public void onServiceDisconnected(ComponentName name) {}
+    public void onServiceDisconnected(ComponentName name) {
+        mUserUpdatesBound = false;
+    }
 }

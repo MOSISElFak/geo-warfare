@@ -62,8 +62,8 @@ public class UserUpdatesService extends Service implements ValueEventListener {
         return mUser;
     }
 
-    private class LocalBinder extends Binder {
-        UserUpdatesService getService() {
+    public class LocalBinder extends Binder {
+        public UserUpdatesService getService() {
             return UserUpdatesService.this;
         }
     }
