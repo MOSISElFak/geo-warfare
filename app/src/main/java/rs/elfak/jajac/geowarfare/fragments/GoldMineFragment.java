@@ -137,6 +137,7 @@ public class GoldMineFragment extends BaseFragment implements View.OnClickListen
             mUpgradeButton.setText(String.valueOf(mGoldMine.getUpgradeCost()));
         } else {
             mNextLevelIncome.setText(getString(R.string.structure_max_level_message));
+            mUpgradeButton.setVisibility(View.INVISIBLE);
         }
 
         updateDefenseInfo();
@@ -232,7 +233,7 @@ public class GoldMineFragment extends BaseFragment implements View.OnClickListen
                         int currentGold = dataSnapshot.getValue(int.class);
                         int upgradeCost = mGoldMine.getUpgradeCost();
                         if (currentGold >= upgradeCost) {
-                            int newGoldAmount = currentGold = upgradeCost;
+                            int newGoldAmount = currentGold - upgradeCost;
                             int newLevel = mGoldMine.level + 1;
                             firebaseProvider.upgradeStructureLevel(myUserId, newGoldAmount, mGoldMine.id, newLevel)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
