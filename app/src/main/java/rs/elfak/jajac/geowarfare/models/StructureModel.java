@@ -18,6 +18,10 @@ public class StructureModel {
     public StructureModel(StructureType type, String ownerId) {
         this.type = type;
         this.ownerId = ownerId;
+
+        for (UnitType unitType : UnitType.values()) {
+            this.defenseUnits.put(unitType.toString(), 0);
+        }
     }
 
 }

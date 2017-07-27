@@ -512,10 +512,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void updateUnitCounts() {
         for (UnitType unitType : UnitType.values()) {
-            int count = 0;
-            if (mLoggedUser.units.containsKey(unitType.toString())) {
-                count = mLoggedUser.units.get(unitType.toString());
-            }
+            int count = mLoggedUser.units.get(unitType.toString());
             mUnitCountTvs.get(unitType).setText(String.valueOf(count));
         }
     }

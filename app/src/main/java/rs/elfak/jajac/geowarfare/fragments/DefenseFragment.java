@@ -121,16 +121,8 @@ public class DefenseFragment extends BaseFragment implements View.OnClickListene
     public void updateUIValues() {
         for (UnitType unitType : UnitType.values()) {
 
-            int defenseUnitCount = 0;
-            if (mDefenseUnits.containsKey(unitType.toString())) {
-                defenseUnitCount = mDefenseUnits.get(unitType.toString());
-            }
-
-            int userUnitCount = 0;
-            if (mUserUnits.containsKey(unitType.toString())) {
-                userUnitCount = mUserUnits.get(unitType.toString());
-            }
-
+            int defenseUnitCount = mDefenseUnits.get(unitType.toString());
+            int userUnitCount = mUserUnits.get(unitType.toString());
             int transferMax = Math.max(defenseUnitCount, userUnitCount);
 
             mDefenseUnitsTvs.get(unitType).setText(String.valueOf(defenseUnitCount));
@@ -176,28 +168,12 @@ public class DefenseFragment extends BaseFragment implements View.OnClickListene
 
         List<UnitType> unitTypes = Arrays.asList(UnitType.values());
 
-        int userAmount = 0;
-        int structureAmount = 0;
-        int transferAmount = 0;
-        // Exit if the transfer cannot be done because there are not enough units on one side or both
         for (UnitType unitType : unitTypes) {
-            // If the user/structure (depending on direction of transfer) doesn't have any, go to next unit
-            if ((isLeavingUnits && !mUserUnits.containsKey(unitType.toString())) ||
-                    !isLeavingUnits && !mDefenseUnits.containsKey(unitType.toString())) {
-                continue;
-            }
 
-            userAmount = 0;
-            if (mUserUnits.containsKey(unitType.toString())) {
-                userAmount = mUserUnits.get(unitType.toString());
-            }
+            int userAmount = mUserUnits.get(unitType.toString());
+            int structureAmount = mDefenseUnits.get(unitType.toString());
 
-            structureAmount = 0;
-            if (mDefenseUnits.containsKey(unitType.toString())) {
-                structureAmount = mDefenseUnits.get(unitType.toString());
-            }
-
-            transferAmount = 0;
+            int transferAmount = 0;
             String transferText = mTransferUnitsEts.get(unitType).getText().toString();
             if (!transferText.isEmpty()) {
                 transferAmount = Integer.parseInt(transferText);

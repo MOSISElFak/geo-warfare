@@ -39,6 +39,10 @@ public class UserModel {
         this.fullName = fullName;
         this.phone = phone;
         this.avatarUrl = imgUrl;
+
+        for (UnitType unitType : UnitType.values()) {
+            this.units.put(unitType.toString(), 0);
+        }
     }
 
     @Exclude
