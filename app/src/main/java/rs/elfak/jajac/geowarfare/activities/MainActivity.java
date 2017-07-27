@@ -459,6 +459,12 @@ public class MainActivity extends AppCompatActivity implements
     // This is called when a specific structure is chosen, not when the build FAB is clicked
     @Override
     public void onBuildStructureClick(final StructureType structureType) {
+
+        if (mLoggedUser.gold < structureType.getBaseCost()) {
+            Toast.makeText(this, getString(R.string.structure_no_gold_message), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
         // First we have to get the current user location
         firebaseProvider.getUsersGeoFire().getLocation(mLoggedUserId, new LocationCallback() {
@@ -476,17 +482,18 @@ public class MainActivity extends AppCompatActivity implements
 
     private void buildStructure(StructureType structureType, GeoLocation location) {
         FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
-
+        int newUserGoldValue = mLoggedUser.gold - structureType.getBaseCost();
         switch (structureType) {
             case GOLD_MINE:
                 GoldMineModel newGoldMine = new GoldMineModel(structureType, mLoggedUserId);
-                firebaseProvider.addGoldMine(newGoldMine, location).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        mFragmentManager.popBackStack();
-                        Toast.makeText(MainActivity.this, "New gold mine constructed.", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                firebaseProvider.addGoldMine(newGoldMine, location, newUserGoldValue)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                mFragmentManager.popBackStack();
+                                Toast.makeText(MainActivity.this, "New gold mine constructed.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                 break;
         }
     }

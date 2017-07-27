@@ -204,7 +204,7 @@ public class GoldMineFragment extends BaseFragment implements View.OnClickListen
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             int currentGold = dataSnapshot.getValue(int.class);
                             int totalGold = currentGold + mGoldMine.gold;
-                            firebaseProvider.updateGold(myUserId, totalGold, mGoldMine.id)
+                            firebaseProvider.transferGold(myUserId, totalGold, mGoldMine.id)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
@@ -244,7 +244,7 @@ public class GoldMineFragment extends BaseFragment implements View.OnClickListen
                                         }
                                     });
                         } else {
-                            Toast.makeText(mContext, getString(R.string.structure_upgrade_no_gold_message),
+                            Toast.makeText(mContext, getString(R.string.structure_no_gold_message),
                                     Toast.LENGTH_SHORT).show();
                             mUpgradeButton.setOnClickListener(GoldMineFragment.this);
                         }

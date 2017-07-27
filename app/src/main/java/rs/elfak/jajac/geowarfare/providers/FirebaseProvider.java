@@ -135,12 +135,13 @@ public class FirebaseProvider {
         return mStructuresDbRef.child(structureId);
     }
 
-    public Task<Void> addGoldMine(GoldMineModel goldMine, GeoLocation location) {
+    public Task<Void> addGoldMine(GoldMineModel goldMine, GeoLocation location, int newUserGoldValue) {
         String newStructureKey = mStructuresDbRef.push().getKey();
 
         Map<String, Object> updates = new HashMap<>();
         updates.put("/structures/" + newStructureKey, goldMine);
         updates.put("/users/" + goldMine.ownerId + "/structures/" + newStructureKey, true);
+        updates.put("/users/" + goldMine.ownerId + "/gold", newUserGoldValue);
         mStructuresGeoFire.setLocation(newStructureKey, location);
 
         return mDbRef.updateChildren(updates);
@@ -150,7 +151,7 @@ public class FirebaseProvider {
         return mStructuresGeoFire;
     }
 
-    public Task<Void> updateGold(String toUserId, int newGoldAmount, String fromGoldMineId) {
+    public Task<Void> transferGold(String toUserId, int newGoldAmount, String fromGoldMineId) {
         Map<String, Object> updates = new HashMap<>();
 
         updates.put("/structures/" + fromGoldMineId + "/gold", 0);
