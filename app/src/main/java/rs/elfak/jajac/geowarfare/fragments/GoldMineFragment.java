@@ -40,7 +40,6 @@ public class GoldMineFragment extends BaseFragment implements View.OnClickListen
     private Button mCollectButton;
     private TextView mCurrentLevelIncome;
     private TextView mNextLevelIncome;
-    private ImageView mNextLevelCoinsIcon;
     private Button mUpgradeButton;
 
     private OnFragmentInteractionListener mListener;
@@ -137,7 +136,6 @@ public class GoldMineFragment extends BaseFragment implements View.OnClickListen
             mUpgradeButton.setVisibility(View.VISIBLE);
             mUpgradeButton.setText(String.valueOf(mGoldMine.getUpgradeCost()));
         } else {
-            mNextLevelCoinsIcon.setVisibility(View.GONE);
             mNextLevelIncome.setText(getString(R.string.structure_max_level_message));
         }
 

@@ -104,7 +104,7 @@
     <string name="structure_upgrade_current_label">Current level:</string>
     <string name="structure_upgrade_next_label">Next level:</string>
     <string name="structure_no_gold_message">You don\'t have enough gold.</string>
-    <string name="structure_max_level_message">Already at max level.</string>
+    <string name="structure_max_level_message">/</string>
     <string name="structure_defense_title">Defense</string>
     <string name="structure_defense_transfer_empty">Insert some units first.</string>
     <string name="structure_defense_transfer_leave_btn">Leave</string>
