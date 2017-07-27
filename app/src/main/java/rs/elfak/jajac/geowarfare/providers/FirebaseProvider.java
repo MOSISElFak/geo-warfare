@@ -169,4 +169,14 @@ public class FirebaseProvider {
         return mDbRef.updateChildren(updates);
     }
 
+    public Task<Void> transferUnits(String structureId, Map<String, Integer> newStructureUnits,
+                                    String userId, Map<String, Integer> newUserUnits) {
+        Map<String, Object> updates = new HashMap<>();
+
+        updates.put("/structures/" + structureId + "/defenseUnits", newStructureUnits);
+        updates.put("/users/" + userId + "/units", newUserUnits);
+
+        return mDbRef.updateChildren(updates);
+    }
+
 }

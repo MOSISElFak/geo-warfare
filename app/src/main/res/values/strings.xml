@@ -106,7 +106,10 @@
     <string name="structure_upgrade_no_gold_message">You don\'t have enough gold.</string>
     <string name="structure_max_level_message">Already at max level.</string>
     <string name="structure_defense_title">Defense</string>
-    <string name="structure_defense_transfer_button">Apply</string>
+    <string name="structure_defense_transfer_empty">Insert some units first.</string>
+    <string name="structure_defense_transfer_leave_btn">Leave</string>
+    <string name="structure_defense_transfer_take_btn">Take</string>
+    <string name="structure_defense_transfer_success">Units successfully transferred.</string>
 
     <!-- GoldMineFragment -->
     <string name="gold_mine_collect_title">Collect gold</string>

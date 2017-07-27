@@ -15,7 +15,6 @@ public class UserModel {
     public static final String KEY_USER_FULL_NAME = "fullName";
     public static final String KEY_USER_PHONE = "phone";
     public static final String KEY_USER_AVATAR_URL = "avatarUrl";
-    public static final String KEY_USER_GOLD = "gold";
 
     public String id;
     public String email;
@@ -26,7 +25,7 @@ public class UserModel {
     public Map<String, Boolean> friends = new HashMap<>();
     public Map<String, Boolean> friendRequests = new HashMap<>();
     public Map<String, Boolean> structures = new HashMap<>();
-    public Map<String, Integer> army = new HashMap<>();
+    public Map<String, Integer> units = new HashMap<>();
     public int gold = 0;
 
     public UserModel() {
@@ -51,7 +50,6 @@ public class UserModel {
         result.put(KEY_USER_FULL_NAME, fullName);
         result.put(KEY_USER_PHONE, phone);
         result.put(KEY_USER_AVATAR_URL, avatarUrl);
-        result.put(KEY_USER_GOLD, gold);
 
         return result;
     }

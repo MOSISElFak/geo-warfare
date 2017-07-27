@@ -17,7 +17,7 @@
 
     </FrameLayout>
 
-    <android.support.constraint.ConstraintLayout
+    <RelativeLayout
         android:id="@+id/info_bar_container"
         android:layout_width="match_parent"
         android:layout_height="@dimen/info_bar_height"
@@ -25,59 +25,42 @@
         android:layout_alignParentBottom="true"
         android:background="@color/colorPrimaryDark">
 
-        <ImageView
-            android:id="@+id/info_soldier_icon"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:srcCompat="@drawable/ic_sword"
-            style="@style/InfoBarIcon"/>
+        <LinearLayout
+            android:id="@+id/info_bar_units_container"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@+id/info_bar_gold_container">
 
-        <TextView
-            android:id="@+id/info_soldier_tv"
-            android:layout_marginStart="@dimen/info_bar_icon_text_margin"
-            app:layout_constraintLeft_toRightOf="@+id/info_soldier_icon"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:text="450"
-            style="@style/InfoBarText"/>
+        </LinearLayout>
 
-        <ImageView
-            android:id="@+id/info_archer_icon"
-            android:layout_marginStart="@dimen/info_bar_icon_left_margin"
-            app:layout_constraintLeft_toRightOf="@+id/info_soldier_tv"
-            app:layout_constraintTop_toTopOf="@+id/info_soldier_tv"
-            app:layout_constraintBottom_toBottomOf="@+id/info_soldier_tv"
-            app:srcCompat="@drawable/ic_bow_and_arrow"
-            style="@style/InfoBarIcon"/>
+        <LinearLayout
+            android:id="@+id/info_bar_gold_container"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:gravity="end|center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/info_archer_tv"
-            android:layout_marginStart="@dimen/info_bar_icon_text_margin"
-            app:layout_constraintLeft_toRightOf="@+id/info_archer_icon"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:text="78"
-            style="@style/InfoBarText"/>
-
-        <ImageView
-            android:id="@+id/info_gold_icon"
-            app:layout_constraintTop_toTopOf="@+id/info_gold_tv"
-            app:layout_constraintBottom_toBottomOf="@+id/info_gold_tv"
-            android:layout_marginEnd="@dimen/info_bar_icon_text_margin"
-            app:layout_constraintRight_toLeftOf="@+id/info_gold_tv"
-            app:srcCompat="@drawable/ic_coin_stack"
-            style="@style/InfoBarIcon"/>
+            <ImageView
+                android:id="@+id/info_gold_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/info_bar_icon_text_margin"
+                android:src="@drawable/ic_coin_stack"
+                style="@style/InfoBarIcon"/>
 
 
-        <TextView
-            android:id="@+id/info_gold_tv"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:text="1100"
-            style="@style/InfoBarText"/>
+            <TextView
+                android:id="@+id/info_gold_tv"
+                android:layout_width="@dimen/info_bar_gold_item_text_width"
+                android:includeFontPadding="false"
+                tools:text="1100"
+                style="@style/InfoBarText"/>
 
-    </android.support.constraint.ConstraintLayout>
+        </LinearLayout>
+
+    </RelativeLayout>
 
 </RelativeLayout>

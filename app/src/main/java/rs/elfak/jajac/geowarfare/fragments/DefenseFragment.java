@@ -5,35 +5,46 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnSuccessListener;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.models.UnitType;
+import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
+import rs.elfak.jajac.geowarfare.utils.MaxValueTextWatcher;
 
-public class DefenseFragment extends BaseFragment implements View.OnFocusChangeListener {
+public class DefenseFragment extends BaseFragment implements View.OnClickListener {
 
     public static final String FRAGMENT_TAG = "DefenseFragment";
 
-    private static final String ARG_STRUCTURE_SWORD_COUNT = "structure_sword_count";
-    private static final String ARG_STRUCTURE_BOW_COUNT = "structure_bow_count";
-    private static final String ARG_USER_SWORD_COUNT = "user_sword_count";
-    private static final String ARG_USER_BOW_COUNT = "user_bow_count";
+    private static final String ARG_STRUCTURE_ID = "structure_id";
+    private static final String ARG_USER_ID = "user_id";
+    private static final String ARG_DEFENSE_UNITS = "defense_units";
+    private static final String ARG_USER_UNITS = "user_units";
 
-    private int mStructureSwordCount;
-    private int mStructureBowCount;
-    private int mUserSwordCount;
-    private int mUserBowCount;
+    private Context mContext;
 
-    private int mSwordTransferCount = 0;
-    private int mBowTransferCount = 0;
+    private String mStructureId;
+    private String mUserId;
+    private Map<String, Integer> mDefenseUnits;
+    private Map<String, Integer> mUserUnits;
 
-    private TextView mStructureSwordCountTv;
-    private TextView mStructureBowCountTv;
-    private EditText mTransferSwordCountEt;
-    private EditText mTransferBowCountEt;
-    private ImageButton mTransferUpBtn;
-    private ImageButton mTransferDownBtn;
+    private Map<UnitType, TextView> mDefenseUnitsTvs = new HashMap<>();
+    private Map<UnitType, EditText> mTransferUnitsEts = new HashMap<>();
+    private Button mTransferUpBtn;
+    private Button mTransferDownBtn;
+
+    private Map<UnitType, MaxValueTextWatcher> mTransferEtTextWatchers = new HashMap<>();
 
     private OnFragmentInteractionListener mListener;
 
@@ -45,14 +56,14 @@ public class DefenseFragment extends BaseFragment implements View.OnFocusChangeL
         // Required empty public constructor
     }
 
-    public static DefenseFragment newInstance(int structureSwordCount, int structureBowCount,
-                                              int userSwordCount, int userBowCount) {
+    public static DefenseFragment newInstance(String structureId, String userId,  Map<String, Integer> defenseUnits,
+                                              Map<String, Integer> userUnits) {
         DefenseFragment fragment = new DefenseFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_STRUCTURE_SWORD_COUNT, structureSwordCount);
-        args.putInt(ARG_STRUCTURE_BOW_COUNT, structureBowCount);
-        args.putInt(ARG_USER_SWORD_COUNT, userSwordCount);
-        args.putInt(ARG_USER_BOW_COUNT, userBowCount);
+        args.putString(ARG_STRUCTURE_ID, structureId);
+        args.putString(ARG_USER_ID, userId);
+        args.putSerializable(ARG_DEFENSE_UNITS, (HashMap<String, Integer>) defenseUnits);
+        args.putSerializable(ARG_USER_UNITS, (HashMap<String, Integer>) userUnits);
         fragment.setArguments(args);
         return fragment;
     }
@@ -61,10 +72,10 @@ public class DefenseFragment extends BaseFragment implements View.OnFocusChangeL
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mStructureSwordCount = getArguments().getInt(ARG_STRUCTURE_SWORD_COUNT);
-            mStructureBowCount = getArguments().getInt(ARG_STRUCTURE_BOW_COUNT);
-            mUserSwordCount = getArguments().getInt(ARG_USER_SWORD_COUNT);
-            mUserBowCount = getArguments().getInt(ARG_USER_BOW_COUNT);
+            mStructureId = getArguments().getString(ARG_STRUCTURE_ID);
+            mUserId = getArguments().getString(ARG_USER_ID);
+            mDefenseUnits = (HashMap<String, Integer>) getArguments().getSerializable(ARG_DEFENSE_UNITS);
+            mUserUnits = (HashMap<String, Integer>) getArguments().getSerializable(ARG_USER_UNITS);
         }
     }
 
@@ -73,29 +84,188 @@ public class DefenseFragment extends BaseFragment implements View.OnFocusChangeL
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_defense, container, false);
 
-        mStructureSwordCountTv = (TextView) view.findViewById(R.id.fragment_defense_sword_count);
-        mStructureBowCountTv = (TextView) view.findViewById(R.id.fragment_defense_bow_count);
-        mTransferSwordCountEt = (EditText) view.findViewById(R.id.fragment_defense_sword_transfer_count);
-        mTransferBowCountEt = (EditText) view.findViewById(R.id.fragment_defense_bow_transfer_count);
-        mTransferUpBtn = (ImageButton) view.findViewById(R.id.fragment_defense_transfer_up_btn);
-        mTransferDownBtn = (ImageButton) view.findViewById(R.id.fragment_defense_transfer_down_btn);
+        drawDefenseUnits(view);
 
-        setupUI();
+        mTransferUpBtn = (Button) view.findViewById(R.id.fragment_defense_transfer_up_btn);
+        mTransferDownBtn = (Button) view.findViewById(R.id.fragment_defense_transfer_down_btn);
+
+        updateUIValues();
 
         return view;
     }
 
-    private void setupUI() {
-        mStructureSwordCountTv.setText(String.valueOf(mStructureSwordCount));
-        mStructureBowCountTv.setText(String.valueOf(mStructureBowCount));
+    private void drawDefenseUnits(View fragmentView) {
+        LayoutInflater layoutInflater = getLayoutInflater();
+        ViewGroup parentView = (ViewGroup) fragmentView.findViewById(R.id.fragment_defense_unit_items_container);
 
-        mTransferSwordCountEt.setText(String.valueOf(mSwordTransferCount));
-        mTransferBowCountEt.setText(String.valueOf(mBowTransferCount));
+        for (UnitType unitType : UnitType.values()) {
+            View view = layoutInflater.inflate(R.layout.defense_unit_item, null, false);
+
+            ImageView icon = (ImageView) view.findViewById(R.id.defense_item_unit_icon);
+            TextView countTv = (TextView) view.findViewById(R.id.defense_item_unit_count);
+            EditText transferEt = (EditText) view.findViewById(R.id.defense_item_transfer_count);
+
+            icon.setImageResource(unitType.getIconResourceId());
+
+            // Just create the text watchers here, max will be set in updateUIValues()
+            MaxValueTextWatcher transferEtTextWatcher = new MaxValueTextWatcher(transferEt, 0);
+
+            mDefenseUnitsTvs.put(unitType, countTv);
+            mTransferUnitsEts.put(unitType, transferEt);
+            mTransferEtTextWatchers.put(unitType, transferEtTextWatcher);
+
+            parentView.addView(view);
+        }
+    }
+
+    public void updateUIValues() {
+        for (UnitType unitType : UnitType.values()) {
+
+            int defenseUnitCount = 0;
+            if (mDefenseUnits.containsKey(unitType.toString())) {
+                defenseUnitCount = mDefenseUnits.get(unitType.toString());
+            }
+
+            int userUnitCount = 0;
+            if (mUserUnits.containsKey(unitType.toString())) {
+                userUnitCount = mUserUnits.get(unitType.toString());
+            }
+
+            int transferMax = Math.max(defenseUnitCount, userUnitCount);
+
+            mDefenseUnitsTvs.get(unitType).setText(String.valueOf(defenseUnitCount));
+            mTransferEtTextWatchers.get(unitType).setMax(transferMax);
+        }
+
+        addTransferButtonListeners();
+    }
+
+    private void addTransferButtonListeners() {
+        mTransferUpBtn.setOnClickListener(this);
+        mTransferDownBtn.setOnClickListener(this);
+    }
+
+    private void removeTransferButtonListeners() {
+        mTransferUpBtn.setOnClickListener(null);
+        mTransferDownBtn.setOnClickListener(null);
     }
 
     @Override
-    public void onFocusChange(View v, boolean hasFocus) {
+    public void onClick(View v) {
+        removeTransferButtonListeners();
+        switch (v.getId()) {
+            case R.id.fragment_defense_transfer_up_btn:
+                onTransfer(true);
+                break;
+            case R.id.fragment_defense_transfer_down_btn:
+                onTransfer(false);
+                break;
+        }
+        addTransferButtonListeners();
+    }
 
+    private void onTransfer(boolean isLeavingUnits) {
+        if (isAllTransferEmpty()) {
+            Toast.makeText(mContext, getString(R.string.structure_defense_transfer_empty),
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Map<String, Integer> newDefenseUnitCounts = new HashMap<>();
+        Map<String, Integer> newUserUnitCounts = new HashMap<>();
+
+        List<UnitType> unitTypes = Arrays.asList(UnitType.values());
+
+        int userAmount = 0;
+        int structureAmount = 0;
+        int transferAmount = 0;
+        // Exit if the transfer cannot be done because there are not enough units on one side or both
+        for (UnitType unitType : unitTypes) {
+            // If the user/structure (depending on direction of transfer) doesn't have any, go to next unit
+            if ((isLeavingUnits && !mUserUnits.containsKey(unitType.toString())) ||
+                    !isLeavingUnits && !mDefenseUnits.containsKey(unitType.toString())) {
+                continue;
+            }
+
+            userAmount = 0;
+            if (mUserUnits.containsKey(unitType.toString())) {
+                userAmount = mUserUnits.get(unitType.toString());
+            }
+
+            structureAmount = 0;
+            if (mDefenseUnits.containsKey(unitType.toString())) {
+                structureAmount = mDefenseUnits.get(unitType.toString());
+            }
+
+            transferAmount = 0;
+            String transferText = mTransferUnitsEts.get(unitType).getText().toString();
+            if (!transferText.isEmpty()) {
+                transferAmount = Integer.parseInt(transferText);
+            }
+
+            // User is trying to leave more units than he has to defend
+            if (isLeavingUnits && userAmount < transferAmount) {
+                Toast.makeText(mContext, "You don't have that many " + unitType.getName() + ".",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // User is trying to take more units than the structure has
+            if (!isLeavingUnits && structureAmount < transferAmount) {
+                Toast.makeText(mContext, "Structure doesn't have that many " + unitType.getName() + ".",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // If the user is taking units, we just change the sign
+            if (!isLeavingUnits) {
+                transferAmount = -transferAmount;
+            }
+
+            newDefenseUnitCounts.put(unitType.toString(), structureAmount + transferAmount);
+            newUserUnitCounts.put(unitType.toString(), userAmount - transferAmount);
+        }
+
+        // This will execute only if everything is ok
+        doTransfer(newDefenseUnitCounts, newUserUnitCounts);
+    }
+
+    private void doTransfer(Map<String, Integer> newDefenseUnitCounts, Map<String, Integer> newUserUnitCounts) {
+        FirebaseProvider.getInstance().transferUnits(mStructureId, newDefenseUnitCounts, mUserId, newUserUnitCounts)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // We only show a toast here because updates will come from the parent fragment
+                        Toast.makeText(mContext, getString(R.string.structure_defense_transfer_success),
+                                Toast.LENGTH_SHORT).show();
+                        // We also clear the transferUnits map and corresponding EditTexts
+                        clearTransferData();
+                    }
+                });
+    }
+
+    private void clearTransferData() {
+        for (EditText transferEt : mTransferUnitsEts.values()) {
+            transferEt.setText(null);
+        }
+    }
+
+    // Called when parent fragment receives updated structure data after some action (eg. transfer units)
+    public void onDefenseDataChanged(Map<String, Integer> newDefenseUnits, Map<String, Integer> newUserUnits) {
+        mDefenseUnits = newDefenseUnits;
+        mUserUnits = newUserUnits;
+
+        updateUIValues();
+    }
+
+    private boolean isAllTransferEmpty() {
+        for (EditText transferUnitEt : mTransferUnitsEts.values()) {
+            // If there's a single transfer field that isn't empty, we return
+            if (!transferUnitEt.getText().toString().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -107,12 +277,15 @@ public class DefenseFragment extends BaseFragment implements View.OnFocusChangeL
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+
+        mContext = context;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        mContext = null;
     }
 
 

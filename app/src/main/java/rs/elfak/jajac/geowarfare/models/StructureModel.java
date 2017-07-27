@@ -9,7 +9,7 @@ public class StructureModel {
     public String ownerId;
     public StructureType type;
     public int level = 1;
-    public Map<String, Integer> defense = new HashMap<>();
+    public Map<String, Integer> defenseUnits = new HashMap<>();
 
     public StructureModel() {
         // Default constructor required for calls to DataSnapshot.getValue(StructureModel.class)
@@ -18,8 +18,6 @@ public class StructureModel {
     public StructureModel(StructureType type, String ownerId) {
         this.type = type;
         this.ownerId = ownerId;
-        this.defense.put("swords", 0);
-        this.defense.put("bows", 0);
     }
 
 }

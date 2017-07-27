@@ -1,21 +1,32 @@
 package rs.elfak.jajac.geowarfare.models;
 
+import rs.elfak.jajac.geowarfare.R;
+
 public enum UnitType {
 
-    KNIGHTS("Knights", 0),
-    ARCHERS("Archers", 1);
+    SWORD("Knights", R.drawable.ic_sword, 500),
+    BOW("Archers", R.drawable.ic_bow_and_arrow, 700);
 
-    private String stringValue;
-    private int intValue;
+    private String name;
+    private int iconResourceId;
+    private int baseCost;
 
-    private UnitType(String toString, int value){
-        stringValue = toString;
-        intValue = value;
+    private UnitType(String name, int iconResourceId, int baseCost) {
+        this.name = name;
+        this.iconResourceId = iconResourceId;
+        this.baseCost = baseCost;
     }
 
-    @Override
-    public String toString() {
-        return stringValue;
+    public String getName() {
+        return name;
+    }
+
+    public int getIconResourceId() {
+        return iconResourceId;
+    }
+
+    public int getBaseCost() {
+        return baseCost;
     }
 
 }

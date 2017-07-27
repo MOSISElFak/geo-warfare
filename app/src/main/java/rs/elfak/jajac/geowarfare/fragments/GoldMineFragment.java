@@ -166,19 +166,14 @@ public class GoldMineFragment extends BaseFragment implements View.OnClickListen
         DefenseFragment defenseFrag = (DefenseFragment) childFragmentManager.
                 findFragmentByTag(DefenseFragment.FRAGMENT_TAG);
         if (defenseFrag == null) {
-            defenseFrag = DefenseFragment.newInstance(
-                    mGoldMine.defense.get("swords"),
-                    mGoldMine.defense.get("bows"),
-                    mOwner.army.get("swords"),
-                    mOwner.army.get("bows")
-            );
+            defenseFrag = DefenseFragment.newInstance(mStructureId, mOwner.id, mGoldMine.defenseUnits, mOwner.units);
         } else {
-//            defenseFrag.onDefenseDataChanged(mGoldMine.level);
+            defenseFrag.onDefenseDataChanged(mGoldMine.defenseUnits, mOwner.units);
         }
 
         childFragmentManager
                 .beginTransaction()
-                .replace(R.id.fragment_gold_mine_defense_container, defenseFrag, StructureInfoFragment.FRAGMENT_TAG)
+                .replace(R.id.fragment_gold_mine_defense_container, defenseFrag, DefenseFragment.FRAGMENT_TAG)
                 .commit();
     }
 

@@ -16,10 +16,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,6 +42,12 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseError;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.fragments.BaseFragment;
 import rs.elfak.jajac.geowarfare.fragments.BuildFragment;
@@ -54,6 +63,7 @@ import rs.elfak.jajac.geowarfare.models.FriendModel;
 import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
 import rs.elfak.jajac.geowarfare.models.StructureType;
+import rs.elfak.jajac.geowarfare.models.UnitType;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 import rs.elfak.jajac.geowarfare.receivers.LocationProvidersChangedReceiver;
@@ -80,7 +90,9 @@ public class MainActivity extends AppCompatActivity implements
 
     private String mLoggedUserId;
     private UserModel mLoggedUser;
+    private Map<UnitType, TextView> mUnitCountTvs = new HashMap<>();
 
+    TextView mGoldTv;
     Spinner mFilterSpinner;
     TextView mFriendRequestsCountTv;
 
@@ -106,6 +118,12 @@ public class MainActivity extends AppCompatActivity implements
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+        mGoldTv = (TextView) findViewById(R.id.info_gold_tv);
+        mFilterSpinner = (Spinner) findViewById(R.id.toolbar_filter_spinner);
+
+        // Draw the units part of the info bar on the bottom
+        drawInfoBarUnits();
+
         // Setup default shared preferences if they haven't been setup already
         PreferenceManager.setDefaultValues(MainActivity.this, R.xml.preferences, false);
 
@@ -123,7 +141,6 @@ public class MainActivity extends AppCompatActivity implements
         shouldDisplayHomeUp();
 
         // Initialize the action bar spinner for filtering map markers
-        mFilterSpinner = (Spinner) findViewById(R.id.toolbar_filter_spinner);
         ArrayAdapter<String> spinAdapter = new ArrayAdapter<String>(
                 this,
                 R.layout.toolbar_spinner_selected_item,
@@ -177,6 +194,22 @@ public class MainActivity extends AppCompatActivity implements
         super.onDestroy();
         mFragmentManager = null;
         mLoggedUserId = null;
+    }
+
+    private void drawInfoBarUnits() {
+        LayoutInflater layoutInflater = getLayoutInflater();
+        ViewGroup parentView = (ViewGroup) findViewById(R.id.info_bar_units_container);
+        List<UnitType> unitTypes = Arrays.asList(UnitType.values());
+
+        for (UnitType unitType : unitTypes) {
+            View view = layoutInflater.inflate(R.layout.info_bar_unit_item, null, false);
+            ImageView icon = (ImageView) view.findViewById(R.id.info_bar_units_item_icon);
+            TextView countTv = (TextView) view.findViewById(R.id.info_bar_units_item_count);
+            icon.setImageResource(unitType.getIconResourceId());
+            mUnitCountTvs.put(unitType, countTv);
+
+            parentView.addView(view);
+        }
     }
 
     private void onLocationProvidersChanged(boolean isEnabled) {
@@ -350,23 +383,6 @@ public class MainActivity extends AppCompatActivity implements
                 });
     }
 
-    public void updateFriendRequestsCount() {
-        // Exit if for some reason the UI element is not present
-        if (mFriendRequestsCountTv == null) return;
-        // Call the updating code on the main thread so we can call this asynchronously
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mLoggedUser == null || mLoggedUser.friendRequests.size() == 0) {
-                    mFriendRequestsCountTv.setVisibility(View.INVISIBLE);
-                } else {
-                    mFriendRequestsCountTv.setText(String.valueOf(mLoggedUser.friendRequests.size()));
-                    mFriendRequestsCountTv.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-    }
-
     private void onOpenFriends() {
         mFragmentManager
                 .beginTransaction()
@@ -478,6 +494,34 @@ public class MainActivity extends AppCompatActivity implements
     private void onUserDataUpdated() {
         mLoggedUser = mUserUpdatesService.getUser();
         updateFriendRequestsCount();
+        updateUnitCounts();
+        updateGold();
+    }
+
+    private void updateFriendRequestsCount() {
+        // Exit if for some reason the UI element is not present
+        if (mFriendRequestsCountTv == null) return;
+
+        if (mLoggedUser == null || mLoggedUser.friendRequests.size() == 0) {
+            mFriendRequestsCountTv.setVisibility(View.INVISIBLE);
+        } else {
+            mFriendRequestsCountTv.setText(String.valueOf(mLoggedUser.friendRequests.size()));
+            mFriendRequestsCountTv.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void updateUnitCounts() {
+        for (UnitType unitType : UnitType.values()) {
+            int count = 0;
+            if (mLoggedUser.units.containsKey(unitType.toString())) {
+                count = mLoggedUser.units.get(unitType.toString());
+            }
+            mUnitCountTvs.get(unitType).setText(String.valueOf(count));
+        }
+    }
+
+    private void updateGold() {
+        mGoldTv.setText(String.valueOf(mLoggedUser.gold));
     }
 
     @Override

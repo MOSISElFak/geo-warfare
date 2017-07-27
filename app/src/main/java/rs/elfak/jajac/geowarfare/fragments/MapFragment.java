@@ -470,12 +470,13 @@ public class MapFragment extends BaseFragment implements
             addStructuresGeoQueryEventListener();
         } else {
             mCircle.setCenter(center);
-            // Send our new location to the server
-            usersGeoFire.setLocation(mUser.getUid(), geoLoc);
             // Update the center of the area we're querying for users
             mUsersGeoQuery.setCenter(geoLoc);
             mStructuresGeoQuery.setCenter(geoLoc);
         }
+
+        // Send our new location to the server
+        usersGeoFire.setLocation(mUser.getUid(), geoLoc);
 
         mMyLocation = loc;
     }
