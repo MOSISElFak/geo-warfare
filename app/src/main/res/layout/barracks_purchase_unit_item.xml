@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:baselineAligned="false">
+
+    <!-- We will set the drawableLeft and text in code -->
+    <com.tolstykh.textviewrichdrawable.TextViewRichDrawable
+        android:id="@+id/purchase_unit_available"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:theme="@style/StructureUnitIconAndCount"
+        tools:text="75"/>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <EditText
+            android:id="@+id/purchase_item_unit_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:inputType="number"
+            android:ems="2"
+            android:hint="0"
+            tools:text="50"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/purchase_item_multiply_horizontal_margin"
+            android:layout_marginEnd="@dimen/purchase_item_multiply_horizontal_margin"
+            android:text="x"/>
+
+        <com.tolstykh.textviewrichdrawable.TextViewRichDrawable
+            android:id="@+id/purchase_item_unit_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:drawableStartVector="@drawable/ic_coin_stack"
+            android:theme="@style/StructureUnitIconAndCount"
+            tools:text="500"/>
+
+    </LinearLayout>
+
+</LinearLayout>

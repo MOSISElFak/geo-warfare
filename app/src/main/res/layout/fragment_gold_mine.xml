@@ -13,7 +13,6 @@
         android:layout_alignParentTop="true"/>
 
     <ScrollView
-        android:id="@+id/fragment_gold_mine_collect_upgrade_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/fragment_gold_mine_info_container"

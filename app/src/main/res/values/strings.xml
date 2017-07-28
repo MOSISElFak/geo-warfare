@@ -118,4 +118,9 @@
 
     <string name="gold_mine_empty_message">Nothing to collect at the moment.</string>
 
+    <!-- BarracksFragment -->
+    <string name="barracks_purchase_title">Purchase units</string>
+    <string name="barracks_purchase_label">Available:</string>
+    <string name="barracks_purchase_button"></string>
+
 </resources>

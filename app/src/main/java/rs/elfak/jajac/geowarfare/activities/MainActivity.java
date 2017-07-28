@@ -41,6 +41,7 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseError;
+import com.tolstykh.textviewrichdrawable.TextViewRichDrawable;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -49,6 +50,7 @@ import java.util.Map;
 import java.util.Set;
 
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.fragments.BarracksFragment;
 import rs.elfak.jajac.geowarfare.fragments.BaseFragment;
 import rs.elfak.jajac.geowarfare.fragments.BuildFragment;
 import rs.elfak.jajac.geowarfare.fragments.DefenseFragment;
@@ -59,6 +61,7 @@ import rs.elfak.jajac.geowarfare.fragments.MapFragment;
 import rs.elfak.jajac.geowarfare.fragments.NoLocationFragment;
 import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
 import rs.elfak.jajac.geowarfare.fragments.StructureInfoFragment;
+import rs.elfak.jajac.geowarfare.models.BarracksModel;
 import rs.elfak.jajac.geowarfare.models.FriendModel;
 import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
@@ -80,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements
         StructureInfoFragment.OnFragmentInteractionListener,
         DefenseFragment.OnFragmentInteractionListener,
         GoldMineFragment.OnFragmentInteractionListener,
+        BarracksFragment.OnFragmentInteractionListener,
         ServiceConnection {
 
     public static final int REQUEST_CHECK_SETTINGS = 1;
@@ -439,6 +443,10 @@ public class MainActivity extends AppCompatActivity implements
                 fragment = GoldMineFragment.newInstance(structure.id);
                 tag = GoldMineFragment.FRAGMENT_TAG;
                 break;
+            case BARRACKS:
+                fragment = BarracksFragment.newInstance(structure.id);
+                tag = BarracksFragment.FRAGMENT_TAG;
+                break;
             default:
                 // TODO: add some empty frag or something
                 tag = "";
@@ -491,7 +499,20 @@ public class MainActivity extends AppCompatActivity implements
                             @Override
                             public void onSuccess(Void aVoid) {
                                 mFragmentManager.popBackStack();
-                                Toast.makeText(MainActivity.this, "New gold mine constructed.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "New gold mine constructed.",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                break;
+            case BARRACKS:
+                BarracksModel newBarracks = new BarracksModel(structureType, mLoggedUserId);
+                firebaseProvider.addBarracks(newBarracks, location, newUserGoldValue)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                mFragmentManager.popBackStack();
+                                Toast.makeText(MainActivity.this, "New barracks constructed.",
+                                        Toast.LENGTH_SHORT).show();
                             }
                         });
                 break;

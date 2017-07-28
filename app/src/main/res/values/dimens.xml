@@ -42,7 +42,7 @@
 
     <dimen name="structure_header_background_height">80dp</dimen>
     <dimen name="structure_icon_size">56dp</dimen>
-    <dimen name="structure_icon_text_margin">12dp</dimen>
+    <dimen name="structure_info_icon_margin">12dp</dimen>
     <dimen name="structure_type_text_size">20sp</dimen>
     <dimen name="structure_owner_name_text_size">20sp</dimen>
 
@@ -51,10 +51,14 @@
     <dimen name="structure_section_title_bottom_margin">24dp</dimen>
     <dimen name="structure_section_divider_top_margin">16dp</dimen>
 
+    <dimen name="structure_unit_icon_size">20dp</dimen>
+    <dimen name="structure_unit_icon_padding">8dp</dimen>
     <dimen name="structure_label_text_size">16sp</dimen>
     <dimen name="structure_value_text_size">18sp</dimen>
-    <dimen name="structure_upgrade_label_icon_margin">20dp</dimen>
     <dimen name="structure_upgrade_label_vertical_margin">12dp</dimen>
     <dimen name="structure_icon_value_margin">12dp</dimen>
+
+    <dimen name="purchase_item_slash_horizontal_margin">4dp</dimen>
+    <dimen name="purchase_item_multiply_horizontal_margin">12dp</dimen>
 
 </resources>

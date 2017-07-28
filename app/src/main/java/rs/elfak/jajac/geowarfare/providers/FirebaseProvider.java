@@ -18,6 +18,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import rs.elfak.jajac.geowarfare.models.BarracksModel;
 import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 
 public class FirebaseProvider {
@@ -142,6 +143,18 @@ public class FirebaseProvider {
         updates.put("/structures/" + newStructureKey, goldMine);
         updates.put("/users/" + goldMine.ownerId + "/structures/" + newStructureKey, true);
         updates.put("/users/" + goldMine.ownerId + "/gold", newUserGoldValue);
+        mStructuresGeoFire.setLocation(newStructureKey, location);
+
+        return mDbRef.updateChildren(updates);
+    }
+
+    public Task<Void> addBarracks(BarracksModel barracks, GeoLocation location, int newUserGoldValue) {
+        String newStructureKey = mStructuresDbRef.push().getKey();
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("/structures/" + newStructureKey, barracks);
+        updates.put("/users/" + barracks.ownerId + "/structures/" + newStructureKey, true);
+        updates.put("/users/" + barracks.ownerId + "/gold", newUserGoldValue);
         mStructuresGeoFire.setLocation(newStructureKey, location);
 
         return mDbRef.updateChildren(updates);
