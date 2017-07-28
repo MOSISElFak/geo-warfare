@@ -3,7 +3,6 @@ package rs.elfak.jajac.geowarfare.fragments;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -36,7 +35,6 @@ public class BarracksFragment extends StructureFragment {
     private Button mPurchaseButton;
     private Map<UnitType, TextView> mCurrentLevelAvailableTvs = new HashMap<>();
     private Map<UnitType, TextView> mNextLevelAvailableTvs = new HashMap<>();
-    private Button mUpgradeButton;
 
     private Map<UnitType, MaxValueTextWatcher> mPurchaseEtTextWatchers = new HashMap<>();
 
@@ -44,13 +42,6 @@ public class BarracksFragment extends StructureFragment {
 
     public interface OnFragmentInteractionListener {
 
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        setActionBarTitle(null);
-        getActivity().findViewById(R.id.toolbar_filter_spinner).setVisibility(View.INVISIBLE);
     }
 
     public BarracksFragment() {
@@ -64,7 +55,6 @@ public class BarracksFragment extends StructureFragment {
         View view = super.onCreateView(inflater, container, savedInstanceState);
 
         mPurchaseButton = (Button) view.findViewById(R.id.fragment_barracks_purchase_btn);
-        mUpgradeButton = (Button) view.findViewById(R.id.fragment_structure_upgrade_btn);
 
         updatePurchaseButtonText();
 
@@ -129,7 +119,7 @@ public class BarracksFragment extends StructureFragment {
 
             Drawable availableUnitIcon = ContextCompat.getDrawable(mContext, unitType.getIconResourceId());
             // This will return the value in pixels but based on pixel density
-            int iconSize = (int) getResources().getDimension(R.dimen.structure_unit_icon_size);
+            int iconSize = (int) getResources().getDimension(R.dimen.structure_fragment_icon_size);
             availableUnitIcon.setBounds(0, 0, iconSize, iconSize);
             availableTv.setCompoundDrawables(availableUnitIcon, null, null, null);
 
@@ -194,7 +184,7 @@ public class BarracksFragment extends StructureFragment {
         params.setMarginEnd(endMargin);
 
         // This will return the value in pixels but based on pixel density
-        int iconSize = (int) getResources().getDimension(R.dimen.structure_unit_icon_size);
+        int iconSize = (int) getResources().getDimension(R.dimen.structure_fragment_icon_size);
 
         // CURRENT LEVEL
         for (UnitType unitType : UnitType.values()) {
@@ -235,16 +225,12 @@ public class BarracksFragment extends StructureFragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
-
-        mContext = context;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        mContext = null;
     }
-
 
 }

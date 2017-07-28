@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -110,7 +109,7 @@ public class DefenseFragment extends BaseFragment implements View.OnClickListene
 
             Drawable availableUnitIcon = ContextCompat.getDrawable(mContext, unitType.getIconResourceId());
             // This will return the value in pixels but based on pixel density
-            int iconSize = (int) getResources().getDimension(R.dimen.structure_unit_icon_size);
+            int iconSize = (int) getResources().getDimension(R.dimen.structure_fragment_icon_size);
             availableUnitIcon.setBounds(0, 0, iconSize, iconSize);
             countTv.setCompoundDrawables(availableUnitIcon, null, null, null);
 

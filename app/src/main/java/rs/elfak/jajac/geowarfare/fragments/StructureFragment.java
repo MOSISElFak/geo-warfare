@@ -20,7 +20,7 @@ import rs.elfak.jajac.geowarfare.models.StructureModel;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 
-public abstract class StructureFragment extends BaseFragment {
+public abstract class StructureFragment extends BaseFragment implements View.OnClickListener {
 
     private static final String ARG_STRUCTURE_SPECIFIC_LAYOUT_RES_ID = "structure_specific_layout_res_id";
     private static final String ARG_STRUCTURE_CLASS = "structure_class";
@@ -212,6 +212,15 @@ public abstract class StructureFragment extends BaseFragment {
                 .beginTransaction()
                 .replace(R.id.fragment_structure_defense_container, defenseFrag, DefenseFragment.FRAGMENT_TAG)
                 .commit();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fragment_structure_upgrade_btn:
+//                onCollectGold();
+                break;
+        }
     }
 
     @Override

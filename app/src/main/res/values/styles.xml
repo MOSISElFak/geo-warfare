@@ -69,8 +69,8 @@
         <item name="android:ems">4</item>
         <!-- These compoundDrawableWidth/Height and drawableTint (without android)
              are from the custom TextViewRichDrawable view -->
-        <item name="compoundDrawableWidth">@dimen/structure_unit_icon_size</item>
-        <item name="compoundDrawableHeight">@dimen/structure_unit_icon_size</item>
+        <item name="compoundDrawableWidth">@dimen/structure_fragment_icon_size</item>
+        <item name="compoundDrawableHeight">@dimen/structure_fragment_icon_size</item>
         <item name="drawableTint">@color/colorPrimaryDark</item>
     </style>
 

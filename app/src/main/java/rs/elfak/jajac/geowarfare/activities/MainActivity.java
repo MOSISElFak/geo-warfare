@@ -442,7 +442,11 @@ public class MainActivity extends AppCompatActivity implements
 
         switch (structure.type) {
             case GOLD_MINE:
-                fragment = GoldMineFragment.newInstance(structure.id);
+                fragment = GoldMineFragment.newInstance(
+                        GoldMineFragment.class,
+                        R.layout.fragment_gold_mine,
+                        GoldMineModel.class,
+                        structure.id);
                 tag = GoldMineFragment.FRAGMENT_TAG;
                 break;
             case BARRACKS:
@@ -450,8 +454,7 @@ public class MainActivity extends AppCompatActivity implements
                         BarracksFragment.class,
                         R.layout.fragment_barracks,
                         BarracksModel.class,
-                        structure.id
-                );
+                        structure.id);
                 tag = BarracksFragment.FRAGMENT_TAG;
                 break;
             default:

@@ -37,8 +37,8 @@
 
         <ImageView
             android:id="@+id/defense_item_transfer_icon"
-            android:layout_width="@dimen/structure_unit_icon_size"
-            android:layout_height="@dimen/structure_unit_icon_size"
+            android:layout_width="@dimen/structure_fragment_icon_size"
+            android:layout_height="@dimen/structure_fragment_icon_size"
             tools:src="@drawable/ic_sword"/>
 
     </LinearLayout>

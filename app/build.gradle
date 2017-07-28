@@ -31,7 +31,6 @@ dependencies {
     compile 'com.android.support:design:25.4.0'
     compile 'com.android.support:support-vector-drawable:25.4.0'
     compile 'com.android.support:recyclerview-v7:25.4.0'
-    compile 'com.android.support:gridlayout-v7:25.4.0'
     compile 'commons-validator:commons-validator:1.6'
     compile 'com.google.firebase:firebase-auth:11.0.1'
     compile 'com.google.firebase:firebase-database:11.0.1'
@@ -43,12 +42,5 @@ dependencies {
     compile 'com.tolstykh.textviewrichdrawable:textview-rich-drawable:0.3.1'
     testCompile 'junit:junit:4.12'
 }
-
-
-
-
-
-
-
 
 apply plugin: 'com.google.gms.google-services'
