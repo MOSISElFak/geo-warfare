@@ -4,49 +4,42 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:gravity="center_vertical"
     android:baselineAligned="false">
 
-    <LinearLayout
+     <!--We will set the drawableLeft and text in code-->
+    <com.tolstykh.textviewrichdrawable.TextViewRichDrawable
+        android:id="@+id/defense_item_unit"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:gravity="start|center_vertical"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/defense_item_unit_icon"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:tint="@color/colorPrimaryDark"
-            android:src="@drawable/ic_sword"/>
-
-        <TextView
-            android:id="@+id/defense_item_unit_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/structure_icon_value_margin"
-            android:textSize="@dimen/structure_value_text_size"
-            tools:text="50"/>
-
-    </LinearLayout>
+        style="@style/StructureUnitIconAndCount"
+        tools:text="75"/>
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="start|center_vertical"
+        android:layout_weight="2"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <EditText
             android:id="@+id/defense_item_transfer_count"
+            style="@style/UnitCountEditText"
+            tools:text="50"/>
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:inputType="number"
-            android:ems="4"
-            android:textSize="@dimen/structure_value_text_size"
-            android:hint="0"
-            tools:text="50"/>
+            android:layout_marginStart="@dimen/purchase_item_multiply_horizontal_margin"
+            android:layout_marginEnd="@dimen/purchase_item_multiply_horizontal_margin"
+            android:text="@string/multiplication_sign"/>
+
+        <ImageView
+            android:id="@+id/defense_item_transfer_icon"
+            android:layout_width="@dimen/structure_unit_icon_size"
+            android:layout_height="@dimen/structure_unit_icon_size"
+            tools:src="@drawable/ic_sword"/>
 
     </LinearLayout>
 

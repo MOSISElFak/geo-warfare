@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="rs.elfak.jajac.geowarfare.fragments.BarracksFragment">
 
     <FrameLayout
@@ -110,6 +109,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="2"
+                            android:layout_marginStart="@dimen/barracks_upgrade_fix_left_margin"
                             android:orientation="horizontal" />
 
                     </LinearLayout>
@@ -132,6 +132,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="2"
+                            android:layout_marginStart="@dimen/barracks_upgrade_fix_left_margin"
                             android:orientation="horizontal" />
 
                     </LinearLayout>
@@ -145,9 +146,16 @@
                     android:layout_weight="1"
                     android:layout_gravity="center"
                     android:drawableStart="@drawable/ic_coin_stack"
-                    android:theme="@style/AccentButton"/>
+                    android:theme="@style/AccentButton"
+                    android:visibility="invisible"/>
 
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="@dimen/structure_section_divider_top_margin"
+                android:background="@color/colorDivider"/>
 
             <!-- DEFENSE -->
             <FrameLayout

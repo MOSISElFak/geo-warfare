@@ -1,7 +1,9 @@
 package rs.elfak.jajac.geowarfare.fragments;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.tolstykh.textviewrichdrawable.TextViewRichDrawable;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,7 +42,7 @@ public class DefenseFragment extends BaseFragment implements View.OnClickListene
     private Map<String, Integer> mDefenseUnits;
     private Map<String, Integer> mUserUnits;
 
-    private Map<UnitType, TextView> mDefenseUnitsTvs = new HashMap<>();
+    private Map<UnitType, TextViewRichDrawable> mDefenseUnitsTvs = new HashMap<>();
     private Map<UnitType, EditText> mTransferUnitsEts = new HashMap<>();
     private Button mTransferUpBtn;
     private Button mTransferDownBtn;
@@ -101,11 +104,17 @@ public class DefenseFragment extends BaseFragment implements View.OnClickListene
         for (UnitType unitType : UnitType.values()) {
             View view = layoutInflater.inflate(R.layout.defense_unit_item, null, false);
 
-            ImageView icon = (ImageView) view.findViewById(R.id.defense_item_unit_icon);
-            TextView countTv = (TextView) view.findViewById(R.id.defense_item_unit_count);
+            TextViewRichDrawable countTv = (TextViewRichDrawable) view.findViewById(R.id.defense_item_unit);
             EditText transferEt = (EditText) view.findViewById(R.id.defense_item_transfer_count);
+            ImageView unitIcon = (ImageView) view.findViewById(R.id.defense_item_transfer_icon);
 
-            icon.setImageResource(unitType.getIconResourceId());
+            Drawable availableUnitIcon = ContextCompat.getDrawable(mContext, unitType.getIconResourceId());
+            // This will return the value in pixels but based on pixel density
+            int iconSize = (int) getResources().getDimension(R.dimen.structure_unit_icon_size);
+            availableUnitIcon.setBounds(0, 0, iconSize, iconSize);
+            countTv.setCompoundDrawables(availableUnitIcon, null, null, null);
+
+            unitIcon.setImageResource(unitType.getIconResourceId());
 
             // Just create the text watchers here, max will be set in updateUIValues()
             MaxValueTextWatcher transferEtTextWatcher = new MaxValueTextWatcher(transferEt, 0);

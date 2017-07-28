@@ -15,7 +15,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:theme="@style/StructureUnitIconAndCount"
+        style="@style/StructureUnitIconAndCount"
         tools:text="75"/>
 
     <LinearLayout
@@ -27,12 +27,7 @@
 
         <EditText
             android:id="@+id/purchase_item_unit_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:inputType="number"
-            android:ems="2"
-            android:hint="0"
+            style="@style/UnitCountEditText"
             tools:text="50"/>
 
         <TextView
@@ -40,14 +35,14 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/purchase_item_multiply_horizontal_margin"
             android:layout_marginEnd="@dimen/purchase_item_multiply_horizontal_margin"
-            android:text="x"/>
+            android:text="@string/multiplication_sign"/>
 
         <com.tolstykh.textviewrichdrawable.TextViewRichDrawable
             android:id="@+id/purchase_item_unit_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:drawableStartVector="@drawable/ic_coin_stack"
-            android:theme="@style/StructureUnitIconAndCount"
+            style="@style/StructureUnitIconAndCount"
             tools:text="500"/>
 
     </LinearLayout>

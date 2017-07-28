@@ -95,6 +95,7 @@ public class BarracksFragment extends BaseFragment {
         drawPurchaseUnits(view);
         drawUpgradeUnits(view);
         mPurchaseButton = (Button) view.findViewById(R.id.fragment_barracks_purchase_btn);
+        mUpgradeButton = (Button) view.findViewById(R.id.fragment_barracks_upgrade_btn);
 
         getStructureDataAndSetupUI(mStructureId);
 
@@ -153,10 +154,13 @@ public class BarracksFragment extends BaseFragment {
             for (UnitType unitType : UnitType.values()) {
                 int unitBatchCount = nextLevelCounts.get(unitType);
                 mNextLevelAvailableTvs.get(unitType).setText(String.valueOf(unitBatchCount));
+                mUpgradeButton.setText(String.valueOf(mBarracks.getUpgradeCost()));
+                mUpgradeButton.setVisibility(View.VISIBLE);
             }
         } else {
             for (UnitType unitType : UnitType.values()) {
                 mNextLevelAvailableTvs.get(unitType).setText("/");
+                mUpgradeButton.setVisibility(View.INVISIBLE);
             }
         }
 

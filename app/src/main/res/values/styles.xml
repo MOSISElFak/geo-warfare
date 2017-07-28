@@ -64,10 +64,25 @@
     </style>
     
     <style name="StructureUnitIconAndCount">
+        <item name="android:drawablePadding">@dimen/structure_unit_icon_padding</item>
         <item name="android:gravity">start|center_vertical</item>
+        <item name="android:ems">4</item>
+        <!-- These compoundDrawableWidth/Height and drawableTint (without android)
+             are from the custom TextViewRichDrawable view -->
         <item name="compoundDrawableWidth">@dimen/structure_unit_icon_size</item>
         <item name="compoundDrawableHeight">@dimen/structure_unit_icon_size</item>
-        <item name="android:drawablePadding">@dimen/structure_unit_icon_padding</item>
+        <item name="drawableTint">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="UnitCountEditText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:inputType">number</item>
+        <item name="android:ems">3</item>
+        <item name="android:hint">0</item>
     </style>
 
 </resources>
