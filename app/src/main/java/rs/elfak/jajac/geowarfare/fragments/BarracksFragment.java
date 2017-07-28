@@ -6,13 +6,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
-import android.util.TypedValue;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -26,7 +26,6 @@ import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.BarracksModel;
-import rs.elfak.jajac.geowarfare.models.StructureType;
 import rs.elfak.jajac.geowarfare.models.UnitType;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
@@ -43,6 +42,8 @@ public class BarracksFragment extends BaseFragment {
     private String mStructureId;
     private BarracksModel mBarracks;
     private UserModel mOwner;
+
+    private int mTotalPurchasePrice = 0;
 
     private Map<UnitType, TextViewRichDrawable> mUnitsAvailableTvs = new HashMap<>();
     private Map<UnitType, EditText> mUnitsPurchaseEts = new HashMap<>();
@@ -97,6 +98,8 @@ public class BarracksFragment extends BaseFragment {
         mPurchaseButton = (Button) view.findViewById(R.id.fragment_barracks_purchase_btn);
         mUpgradeButton = (Button) view.findViewById(R.id.fragment_barracks_upgrade_btn);
 
+        updatePurchaseButtonText();
+
         getStructureDataAndSetupUI(mStructureId);
 
         return view;
@@ -116,7 +119,7 @@ public class BarracksFragment extends BaseFragment {
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         mOwner = dataSnapshot.getValue(UserModel.class);
                                         mOwner.id = dataSnapshot.getKey();
-                                        setupUI();
+                                        setupUIValues();
                                     }
 
                                     @Override
@@ -132,7 +135,7 @@ public class BarracksFragment extends BaseFragment {
                 });
     }
 
-    private void setupUI() {
+    private void setupUIValues() {
         updateBasicStructureInfo();
 
         for (UnitType unitType : UnitType.values()) {
@@ -204,7 +207,7 @@ public class BarracksFragment extends BaseFragment {
         LayoutInflater layoutInflater = getLayoutInflater();
         ViewGroup parentView = (ViewGroup) fragmentView.findViewById(R.id.fragment_barracks_purchase_items_container);
 
-        for (UnitType unitType : UnitType.values()) {
+        for (final UnitType unitType : UnitType.values()) {
             View view = layoutInflater.inflate(R.layout.barracks_purchase_unit_item, null, false);
 
             TextViewRichDrawable availableTv = (TextViewRichDrawable) view.findViewById(R.id.purchase_unit_available);
@@ -219,8 +222,26 @@ public class BarracksFragment extends BaseFragment {
 
             priceTv.setText(String.valueOf(unitType.getBaseCost()));
 
-            // Just create the text watchers here, max will be set in updateUIValues()
+            // Just create and add the text watchers here, max will be set in updateUIValues()
             MaxValueTextWatcher transferEtTextWatcher = new MaxValueTextWatcher(purchaseEt, 0);
+            purchaseEt.addTextChangedListener(transferEtTextWatcher);
+
+            // Also add a text watcher that will update the total price when some number is entered
+            purchaseEt.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    calculateTotalPurchasePriceAndUpdate();
+                }
+
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+                @Override
+                public void afterTextChanged(Editable s) {
+
+                }
+            });
 
             mUnitsAvailableTvs.put(unitType, availableTv);
             mUnitsPurchaseEts.put(unitType, purchaseEt);
@@ -228,6 +249,21 @@ public class BarracksFragment extends BaseFragment {
 
             parentView.addView(view);
         }
+    }
+
+    private void calculateTotalPurchasePriceAndUpdate() {
+        mTotalPurchasePrice = 0;
+        for (UnitType unitType : UnitType.values()) {
+            String text = mUnitsPurchaseEts.get(unitType).getText().toString();
+            if (!text.isEmpty()) {
+                mTotalPurchasePrice += Integer.valueOf(text) * unitType.getBaseCost();
+            }
+        }
+        updatePurchaseButtonText();
+    }
+
+    private void updatePurchaseButtonText() {
+        mPurchaseButton.setText(String.valueOf(mTotalPurchasePrice));
     }
 
     private void drawUpgradeUnits(View fragmentView) {

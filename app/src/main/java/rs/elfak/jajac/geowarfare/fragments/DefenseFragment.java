@@ -116,8 +116,9 @@ public class DefenseFragment extends BaseFragment implements View.OnClickListene
 
             unitIcon.setImageResource(unitType.getIconResourceId());
 
-            // Just create the text watchers here, max will be set in updateUIValues()
+            // Just create and add the text watchers here, max will be set in updateUIValues()
             MaxValueTextWatcher transferEtTextWatcher = new MaxValueTextWatcher(transferEt, 0);
+            transferEt.addTextChangedListener(transferEtTextWatcher);
 
             mDefenseUnitsTvs.put(unitType, countTv);
             mTransferUnitsEts.put(unitType, transferEt);
