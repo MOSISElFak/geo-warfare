@@ -55,7 +55,7 @@
     <dimen name="structure_unit_icon_padding">8dp</dimen>
     <dimen name="structure_label_text_size">16sp</dimen>
     <dimen name="structure_value_text_size">18sp</dimen>
-    <dimen name="structure_upgrade_label_vertical_margin">12dp</dimen>
+    <dimen name="structure_upgrade_current_next_vertical_margin">12dp</dimen>
     <dimen name="barracks_upgrade_fix_left_margin">6dp</dimen>
     <dimen name="structure_icon_value_margin">12dp</dimen>
 

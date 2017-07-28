@@ -151,7 +151,7 @@
             <TextView
                 android:id="@+id/fragment_gold_mine_upgrade_next_label"
                 android:layout_width="0dp"
-                android:layout_marginTop="@dimen/structure_upgrade_label_vertical_margin"
+                android:layout_marginTop="@dimen/structure_upgrade_current_next_vertical_margin"
                 app:layout_columnWeight="1"
                 app:layout_gravity="fill"
                 android:gravity="center_vertical"

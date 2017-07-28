@@ -1,5 +1,7 @@
 package rs.elfak.jajac.geowarfare.models;
 
+import com.google.firebase.database.Exclude;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +23,25 @@ public class StructureModel {
 
         for (UnitType unitType : UnitType.values()) {
             this.defenseUnits.put(unitType.toString(), 0);
+        }
+    }
+
+    @Exclude
+    public boolean canUpgrade() {
+        return this.level < this.type.getMaxLevel();
+    }
+
+    @Exclude
+    public int getUpgradeCost() {
+        return getCostForLevel(this.level + 1);
+    }
+
+    @Exclude
+    protected int getCostForLevel(int level) {
+        if (level == 1) {
+            return this.type.getBaseCost();
+        } else {
+            return level * level * getCostForLevel(level - 1);
         }
     }
 

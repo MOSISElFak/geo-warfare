@@ -32,18 +32,13 @@ public class GoldMineModel extends StructureModel {
         return getIncomeAtLevel(this.level + 1);
     }
 
-    @Exclude
-    public boolean canUpgrade() {
-        return this.level < this.type.getMaxLevel();
-    }
-
-    @Exclude
+    @Exclude @Override
     public int getUpgradeCost() {
         return getCostForLevel(this.level + 1);
     }
 
-    @Exclude
-    private int getCostForLevel(int level) {
+    @Exclude @Override
+    protected int getCostForLevel(int level) {
         if (level == 1) {
             return this.type.getBaseCost();
         } else {

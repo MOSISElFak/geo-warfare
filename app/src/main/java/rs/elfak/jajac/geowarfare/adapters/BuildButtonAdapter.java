@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import rs.elfak.jajac.geowarfare.R;
-import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 import rs.elfak.jajac.geowarfare.models.StructureType;
 
 public class BuildButtonAdapter extends BaseAdapter {
@@ -65,7 +64,7 @@ public class BuildButtonAdapter extends BaseAdapter {
         // Set the appropriate item
         holder.mItem = mItems.get(position);
 
-        holder.mImageButton.setImageResource(holder.mItem.getIconResourceId());
+        holder.mImageButton.setImageResource(holder.mItem.getIconResId());
         holder.mName.setText(holder.mItem.getName());
         holder.mCost.setText(String.valueOf(holder.mItem.getBaseCost()));
 

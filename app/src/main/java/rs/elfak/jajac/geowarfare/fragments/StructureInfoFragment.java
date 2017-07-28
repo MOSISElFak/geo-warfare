@@ -3,21 +3,16 @@ package rs.elfak.jajac.geowarfare.fragments;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
 import rs.elfak.jajac.geowarfare.R;
-import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 import rs.elfak.jajac.geowarfare.models.StructureType;
 
 public class StructureInfoFragment extends BaseFragment implements View.OnClickListener {
@@ -89,7 +84,7 @@ public class StructureInfoFragment extends BaseFragment implements View.OnClickL
         mOwnerDisplayNameTv = (TextView) view.findViewById(R.id.structure_info_owner_display_name);
         mOwnerAvatarImg = (ImageView) view.findViewById(R.id.structure_info_owner_avatar_img);
 
-        mStructureIconImg.setImageResource(mStructureType.getIconResourceId());
+        mStructureIconImg.setImageResource(mStructureType.getIconResId());
         mStructureTypeTv.setText(mStructureType.getName());
         mOwnerDisplayNameTv.setText(mOwnerDisplayName);
         Glide.with(mContext)

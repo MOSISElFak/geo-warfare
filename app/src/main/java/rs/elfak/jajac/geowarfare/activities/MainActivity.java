@@ -60,6 +60,7 @@ import rs.elfak.jajac.geowarfare.fragments.GoldMineFragment;
 import rs.elfak.jajac.geowarfare.fragments.MapFragment;
 import rs.elfak.jajac.geowarfare.fragments.NoLocationFragment;
 import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
+import rs.elfak.jajac.geowarfare.fragments.StructureFragment;
 import rs.elfak.jajac.geowarfare.fragments.StructureInfoFragment;
 import rs.elfak.jajac.geowarfare.models.BarracksModel;
 import rs.elfak.jajac.geowarfare.models.FriendModel;
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements
         FriendsFragment.OnListFragmentInteractionListener,
         BuildFragment.OnFragmentInteractionListener,
         NoLocationFragment.OnFragmentInteractionListener,
+        StructureFragment.OnFragmentInteractionListener,
         StructureInfoFragment.OnFragmentInteractionListener,
         DefenseFragment.OnFragmentInteractionListener,
         GoldMineFragment.OnFragmentInteractionListener,
@@ -444,7 +446,12 @@ public class MainActivity extends AppCompatActivity implements
                 tag = GoldMineFragment.FRAGMENT_TAG;
                 break;
             case BARRACKS:
-                fragment = BarracksFragment.newInstance(structure.id);
+                fragment = BarracksFragment.newInstance(
+                        BarracksFragment.class,
+                        R.layout.fragment_barracks,
+                        BarracksModel.class,
+                        structure.id
+                );
                 tag = BarracksFragment.FRAGMENT_TAG;
                 break;
             default:

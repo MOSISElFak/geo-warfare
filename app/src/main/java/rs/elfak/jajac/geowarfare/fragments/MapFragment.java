@@ -391,7 +391,7 @@ public class MapFragment extends BaseFragment implements
                 mMarkerListeners.put(marker, mStructureMarkerListener);
 
                 if (mContext != null) {
-                    int iconResourceId = structure.type.getIconResourceId();
+                    int iconResourceId = structure.type.getIconResId();
                     marker.setIcon(getBitmapFromVector(iconResourceId, ContextCompat.getColor(mContext,
                             R.color.colorPrimaryDark)));
                     marker.setVisible(true);
