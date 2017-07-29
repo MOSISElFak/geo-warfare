@@ -72,6 +72,7 @@ import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 import rs.elfak.jajac.geowarfare.receivers.LocationProvidersChangedReceiver;
 import rs.elfak.jajac.geowarfare.services.UserUpdatesService;
+import rs.elfak.jajac.geowarfare.utils.NumTextView;
 
 public class MainActivity extends AppCompatActivity implements
         View.OnClickListener,
@@ -96,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private String mLoggedUserId;
     private UserModel mLoggedUser;
-    private Map<UnitType, TextView> mUnitCountTvs = new HashMap<>();
+    private Map<UnitType, NumTextView> mUnitCountTvs = new HashMap<>();
 
     TextView mGoldTv;
     Spinner mFilterSpinner;
@@ -210,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements
         for (UnitType unitType : unitTypes) {
             View view = layoutInflater.inflate(R.layout.info_bar_unit_item, null, false);
             ImageView icon = (ImageView) view.findViewById(R.id.info_bar_units_item_icon);
-            TextView countTv = (TextView) view.findViewById(R.id.info_bar_units_item_count);
+            NumTextView countTv = (NumTextView) view.findViewById(R.id.info_bar_units_item_count);
             icon.setImageResource(unitType.getIconResourceId());
             mUnitCountTvs.put(unitType, countTv);
 

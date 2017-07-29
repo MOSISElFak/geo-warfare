@@ -14,7 +14,7 @@
         android:layout_marginEnd="@dimen/info_bar_icon_text_margin"
         style="@style/InfoBarIcon"/>
 
-    <TextView
+    <rs.elfak.jajac.geowarfare.utils.NumTextView
         android:id="@+id/info_bar_units_item_count"
         android:layout_width="@dimen/info_bar_units_item_text_width"
         android:includeFontPadding="false"

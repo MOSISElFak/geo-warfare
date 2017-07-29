@@ -51,8 +51,7 @@
                 android:src="@drawable/ic_coin_stack"
                 style="@style/InfoBarIcon"/>
 
-
-            <TextView
+            <rs.elfak.jajac.geowarfare.utils.NumTextView
                 android:id="@+id/info_gold_tv"
                 android:layout_width="@dimen/info_bar_gold_item_text_width"
                 android:includeFontPadding="false"
