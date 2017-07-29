@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class BarracksModel extends StructureModel {
 
-    public Map<String, Integer> availableUnits = new HashMap<>();
+    private Map<String, Integer> availableUnits = new HashMap<>();
 
     public BarracksModel() {
         // Default constructor required for calls to DataSnapshot.getValue(BarracksModel.class)
@@ -15,8 +15,10 @@ public class BarracksModel extends StructureModel {
 
     public BarracksModel(StructureType type, String ownerId) {
         super(type, ownerId);
-        for (UnitType unitType : UnitType.values()) {
-            this.availableUnits.put(unitType.toString(), 0);
+        Map<UnitType, Integer> firstLevelAvailable = this.getCurrentAvailable();
+
+        for (UnitType unitType : firstLevelAvailable.keySet()) {
+            this.availableUnits.put(unitType.toString(), firstLevelAvailable.get(unitType));
         }
     }
 
@@ -53,6 +55,31 @@ public class BarracksModel extends StructureModel {
             return this.type.getBaseCost();
         } else {
             return level * level * getCostForLevel(level - 1);
+        }
+    }
+
+    public Map<String, Integer> getAvailableUnits() {
+        Map<String, Integer> allUnits = new HashMap<>();
+
+        for (UnitType unitType : UnitType.values()) {
+            String typeName = unitType.toString();
+            if (this.availableUnits.containsKey(typeName)) {
+                allUnits.put(typeName, this.availableUnits.get(unitType.toString()));
+            } else {
+                allUnits.put(typeName, 0);
+            }
+        }
+        return allUnits;
+    }
+
+    public void setAvailableUnits(Map<String, Integer> availableUnits) {
+        for (UnitType unitType : UnitType.values()) {
+            String typeName = unitType.toString();
+            if (!availableUnits.containsKey(typeName) || availableUnits.get(typeName) == 0) {
+                this.availableUnits.remove(typeName);
+            } else {
+                this.availableUnits.put(typeName, availableUnits.get(typeName));
+            }
         }
     }
 

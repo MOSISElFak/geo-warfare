@@ -13,7 +13,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.tolstykh.textviewrichdrawable.TextViewRichDrawable;
 
 import java.util.HashMap;
@@ -22,6 +24,7 @@ import java.util.Map;
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.BarracksModel;
 import rs.elfak.jajac.geowarfare.models.UnitType;
+import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 import rs.elfak.jajac.geowarfare.utils.MaxValueTextWatcher;
 
 public class BarracksFragment extends StructureFragment implements View.OnClickListener {
@@ -86,13 +89,15 @@ public class BarracksFragment extends StructureFragment implements View.OnClickL
             Map<UnitType, Integer> currLevelCounts = barracks.getCurrentAvailable();
             // Set available unit counts, reset purchase edit texts and set new maximums for text watchers
             int availableCount = currLevelCounts.get(unitType);
-            if (barracks.availableUnits.containsKey(unitType.toString())) {
+            if (barracks.getAvailableUnits().containsKey(unitType.toString())) {
                 // If we find the type in the barracks object, we use that count instead
-                availableCount = barracks.availableUnits.get(unitType.toString());
+                availableCount = barracks.getAvailableUnits().get(unitType.toString());
             }
             mUnitsAvailableTvs.get(unitType).setText(String.valueOf(availableCount));
             mUnitsPurchaseEts.get(unitType).setText(null);
             mPurchaseEtTextWatchers.get(unitType).setMax(availableCount);
+
+            mPurchaseButton.setOnClickListener(this);
 
             // Upgrade the current level unit batch size
             int unitBatchCount = currLevelCounts.get(unitType);
@@ -180,10 +185,47 @@ public class BarracksFragment extends StructureFragment implements View.OnClickL
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_barracks_purchase_btn:
-                // implement purchasing units
+                onPurchaseUnits();
                 break;
         }
         super.onClick(v);
+    }
+
+    private void onPurchaseUnits() {
+        BarracksModel barracks = (BarracksModel) mStructure;
+        if (mOwner.getGold() < mTotalPurchasePrice) {
+            Toast.makeText(mContext, "You can't afford that", Toast.LENGTH_SHORT).show();
+        } else {
+            mPurchaseButton.setOnClickListener(null);
+            int subtractedGold = mOwner.getGold() - mTotalPurchasePrice;
+
+            Map<String, Integer> newUserUnits = mOwner.getUnits();
+            Map<String, Integer> newBarracksAvailableUnits = barracks.getAvailableUnits();
+
+            for (UnitType unitType : UnitType.values()) {
+                String purchaseText = mUnitsPurchaseEts.get(unitType).getText().toString();
+                // if the user didn't enter anything for this unit type, we do nothing
+                if (purchaseText.isEmpty()) {
+                    continue;
+                }
+
+                int currentUserUnitCount = newUserUnits.get(unitType.toString());
+                int currentAvailableUnitCount = newBarracksAvailableUnits.get(unitType.toString());
+                int purchasedUnitCount = Integer.valueOf(purchaseText);
+
+                // if he did, we add that to his unit count and subtract it from the available count
+                newUserUnits.put(unitType.toString(), currentUserUnitCount + purchasedUnitCount);
+                newBarracksAvailableUnits.put(unitType.toString(), currentAvailableUnitCount - purchasedUnitCount);
+            }
+
+            FirebaseProvider.getInstance().purchaseUnits(mOwner.getId(), newUserUnits,
+                    barracks.getId(), newBarracksAvailableUnits).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(mContext, "New units purchased", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     private void drawUpgradeUnits(View fragmentView) {

@@ -136,7 +136,6 @@ public class GoldMineFragment extends StructureFragment implements View.OnClickL
                         @Override
                         public void onSuccess(Void aVoid) {
                             Toast.makeText(mContext, "+" + newGold + " gold", Toast.LENGTH_SHORT).show();
-                            mCollectButton.setOnClickListener(GoldMineFragment.this);
                         }
                     });
         }

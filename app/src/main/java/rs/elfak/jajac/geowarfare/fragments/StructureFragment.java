@@ -119,8 +119,10 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
 
         mUpgradeButton = (Button) view.findViewById(R.id.fragment_structure_upgrade_btn);
 
-        if (mStructure == null && mOwner == null) {
+        if (mStructure == null || mOwner == null) {
             getStructureDataAndSetupUI();
+        } else {
+            setupUIValues();
         }
 
         return view;
