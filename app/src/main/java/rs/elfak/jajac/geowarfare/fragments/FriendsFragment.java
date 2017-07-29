@@ -113,9 +113,9 @@ public class FriendsFragment extends BaseFragment {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         UserModel user = dataSnapshot.getValue(UserModel.class);
-                        user.id = dataSnapshot.getKey();
-                        setupFriendRequests(user.friendRequests.keySet());
-                        setupFriends(user.friends.keySet());
+                        user.setId(dataSnapshot.getKey());
+                        setupFriendRequests(user.getFriendRequests().keySet());
+                        setupFriends(user.getFriends().keySet());
                     }
 
                     @Override

@@ -8,6 +8,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import rs.elfak.jajac.geowarfare.models.UserModel;
@@ -22,6 +23,7 @@ public class UserUpdatesService extends Service implements ValueEventListener {
 
     private final IBinder mLocalBinder = new LocalBinder();
 
+    private DatabaseReference mUserDbRef;
     private UserModel mUser;
 
     @Override
@@ -29,7 +31,8 @@ public class UserUpdatesService extends Service implements ValueEventListener {
         super.onCreate();
         // Called when the service is bound for the first time,
         // we can start timed operations here
-        FirebaseProvider.getInstance().getCurrentUser().addValueEventListener(this);
+        mUserDbRef = FirebaseProvider.getInstance().getCurrentUser();
+        mUserDbRef.addValueEventListener(this);
     }
 
     public IBinder onBind(Intent intent) {
@@ -40,7 +43,7 @@ public class UserUpdatesService extends Service implements ValueEventListener {
     public boolean onUnbind(Intent intent) {
         // Called when the last bound Activity is unbound from
         // this service, so we stop timed operations here
-        FirebaseProvider.getInstance().getCurrentUser().removeEventListener(this);
+        mUserDbRef.removeEventListener(this);
         return super.onUnbind(intent);
     }
 
@@ -48,7 +51,7 @@ public class UserUpdatesService extends Service implements ValueEventListener {
     public void onDataChange(DataSnapshot dataSnapshot) {
         // Update the user object and locally broadcast an intent
         mUser = dataSnapshot.getValue(UserModel.class);
-        mUser.id = dataSnapshot.getKey();
+        mUser.setId(dataSnapshot.getKey());
         Intent intent = new Intent(USER_UPDATED_INTENT_ACTION);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }

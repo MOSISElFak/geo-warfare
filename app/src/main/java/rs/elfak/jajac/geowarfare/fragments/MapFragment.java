@@ -331,17 +331,17 @@ public class MapFragment extends BaseFragment implements
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Associate the user data with the marker and add the marker to the HashMaps
                 UserModel user = dataSnapshot.getValue(UserModel.class);
-                user.id = dataSnapshot.getKey();
+                user.setId(dataSnapshot.getKey());
 
                 marker.setTag(user);
 
-                mMarkers.put(user.id, marker);
+                mMarkers.put(user.getId(), marker);
                 mMarkerListeners.put(marker, mUserMarkerListener);
 
                 // Load the user avatar and make the marker visible when the picture is in place
                 if (mContext != null) {
                     Glide.with(mContext)
-                            .load(user.avatarUrl)
+                            .load(user.getAvatarUrl())
                             .asBitmap()
                             .listener(new RequestListener<String, Bitmap>() {
                                 @Override
@@ -383,15 +383,15 @@ public class MapFragment extends BaseFragment implements
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // Associate the structure data with the marker and add the marker to the HashMaps
                 StructureModel structure = dataSnapshot.getValue(StructureModel.class);
-                structure.id = dataSnapshot.getKey();
+                structure.setId(dataSnapshot.getKey());
 
                 marker.setTag(structure);
 
-                mMarkers.put(structure.id, marker);
+                mMarkers.put(structure.getId(), marker);
                 mMarkerListeners.put(marker, mStructureMarkerListener);
 
                 if (mContext != null) {
-                    int iconResourceId = structure.type.getIconResId();
+                    int iconResourceId = structure.getType().getIconResId();
                     marker.setIcon(getBitmapFromVector(iconResourceId, ContextCompat.getColor(mContext,
                             R.color.colorPrimaryDark)));
                     marker.setVisible(true);
@@ -430,7 +430,7 @@ public class MapFragment extends BaseFragment implements
     private void onUserMarkerClick(Marker marker) {
         UserModel user = (UserModel) marker.getTag();
         if (mListener != null) {
-            mListener.onOpenUserProfile(user.id);
+            mListener.onOpenUserProfile(user.getId());
         }
 
     }

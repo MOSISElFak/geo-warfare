@@ -119,7 +119,9 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
 
         mUpgradeButton = (Button) view.findViewById(R.id.fragment_structure_upgrade_btn);
 
-        getStructureDataAndSetupUI();
+        if (mStructure == null && mOwner == null) {
+            getStructureDataAndSetupUI();
+        }
 
         return view;
     }
@@ -135,13 +137,13 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         mStructure = dataSnapshot.getValue(mStructureClass);
-                        mStructure.id = dataSnapshot.getKey();
-                        firebaseProvider.getUserById(mStructure.ownerId)
+                        mStructure.setId(dataSnapshot.getKey());
+                        firebaseProvider.getUserById(mStructure.getOwnerId())
                                 .addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         mOwner = dataSnapshot.getValue(UserModel.class);
-                                        mOwner.id = dataSnapshot.getKey();
+                                        mOwner.setId(dataSnapshot.getKey());
                                         setupUIValues();
                                     }
 
@@ -168,7 +170,7 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
         // This is also shared so it's implemented here
         updateUpgradeButton();
 
-        if (mStructure.type.hasDefense()) {
+        if (mStructure.getType().hasDefense()) {
             // We implement this here
             updateDefenseInfo();
         }
@@ -179,10 +181,10 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
         StructureInfoFragment infoFrag = (StructureInfoFragment) childFragmentManager.findFragmentByTag
                 (StructureInfoFragment.FRAGMENT_TAG);
         if (infoFrag == null) {
-            infoFrag = StructureInfoFragment.newInstance(mStructure.type,
-                    mStructure.level, mOwner.id, mOwner.displayName, mOwner.avatarUrl);
+            infoFrag = StructureInfoFragment.newInstance(mStructure.getType(),
+                    mStructure.getLevel(), mOwner.getId(), mOwner.getDisplayName(), mOwner.getAvatarUrl());
         } else {
-            infoFrag.onStructureDataChanged(mStructure.level);
+            infoFrag.onStructureDataChanged(mStructure.getLevel());
         }
 
         childFragmentManager
@@ -207,9 +209,10 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
         DefenseFragment defenseFrag = (DefenseFragment) childFragmentManager.
                 findFragmentByTag(DefenseFragment.FRAGMENT_TAG);
         if (defenseFrag == null) {
-            defenseFrag = DefenseFragment.newInstance(mStructureId, mOwner.id, mStructure.defenseUnits, mOwner.units);
+            defenseFrag = DefenseFragment.newInstance(mStructureId, mOwner.getId(),
+                    mStructure.getDefenseUnits(), mOwner.getUnits());
         } else {
-            defenseFrag.onDefenseDataChanged(mStructure.defenseUnits, mOwner.units);
+            defenseFrag.onDefenseDataChanged(mStructure.getDefenseUnits(), mOwner.getUnits());
         }
 
         childFragmentManager
@@ -229,12 +232,12 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
 
     private void onUpgradeStructure() {
         int upgradeCost = mStructure.getUpgradeCost();
-        if (mOwner.gold < upgradeCost) {
+        if (mOwner.getGold() < upgradeCost) {
             Toast.makeText(mContext, "Not enough gold", Toast.LENGTH_SHORT).show();
         } else {
-            int subtractedGold = mOwner.gold - upgradeCost;
-            FirebaseProvider.getInstance().upgradeStructureLevel(mOwner.id, subtractedGold,
-                    mStructure.id, mStructure.level + 1).addOnSuccessListener(new OnSuccessListener<Void>() {
+            int subtractedGold = mOwner.getGold() - upgradeCost;
+            FirebaseProvider.getInstance().upgradeStructureLevel(mOwner.getId(), subtractedGold,
+                    mStructure.getId(), mStructure.getLevel() + 1).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     Toast.makeText(mContext, "Upgraded structure level", Toast.LENGTH_SHORT).show();

@@ -141,8 +141,8 @@ public class FirebaseProvider {
 
         Map<String, Object> updates = new HashMap<>();
         updates.put("/structures/" + newStructureKey, goldMine);
-        updates.put("/users/" + goldMine.ownerId + "/structures/" + newStructureKey, true);
-        updates.put("/users/" + goldMine.ownerId + "/gold", newUserGoldValue);
+        updates.put("/users/" + goldMine.getOwnerId() + "/structures/" + newStructureKey, true);
+        updates.put("/users/" + goldMine.getOwnerId() + "/gold", newUserGoldValue);
         mStructuresGeoFire.setLocation(newStructureKey, location);
 
         return mDbRef.updateChildren(updates);
@@ -153,8 +153,8 @@ public class FirebaseProvider {
 
         Map<String, Object> updates = new HashMap<>();
         updates.put("/structures/" + newStructureKey, barracks);
-        updates.put("/users/" + barracks.ownerId + "/structures/" + newStructureKey, true);
-        updates.put("/users/" + barracks.ownerId + "/gold", newUserGoldValue);
+        updates.put("/users/" + barracks.getOwnerId() + "/structures/" + newStructureKey, true);
+        updates.put("/users/" + barracks.getOwnerId() + "/gold", newUserGoldValue);
         mStructuresGeoFire.setLocation(newStructureKey, location);
 
         return mDbRef.updateChildren(updates);

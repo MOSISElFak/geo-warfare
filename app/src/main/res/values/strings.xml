@@ -121,7 +121,6 @@
     <!-- BarracksFragment -->
     <string name="barracks_purchase_title">Purchase units</string>
     <string name="barracks_purchase_label">Available:</string>
-    <string name="barracks_purchase_button"></string>
 
     <string name="multiplication_sign">&#215;</string>
 

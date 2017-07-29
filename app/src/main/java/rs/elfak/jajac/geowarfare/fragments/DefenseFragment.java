@@ -175,9 +175,7 @@ public class DefenseFragment extends BaseFragment implements View.OnClickListene
         Map<String, Integer> newDefenseUnitCounts = new HashMap<>();
         Map<String, Integer> newUserUnitCounts = new HashMap<>();
 
-        List<UnitType> unitTypes = Arrays.asList(UnitType.values());
-
-        for (UnitType unitType : unitTypes) {
+        for (UnitType unitType : UnitType.values()) {
 
             int userAmount = mUserUnits.get(unitType.toString());
             int structureAmount = mDefenseUnits.get(unitType.toString());

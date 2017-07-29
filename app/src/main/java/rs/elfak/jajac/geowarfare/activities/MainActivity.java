@@ -428,7 +428,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onOpenStructure(StructureModel structure) {
-        boolean isLoggedUserOwner = structure.ownerId.equals(mLoggedUserId);
+        boolean isLoggedUserOwner = structure.getOwnerId().equals(mLoggedUserId);
         if (isLoggedUserOwner) {
             onOpenMyStructure(structure);
         } else {
@@ -440,13 +440,13 @@ public class MainActivity extends AppCompatActivity implements
         String tag;
         BaseFragment fragment;
 
-        switch (structure.type) {
+        switch (structure.getType()) {
             case GOLD_MINE:
                 fragment = GoldMineFragment.newInstance(
                         GoldMineFragment.class,
                         R.layout.fragment_gold_mine,
                         GoldMineModel.class,
-                        structure.id);
+                        structure.getId());
                 tag = GoldMineFragment.FRAGMENT_TAG;
                 break;
             case BARRACKS:
@@ -454,7 +454,7 @@ public class MainActivity extends AppCompatActivity implements
                         BarracksFragment.class,
                         R.layout.fragment_barracks,
                         BarracksModel.class,
-                        structure.id);
+                        structure.getId());
                 tag = BarracksFragment.FRAGMENT_TAG;
                 break;
             default:
@@ -478,7 +478,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onBuildStructureClick(final StructureType structureType) {
 
-        if (mLoggedUser.gold < structureType.getBaseCost()) {
+        if (mLoggedUser.getGold() < structureType.getBaseCost()) {
             Toast.makeText(this, getString(R.string.structure_no_gold_message), Toast.LENGTH_SHORT).show();
             return;
         }
@@ -500,7 +500,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void buildStructure(StructureType structureType, GeoLocation location) {
         FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
-        int newUserGoldValue = mLoggedUser.gold - structureType.getBaseCost();
+        int newUserGoldValue = mLoggedUser.getGold() - structureType.getBaseCost();
         switch (structureType) {
             case GOLD_MINE:
                 GoldMineModel newGoldMine = new GoldMineModel(structureType, mLoggedUserId);
@@ -540,23 +540,23 @@ public class MainActivity extends AppCompatActivity implements
         // Exit if for some reason the UI element is not present
         if (mFriendRequestsCountTv == null) return;
 
-        if (mLoggedUser == null || mLoggedUser.friendRequests.size() == 0) {
+        if (mLoggedUser == null || mLoggedUser.getFriendRequests().size() == 0) {
             mFriendRequestsCountTv.setVisibility(View.INVISIBLE);
         } else {
-            mFriendRequestsCountTv.setText(String.valueOf(mLoggedUser.friendRequests.size()));
+            mFriendRequestsCountTv.setText(String.valueOf(mLoggedUser.getFriendRequests().size()));
             mFriendRequestsCountTv.setVisibility(View.VISIBLE);
         }
     }
 
     private void updateUnitCounts() {
         for (UnitType unitType : UnitType.values()) {
-            int count = mLoggedUser.units.get(unitType.toString());
+            int count = mLoggedUser.getUnitCount(unitType);
             mUnitCountTvs.get(unitType).setText(String.valueOf(count));
         }
     }
 
     private void updateGold() {
-        mGoldTv.setText(String.valueOf(mLoggedUser.gold));
+        mGoldTv.setText(String.valueOf(mLoggedUser.getGold()));
     }
 
     @Override

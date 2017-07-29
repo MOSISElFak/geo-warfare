@@ -103,7 +103,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         mUser = dataSnapshot.getValue(UserModel.class);
-                        mUser.id = dataSnapshot.getKey();
+                        mUser.setId(dataSnapshot.getKey());
                         if (mStatus == STATUS_UNKNOWN) {
                             setupUI();
                             checkStatusAndSetupFriendRequestButton();
@@ -121,10 +121,10 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     private void setupUI() {
         Glide.with(ProfileFragment.this)
-                .load(mUser.avatarUrl)
+                .load(mUser.getAvatarUrl())
                 .into(mAvatarImage);
-        mDisplayName.setText(mUser.displayName);
-        mFullName.setText(mUser.fullName);
+        mDisplayName.setText(mUser.getDisplayName());
+        mFullName.setText(mUser.getFullName());
     }
 
     private void checkStatusAndSetupFriendRequestButton() {
@@ -132,7 +132,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         if (loggedUserId.equals(mUserId)) {
             mStatus = STATUS_MYSELF;
         } else {
-            if (mUser.friends.containsKey(loggedUserId)) {
+            if (mUser.getFriendRequests().containsKey(loggedUserId)) {
                 mStatus = STATUS_FRIEND;
                 setupFriendRequestButton();
             } else {
@@ -143,7 +143,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if (dataSnapshot.hasChild(mUserId)) {
                                     mStatus = STATUS_REQUEST_RECEIVED;
-                                } else if (mUser.friendRequests.containsKey(loggedUserId)) {
+                                } else if (mUser.getFriendRequests().containsKey(loggedUserId)) {
                                     mStatus = STATUS_REQUEST_SENT;
                                 } else {
                                     mStatus = STATUS_NOT_FRIEND;
@@ -318,10 +318,10 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.main_fragment_container, EditUserInfoFragment.newInstance(
-                        mUser.displayName,
-                        mUser.fullName,
-                        mUser.phone,
-                        mUser.avatarUrl,
+                        mUser.getDisplayName(),
+                        mUser.getFullName(),
+                        mUser.getPhone(),
+                        mUser.getAvatarUrl(),
                         true
                 ))
                 .addToBackStack(null)

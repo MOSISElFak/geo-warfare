@@ -80,14 +80,21 @@ public class BarracksFragment extends StructureFragment implements View.OnClickL
         BarracksModel barracks = (BarracksModel) mStructure;
 
         for (UnitType unitType : UnitType.values()) {
+            // We need this maxCurrAvailable because when we add new units to the UnitType
+            // enum, barracks will show 0 in the 'purchase' part because its 'availableUnits'
+            // does not contain our new type until the user makes his first purchase of this type
+            Map<UnitType, Integer> currLevelCounts = barracks.getCurrentAvailable();
             // Set available unit counts, reset purchase edit texts and set new maximums for text watchers
-            int availableCount = barracks.availableUnits.get(unitType.toString());
+            int availableCount = currLevelCounts.get(unitType);
+            if (barracks.availableUnits.containsKey(unitType.toString())) {
+                // If we find the type in the barracks object, we use that count instead
+                availableCount = barracks.availableUnits.get(unitType.toString());
+            }
             mUnitsAvailableTvs.get(unitType).setText(String.valueOf(availableCount));
             mUnitsPurchaseEts.get(unitType).setText(null);
             mPurchaseEtTextWatchers.get(unitType).setMax(availableCount);
 
             // Upgrade the current level unit batch size
-            Map<UnitType, Integer> currLevelCounts = barracks.getCurrentAvailable();
             int unitBatchCount = currLevelCounts.get(unitType);
             mCurrentLevelAvailableTvs.get(unitType).setText(String.valueOf(unitBatchCount));
         }
@@ -190,8 +197,6 @@ public class BarracksFragment extends StructureFragment implements View.OnClickL
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        int endMargin = (int) getResources().getDimension(R.dimen.structure_icon_value_margin);
-        params.setMarginEnd(endMargin);
 
         // This will return the value in pixels but based on pixel density
         int iconSize = (int) getResources().getDimension(R.dimen.structure_fragment_icon_size);
@@ -204,7 +209,6 @@ public class BarracksFragment extends StructureFragment implements View.OnClickL
             Drawable upgradeUnitIcon = ContextCompat.getDrawable(mContext, unitType.getIconResourceId());
             upgradeUnitIcon.setBounds(0, 0, iconSize, iconSize);
             curView.setCompoundDrawables(upgradeUnitIcon, null, null, null);
-            curView.setLayoutParams(params);
 
             mCurrentLevelAvailableTvs.put(unitType, curView);
             upgradeCurrentContainer.addView(curView);
@@ -219,7 +223,6 @@ public class BarracksFragment extends StructureFragment implements View.OnClickL
 
             upgradeUnitIcon.setBounds(0, 0, iconSize, iconSize);
             nextView.setCompoundDrawables(upgradeUnitIcon, null, null, null);
-            nextView.setLayoutParams(params);
 
             mNextLevelAvailableTvs.put(unitType, nextView);
             upgradeNextContainer.addView(nextView);

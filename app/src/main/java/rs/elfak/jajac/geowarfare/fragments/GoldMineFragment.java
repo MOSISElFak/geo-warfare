@@ -131,7 +131,7 @@ public class GoldMineFragment extends StructureFragment implements View.OnClickL
             mCollectButton.setOnClickListener(null);
             final int newGold = goldMine.gold;
             final FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
-            firebaseProvider.takeGold(mOwner.id, mOwner.gold + newGold, goldMine.id)
+            firebaseProvider.takeGold(mOwner.getId(), mOwner.getGold() + newGold, goldMine.getId())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {

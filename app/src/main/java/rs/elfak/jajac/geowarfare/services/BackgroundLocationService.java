@@ -199,7 +199,7 @@ public class BackgroundLocationService extends Service implements
                                             .setSmallIcon(R.drawable.ic_sword)
                                             .setLargeIcon(BitmapFactory.decodeResource(getResources(),
                                                     R.mipmap.ic_launcher))
-                                            .setContentTitle("User " + nearbyUser.fullName + " is nearby!")
+                                            .setContentTitle("User " + nearbyUser.getFullName() + " is nearby!")
                                             .setContentText("Touch to see what they're up to.")
                                             .setAutoCancel(true);
 
