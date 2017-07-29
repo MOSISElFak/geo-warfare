@@ -20,12 +20,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="2"
-        android:gravity="center_vertical"
+        android:gravity="center"
         android:orientation="horizontal">
 
         <EditText
             android:id="@+id/defense_item_transfer_count"
-            style="@style/UnitCountEditText"
+            style="@style/StructureUnitCountEditText"
             tools:text="50"/>
 
         <TextView

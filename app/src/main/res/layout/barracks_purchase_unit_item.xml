@@ -27,7 +27,7 @@
 
         <EditText
             android:id="@+id/purchase_item_unit_count"
-            style="@style/UnitCountEditText"
+            style="@style/StructureUnitCountEditText"
             tools:text="50"/>
 
         <TextView

@@ -76,6 +76,7 @@ public class GoldMineFragment extends StructureFragment implements View.OnClickL
         GoldMineModel goldMine = (GoldMineModel) mStructure;
 
         mCollectAmount.setText(String.valueOf(goldMine.gold));
+        mCollectButton.setOnClickListener(this);
 
         mCurrentLevelIncome.setText(String.valueOf(goldMine.getCurrentIncome()));
         if (goldMine.canUpgrade()) {
@@ -91,14 +92,6 @@ public class GoldMineFragment extends StructureFragment implements View.OnClickL
         ViewGroup upgradeNextContainer = (ViewGroup) fragmentView.findViewById(R.id
                 .fragment_structure_upgrade_next_container);
 
-        // We need these layout params and margin to set for each drawn text view with drawable
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        int endMargin = (int) getResources().getDimension(R.dimen.structure_icon_value_margin);
-        params.setMarginEnd(endMargin);
-
         // This will return the value in pixels but based on pixel density
         int iconSize = (int) getResources().getDimension(R.dimen.structure_fragment_icon_size);
 
@@ -108,13 +101,11 @@ public class GoldMineFragment extends StructureFragment implements View.OnClickL
         // CURRENT LEVEL
         mCurrentLevelIncome = new TextViewRichDrawable(mContext, null, R.attr.richTextViewDrawableStyle);
         mCurrentLevelIncome.setCompoundDrawables(goldStackIcon, null, null, null);
-        mCurrentLevelIncome.setLayoutParams(params);
         upgradeCurrentContainer.addView(mCurrentLevelIncome);
 
         // NEXT LEVEL
         mNextLevelIncome = new TextViewRichDrawable(mContext, null, R.attr.richTextViewDrawableStyle);
         mNextLevelIncome.setCompoundDrawables(goldStackIcon, null, null, null);
-        mNextLevelIncome.setLayoutParams(params);
         upgradeNextContainer.addView(mNextLevelIncome);
     }
 
@@ -128,36 +119,24 @@ public class GoldMineFragment extends StructureFragment implements View.OnClickL
     }
 
     private void onCollectGold() {
-//        if (mGoldMine.gold <= 0) {
-//            Toast.makeText(mContext, getString(R.string.gold_mine_empty_message), Toast.LENGTH_SHORT).show();
-//        } else {
-//            // Remove listener to prevent multiple clicks
-//            mCollectButton.setOnClickListener(null);
-//
-//            final FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
-//            final String myUserId = firebaseProvider.getCurrentFirebaseUser().getUid();
-//            firebaseProvider.getUserGold(myUserId)
-//                    .addListenerForSingleValueEvent(new ValueEventListener() {
-//                        @Override
-//                        public void onDataChange(DataSnapshot dataSnapshot) {
-//                            int currentGold = dataSnapshot.getValue(int.class);
-//                            int totalGold = currentGold + mGoldMine.gold;
-//                            firebaseProvider.transferGold(myUserId, totalGold, mGoldMine.id)
-//                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                        @Override
-//                                        public void onSuccess(Void aVoid) {
-//                                            mCollectButton.setOnClickListener(GoldMineFragment.this);
-//                                            updateBasicStructureInfo();
-//                                        }
-//                                    });
-//                        }
-//
-//                        @Override
-//                        public void onCancelled(DatabaseError databaseError) {
-//
-//                        }
-//                    });
-//        }
+        GoldMineModel goldMine = (GoldMineModel) mStructure;
+
+        if (goldMine.gold <= 0) {
+            Toast.makeText(mContext, getString(R.string.gold_mine_empty_message), Toast.LENGTH_SHORT).show();
+        } else {
+            // Remove listener to prevent multiple clicks
+            mCollectButton.setOnClickListener(null);
+            final int newGold = goldMine.gold;
+            final FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
+            firebaseProvider.takeGold(mOwner.id, mOwner.gold + newGold, goldMine.id)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(mContext, "+" + newGold + " gold", Toast.LENGTH_SHORT).show();
+                            mCollectButton.setOnClickListener(GoldMineFragment.this);
+                        }
+                    });
+        }
     }
 
     @Override

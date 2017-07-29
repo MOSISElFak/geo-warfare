@@ -164,11 +164,11 @@ public class FirebaseProvider {
         return mStructuresGeoFire;
     }
 
-    public Task<Void> transferGold(String toUserId, int newGoldAmount, String fromGoldMineId) {
+    public Task<Void> takeGold(String userId, int userTotalGoldAmount, String fromGoldMineId) {
         Map<String, Object> updates = new HashMap<>();
 
         updates.put("/structures/" + fromGoldMineId + "/gold", 0);
-        updates.put("/users/" + toUserId + "/gold", newGoldAmount);
+        updates.put("/users/" + userId + "/gold", userTotalGoldAmount);
 
         return mDbRef.updateChildren(updates);
     }

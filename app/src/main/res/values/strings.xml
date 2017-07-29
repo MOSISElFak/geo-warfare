@@ -113,8 +113,8 @@
 
     <!-- GoldMineFragment -->
     <string name="gold_mine_collect_title">Collect gold</string>
-    <string name="gold_mine_collect_label">Gold mined:</string>
-    <string name="gold_mine_collect_button">Collect</string>
+    <string name="gold_mine_collect_label">Available:</string>
+    <string name="gold_mine_collect_button">Take</string>
 
     <string name="gold_mine_empty_message">Nothing to collect at the moment.</string>
 
