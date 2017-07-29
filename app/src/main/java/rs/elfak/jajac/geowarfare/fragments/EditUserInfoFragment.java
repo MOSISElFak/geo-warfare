@@ -323,13 +323,11 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CHOOSE_IMAGE && resultCode == Activity.RESULT_OK) {
-            // If the user has actually picked another image and accepted it
-            Uri dataImageUri = data.getData();
 
-            if (dataImageUri != null) {
+            if (data != null && data.getData() != null) {
                 // If an Uri is found in getData(), we need to get the real file path
                 // from gallery, because imageUri is a "content://..." Uri
-                mNewAvatarLocalPath = getRealPathFromURI(mContext, dataImageUri);
+                mNewAvatarLocalPath = getRealPathFromURI(mContext, data.getData());
             } else {
                 // If no Uri is found in getData(), camera was used and we point to the generated file path
                 mNewAvatarLocalPath = mGeneratedLocalPath;
