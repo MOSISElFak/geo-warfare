@@ -116,6 +116,9 @@ public class GoldMineFragment extends StructureFragment implements View.OnClickL
                 onCollectGold();
                 break;
         }
+
+        // We propagate the call to the base structure fragment if we don't handle it here
+        super.onClick(v);
     }
 
     private void onCollectGold() {

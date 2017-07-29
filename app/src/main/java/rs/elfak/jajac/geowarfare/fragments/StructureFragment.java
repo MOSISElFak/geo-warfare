@@ -8,7 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -193,8 +195,10 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
         if (mStructure.canUpgrade()) {
             mUpgradeButton.setText(String.valueOf(mStructure.getUpgradeCost()));
             mUpgradeButton.setVisibility(View.VISIBLE);
+            mUpgradeButton.setOnClickListener(this);
         } else {
             mUpgradeButton.setVisibility(View.INVISIBLE);
+            mUpgradeButton.setOnClickListener(null);
         }
     }
 
@@ -218,8 +222,24 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fragment_structure_upgrade_btn:
-//                onCollectGold();
+                onUpgradeStructure();
                 break;
+        }
+    }
+
+    private void onUpgradeStructure() {
+        int upgradeCost = mStructure.getUpgradeCost();
+        if (mOwner.gold < upgradeCost) {
+            Toast.makeText(mContext, "Not enough gold", Toast.LENGTH_SHORT).show();
+        } else {
+            int subtractedGold = mOwner.gold - upgradeCost;
+            FirebaseProvider.getInstance().upgradeStructureLevel(mOwner.id, subtractedGold,
+                    mStructure.id, mStructure.level + 1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(mContext, "Upgraded structure level", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 

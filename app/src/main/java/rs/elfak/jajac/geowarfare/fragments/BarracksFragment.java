@@ -24,7 +24,7 @@ import rs.elfak.jajac.geowarfare.models.BarracksModel;
 import rs.elfak.jajac.geowarfare.models.UnitType;
 import rs.elfak.jajac.geowarfare.utils.MaxValueTextWatcher;
 
-public class BarracksFragment extends StructureFragment {
+public class BarracksFragment extends StructureFragment implements View.OnClickListener {
 
     public static final String FRAGMENT_TAG = "BarracksFragment";
 
@@ -167,6 +167,16 @@ public class BarracksFragment extends StructureFragment {
 
     private void updatePurchaseButtonText() {
         mPurchaseButton.setText(String.valueOf(mTotalPurchasePrice));
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fragment_barracks_purchase_btn:
+                // implement purchasing units
+                break;
+        }
+        super.onClick(v);
     }
 
     private void drawUpgradeUnits(View fragmentView) {
