@@ -63,6 +63,7 @@ import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
 import rs.elfak.jajac.geowarfare.fragments.StructureFragment;
 import rs.elfak.jajac.geowarfare.fragments.StructureInfoFragment;
 import rs.elfak.jajac.geowarfare.models.BarracksModel;
+import rs.elfak.jajac.geowarfare.models.CoordsModel;
 import rs.elfak.jajac.geowarfare.models.FriendModel;
 import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
@@ -502,9 +503,10 @@ public class MainActivity extends AppCompatActivity implements
     private void buildStructure(StructureType structureType, GeoLocation location) {
         FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
         int newUserGoldValue = mLoggedUser.getGold() - structureType.getBaseCost();
+        CoordsModel coords = new CoordsModel(location.latitude, location.longitude);
         switch (structureType) {
             case GOLD_MINE:
-                GoldMineModel newGoldMine = new GoldMineModel(structureType, mLoggedUserId);
+                GoldMineModel newGoldMine = new GoldMineModel(structureType, mLoggedUserId, coords);
                 firebaseProvider.addGoldMine(newGoldMine, location, newUserGoldValue)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
@@ -516,7 +518,7 @@ public class MainActivity extends AppCompatActivity implements
                         });
                 break;
             case BARRACKS:
-                BarracksModel newBarracks = new BarracksModel(structureType, mLoggedUserId);
+                BarracksModel newBarracks = new BarracksModel(structureType, mLoggedUserId, coords);
                 firebaseProvider.addBarracks(newBarracks, location, newUserGoldValue)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override

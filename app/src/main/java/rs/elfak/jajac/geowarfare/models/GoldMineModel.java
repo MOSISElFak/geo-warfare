@@ -13,8 +13,8 @@ public class GoldMineModel extends StructureModel {
         // Default constructor required for calls to DataSnapshot.getValue(GoldMineModel.class)
     }
 
-    public GoldMineModel(StructureType type, String ownerId) {
-        super(type, ownerId);
+    public GoldMineModel(StructureType type, String ownerId, CoordsModel coords) {
+        super(type, ownerId, coords);
     }
 
     @Exclude

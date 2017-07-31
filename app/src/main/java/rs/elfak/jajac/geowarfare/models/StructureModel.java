@@ -12,14 +12,16 @@ public class StructureModel {
     protected StructureType type;
     protected int level = 1;
     protected Map<String, Integer> defenseUnits = new HashMap<>();
+    protected CoordsModel coords;
 
     public StructureModel() {
         // Default constructor required for calls to DataSnapshot.getValue(StructureModel.class)
     }
 
-    public StructureModel(StructureType type, String ownerId) {
+    public StructureModel(StructureType type, String ownerId, CoordsModel coords) {
         this.type = type;
         this.ownerId = ownerId;
+        this.coords = coords;
     }
 
     @Exclude

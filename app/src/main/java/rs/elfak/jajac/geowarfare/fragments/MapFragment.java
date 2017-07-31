@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -25,6 +24,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestListener;
@@ -60,7 +60,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
-import rs.elfak.jajac.geowarfare.models.MarkerTag;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
@@ -335,8 +334,7 @@ public class MapFragment extends BaseFragment implements
                 UserModel user = dataSnapshot.getValue(UserModel.class);
                 user.setId(dataSnapshot.getKey());
 
-                MarkerTag markerTag = new MarkerTag(user, location.latitude, location.longitude);
-                marker.setTag(markerTag);
+                marker.setTag(user);
 
                 mMarkers.put(user.getId(), marker);
                 mMarkerListeners.put(marker, mUserMarkerListener);
@@ -394,18 +392,18 @@ public class MapFragment extends BaseFragment implements
                 StructureModel structure = dataSnapshot.getValue(StructureModel.class);
                 structure.setId(dataSnapshot.getKey());
 
-                MarkerTag markerTag = new MarkerTag(structure, location.latitude, location.longitude);
-                marker.setTag(markerTag);
+                marker.setTag(structure);
 
                 mMarkers.put(structure.getId(), marker);
                 mMarkerListeners.put(marker, mStructureMarkerListener);
 
-                if (mContext != null) {
-                    int iconResourceId = structure.getType().getIconResId();
-                    marker.setIcon(getBitmapFromVector(iconResourceId, ContextCompat.getColor(mContext,
-                            R.color.colorPrimaryDark)));
-                    marker.setVisible(true);
+                int iconResourceId = structure.getType().getIconResId();
+                int iconColorId = R.color.colorPrimaryDark;
+                if (mUser.getUid().equals(structure.getOwnerId())) {
+                    iconColorId = R.color.colorPrimaryLight;
                 }
+                marker.setIcon(getBitmapFromVector(iconResourceId, ContextCompat.getColor(mContext, iconColorId)));
+                marker.setVisible(true);
             }
 
             @Override
@@ -442,8 +440,7 @@ public class MapFragment extends BaseFragment implements
     }
 
     private void onUserMarkerClick(Marker marker) {
-        MarkerTag markerTag = (MarkerTag) marker.getTag();
-        UserModel user = (UserModel) markerTag.getObject();
+        UserModel user = (UserModel) marker.getTag();
         if (mListener != null) {
             mListener.onOpenUserProfile(user.getId());
         }
@@ -451,10 +448,13 @@ public class MapFragment extends BaseFragment implements
     }
 
     private void onStructureMarkerClick(Marker marker) {
-        MarkerTag markerTag = (MarkerTag) marker.getTag();
-        StructureModel structure = (StructureModel) markerTag.getObject();
+        StructureModel structure = (StructureModel) marker.getTag();
         if (mListener != null) {
-            mListener.onOpenStructure(structure);
+            if (mUser.getUid().equals(structure.getOwnerId())) {
+                mListener.onOpenStructure(structure);
+            } else {
+                Toast.makeText(mContext, "Attack!", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

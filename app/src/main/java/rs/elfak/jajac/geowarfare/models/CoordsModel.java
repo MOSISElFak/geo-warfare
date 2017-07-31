@@ -1,23 +1,17 @@
 package rs.elfak.jajac.geowarfare.models;
 
-public class MarkerTag {
+public class CoordsModel {
 
-    private Object object;
     private double latitude;
     private double longitude;
 
-    public MarkerTag(Object object, double latitude, double longitude) {
-        this.object = object;
+    public CoordsModel() {
+
+    }
+
+    public CoordsModel(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
-    }
-
-    public Object getObject() {
-        return object;
-    }
-
-    public void setObject(Object object) {
-        this.object = object;
     }
 
     public double getLatitude() {

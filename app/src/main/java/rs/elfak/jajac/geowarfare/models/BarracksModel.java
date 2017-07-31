@@ -13,8 +13,8 @@ public class BarracksModel extends StructureModel {
         // Default constructor required for calls to DataSnapshot.getValue(BarracksModel.class)
     }
 
-    public BarracksModel(StructureType type, String ownerId) {
-        super(type, ownerId);
+    public BarracksModel(StructureType type, String ownerId, CoordsModel coords) {
+        super(type, ownerId, coords);
         Map<UnitType, Integer> firstLevelAvailable = this.getCurrentAvailable();
 
         for (UnitType unitType : firstLevelAvailable.keySet()) {
