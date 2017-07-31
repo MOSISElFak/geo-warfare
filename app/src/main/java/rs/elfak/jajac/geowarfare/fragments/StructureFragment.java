@@ -21,6 +21,7 @@ import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
+import rs.elfak.jajac.geowarfare.utils.Num2Str;
 
 public abstract class StructureFragment extends BaseFragment implements View.OnClickListener {
 
@@ -197,7 +198,7 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
 
     private void updateUpgradeButton() {
         if (mStructure.canUpgrade()) {
-            mUpgradeButton.setText(String.valueOf(mStructure.getUpgradeCost()));
+            mUpgradeButton.setText(Num2Str.convert(mStructure.getUpgradeCost()));
             mUpgradeButton.setVisibility(View.VISIBLE);
             mUpgradeButton.setOnClickListener(this);
         } else {

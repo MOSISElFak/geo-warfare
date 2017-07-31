@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -59,6 +60,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.models.MarkerTag;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
@@ -317,7 +319,7 @@ public class MapFragment extends BaseFragment implements
         });
     }
 
-    private void addUserMarker(String userId, GeoLocation location) {
+    private void addUserMarker(String userId, final GeoLocation location) {
         // Create a (temporary) invisible marker
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(new LatLng(location.latitude, location.longitude));
@@ -333,13 +335,20 @@ public class MapFragment extends BaseFragment implements
                 UserModel user = dataSnapshot.getValue(UserModel.class);
                 user.setId(dataSnapshot.getKey());
 
-                marker.setTag(user);
+                MarkerTag markerTag = new MarkerTag(user, location.latitude, location.longitude);
+                marker.setTag(markerTag);
 
                 mMarkers.put(user.getId(), marker);
                 mMarkerListeners.put(marker, mUserMarkerListener);
 
-                // Load the user avatar and make the marker visible when the picture is in place
-                if (mContext != null) {
+                // If the nearby detected user is not a friend, marker shows a simple icon
+                if (!user.getFriends().containsKey(mUser.getUid())) {
+                    BitmapDescriptor crownIcon = getBitmapFromVector(R.drawable.ic_crown,
+                            ContextCompat.getColor(mContext, R.color.colorPrimary));
+                    marker.setIcon(crownIcon);
+                    marker.setVisible(true);
+                } else {
+                    // Load the user avatar and make the marker visible when the picture is in place
                     Glide.with(mContext)
                             .load(user.getAvatarUrl())
                             .asBitmap()
@@ -370,7 +379,7 @@ public class MapFragment extends BaseFragment implements
         });
     }
 
-    private void addStructureMarker(final String structureId, GeoLocation location) {
+    private void addStructureMarker(final String structureId, final GeoLocation location) {
         // Create a (temporary) invisible marker
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(new LatLng(location.latitude, location.longitude));
@@ -385,7 +394,8 @@ public class MapFragment extends BaseFragment implements
                 StructureModel structure = dataSnapshot.getValue(StructureModel.class);
                 structure.setId(dataSnapshot.getKey());
 
-                marker.setTag(structure);
+                MarkerTag markerTag = new MarkerTag(structure, location.latitude, location.longitude);
+                marker.setTag(markerTag);
 
                 mMarkers.put(structure.getId(), marker);
                 mMarkerListeners.put(marker, mStructureMarkerListener);
@@ -407,7 +417,7 @@ public class MapFragment extends BaseFragment implements
 
     private BitmapDescriptor getBitmapFromVector(int resourceId, int color) {
         Drawable vectorDrawable = ResourcesCompat.getDrawable(getResources(), resourceId, null);
-        Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(75, 75, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         DrawableCompat.setTint(vectorDrawable, color);
@@ -422,13 +432,18 @@ public class MapFragment extends BaseFragment implements
                 .commit();
     }
 
+    private void canBuildOnLocation(Location location) {
+
+    }
+
     @Override
     public boolean onMarkerClick(Marker marker) {
         return mMarkerListeners.get(marker).onMarkerClick(marker);
     }
 
     private void onUserMarkerClick(Marker marker) {
-        UserModel user = (UserModel) marker.getTag();
+        MarkerTag markerTag = (MarkerTag) marker.getTag();
+        UserModel user = (UserModel) markerTag.getObject();
         if (mListener != null) {
             mListener.onOpenUserProfile(user.getId());
         }
@@ -436,7 +451,8 @@ public class MapFragment extends BaseFragment implements
     }
 
     private void onStructureMarkerClick(Marker marker) {
-        StructureModel structure = (StructureModel) marker.getTag();
+        MarkerTag markerTag = (MarkerTag) marker.getTag();
+        StructureModel structure = (StructureModel) markerTag.getObject();
         if (mListener != null) {
             mListener.onOpenStructure(structure);
         }
