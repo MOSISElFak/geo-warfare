@@ -18,6 +18,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.lang.reflect.Constructor;
 
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.models.CoordsModel;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;

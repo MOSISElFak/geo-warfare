@@ -6,6 +6,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.firebase.geofire.GeoFire;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -19,7 +20,8 @@ public class UserUpdatesService extends Service implements ValueEventListener {
 
     private static final String TAG = "UserUpdatesService";
 
-    public static final String USER_UPDATED_INTENT_ACTION = "rs.elfak.jajac.geowarfare.user-updates";
+    public static final String USER_UPDATED_INTENT_ACTION = "rs.elfak.jajac.geowarfare.user-update";
+    public static final String USER_LOCATION_UPDATED_INTENT_ACTION = "rs.elfak.jajac.geowarfare.user-location-update";
 
     private final IBinder mLocalBinder = new LocalBinder();
 

@@ -1,19 +1,27 @@
 package rs.elfak.jajac.geowarfare.activities;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -41,13 +49,11 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseError;
-import com.tolstykh.textviewrichdrawable.TextViewRichDrawable;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.fragments.BarracksFragment;
@@ -72,6 +78,7 @@ import rs.elfak.jajac.geowarfare.models.UnitType;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 import rs.elfak.jajac.geowarfare.receivers.LocationProvidersChangedReceiver;
+import rs.elfak.jajac.geowarfare.services.ForegroundLocationService;
 import rs.elfak.jajac.geowarfare.services.UserUpdatesService;
 import rs.elfak.jajac.geowarfare.utils.NumTextView;
 
@@ -87,14 +94,18 @@ public class MainActivity extends AppCompatActivity implements
         StructureInfoFragment.OnFragmentInteractionListener,
         DefenseFragment.OnFragmentInteractionListener,
         GoldMineFragment.OnFragmentInteractionListener,
-        BarracksFragment.OnFragmentInteractionListener,
-        ServiceConnection {
+        BarracksFragment.OnFragmentInteractionListener {
 
     public static final int REQUEST_CHECK_SETTINGS = 1;
+    public static final int REQUEST_LOCATION_PERMISSION = 2;
 
     private FragmentManager mFragmentManager;
+
     private boolean mUserUpdatesBound = false;
     private UserUpdatesService mUserUpdatesService;
+
+    private boolean mUserLocationsBound = false;
+    private ForegroundLocationService mUserLocationService;
 
     private String mLoggedUserId;
     private UserModel mLoggedUser;
@@ -139,11 +150,7 @@ public class MainActivity extends AppCompatActivity implements
         mLoggedUserId = firebaseProvider.getCurrentFirebaseUser().getUid();
 
         mFragmentManager = getSupportFragmentManager();
-        // Check location settings if nothing is on the stack yet and display
-        // MapFragment if they are satisfied or NoLocationFragment if they are not
-        if (mFragmentManager.getBackStackEntryCount() < 1) {
-            checkLocationSettings();
-        }
+
         // Monitor the backstack in order to show/hide the back button
         mFragmentManager.addOnBackStackChangedListener(this);
         shouldDisplayHomeUp();
@@ -156,76 +163,6 @@ public class MainActivity extends AppCompatActivity implements
         );
         spinAdapter.setDropDownViewResource(R.layout.toolbar_spinner_dropdown_item);
         mFilterSpinner.setAdapter(spinAdapter);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // Bind to the user updates service so it starts running if it's not already
-        Intent userUpdatesIntent = new Intent(this, UserUpdatesService.class);
-        bindService(userUpdatesIntent, this, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        // Register a receiver for any changes in the user data (eg. from UserUpdatesService)
-        localBroadcastManager.registerReceiver(mUserUpdatesReceiver,
-                new IntentFilter(UserUpdatesService.USER_UPDATED_INTENT_ACTION));
-        // Register a receiver for any changes in location providers (eg. from LocationProvidersChangedReceiver)
-        localBroadcastManager.registerReceiver(mLocationProvidersChangedReceiver,
-                new IntentFilter(LocationProvidersChangedReceiver.PROVIDERS_CHANGED_INTENT_ACTION));
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        // Unregister the receivers in onPause because we can guarantee its execution
-        localBroadcastManager.unregisterReceiver(mUserUpdatesReceiver);
-        localBroadcastManager.unregisterReceiver(mLocationProvidersChangedReceiver);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        // Unbind from any services this activity is bound to
-        if (mUserUpdatesBound) {
-            unbindService(this);
-            mUserUpdatesBound = false;
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mFragmentManager = null;
-        mLoggedUserId = null;
-    }
-
-    private void drawInfoBarUnits() {
-        LayoutInflater layoutInflater = getLayoutInflater();
-        ViewGroup parentView = (ViewGroup) findViewById(R.id.info_bar_units_container);
-        List<UnitType> unitTypes = Arrays.asList(UnitType.values());
-
-        for (UnitType unitType : unitTypes) {
-            View view = layoutInflater.inflate(R.layout.info_bar_unit_item, null, false);
-            ImageView icon = (ImageView) view.findViewById(R.id.info_bar_units_item_icon);
-            NumTextView countTv = (NumTextView) view.findViewById(R.id.info_bar_units_item_count);
-            icon.setImageResource(unitType.getIconResourceId());
-            mUnitCountTvs.put(unitType, countTv);
-
-            parentView.addView(view);
-        }
-    }
-
-    private void onLocationProvidersChanged(boolean isEnabled) {
-        if (isEnabled) {
-            onLocationSettingsSatisfied();
-        } else {
-            onLocationSettingsUnsatisfied();
-        }
     }
 
     // Check if the user's location SETTINGS (not permissions) are satisfying for our LocationRequest
@@ -284,11 +221,158 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void onLocationSettingsSatisfied() {
-        onOpenMap();
+        checkLocationPermission();
     }
 
     private void onLocationSettingsUnsatisfied() {
         onOpenNoLocationScreen();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        checkLocationSettings();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        // Register a receiver for any changes in the user data (eg. from UserUpdatesService)
+        localBroadcastManager.registerReceiver(mUserUpdatesReceiver,
+                new IntentFilter(UserUpdatesService.USER_UPDATED_INTENT_ACTION));
+        // Register a receiver for any changes in location providers (eg. from LocationProvidersChangedReceiver)
+        localBroadcastManager.registerReceiver(mLocationProvidersChangedReceiver,
+                new IntentFilter(LocationProvidersChangedReceiver.PROVIDERS_CHANGED_INTENT_ACTION));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        // Unregister the receivers in onPause because we can guarantee its execution
+        localBroadcastManager.unregisterReceiver(mUserUpdatesReceiver);
+        localBroadcastManager.unregisterReceiver(mLocationProvidersChangedReceiver);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Unbind from any services this activity is bound to
+        if (mUserUpdatesBound) {
+            unbindService(mUserUpdatesConnection);
+            mUserUpdatesBound = false;
+        }
+        if (mUserLocationsBound) {
+            unbindService(mUserLocationConnection);
+            mUserLocationsBound = false;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mFragmentManager = null;
+        mLoggedUserId = null;
+    }
+
+    private void checkLocationPermission() {
+        final String locationPermission = Manifest.permission.ACCESS_FINE_LOCATION;
+        int userPermission = ContextCompat.checkSelfPermission(this, locationPermission);
+        boolean permissionGranted = userPermission == PackageManager.PERMISSION_GRANTED;
+
+        if (!permissionGranted) {
+            // Explain the user why the app requires location permission and then ask for it
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, locationPermission)) {
+                new AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.location_permission_title))
+                        .setMessage(getString(R.string.location_permission_message))
+                        .setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ActivityCompat.requestPermissions(MainActivity.this, new String[]{locationPermission},
+                                REQUEST_LOCATION_PERMISSION);
+                            }
+                        }).create().show();
+            } else {
+                // User checked "never ask again", show explanation and switch to app settings
+                new AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.location_permission_title))
+                        .setMessage(getString(R.string.location_permission_message))
+                        .setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                Uri uri = Uri.fromParts("package", MainActivity.this.getPackageName(), null);
+                                intent.setData(uri);
+                                startActivity(intent);
+                            }
+                        }).create().show();
+            }
+        } else {
+            onLocationPermissionGranted();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_LOCATION_PERMISSION: {
+                // If request is granted, the results array won't be empty
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    onLocationPermissionGranted();
+                } else {
+                    onLocationPermissionDenied();
+                }
+            }
+        }
+    }
+
+    private void onLocationPermissionGranted() {
+        LocationRequest locationRequest = new LocationRequest();
+        locationRequest.setInterval(5000);
+        locationRequest.setFastestInterval(1000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        Intent userLocationIntent = new Intent(this, ForegroundLocationService.class);
+        bindService(userLocationIntent, mUserLocationConnection, Context.BIND_AUTO_CREATE);
+        Intent userUpdatesIntent = new Intent(this, UserUpdatesService.class);
+        bindService(userUpdatesIntent, mUserUpdatesConnection, Context.BIND_AUTO_CREATE);
+
+        // If there's nothing on the stack (no fragment loaded), load map
+        if (mFragmentManager.getBackStackEntryCount() < 1) {
+            onOpenMap();
+        }
+    }
+
+    private void onLocationPermissionDenied() {
+        // TODO: Handle the map somehow when the user denies location access
+    }
+
+    private void onLocationProvidersChanged(boolean isEnabled) {
+        if (isEnabled) {
+            onLocationSettingsSatisfied();
+        } else {
+            onLocationSettingsUnsatisfied();
+        }
+    }
+
+    private void drawInfoBarUnits() {
+        LayoutInflater layoutInflater = getLayoutInflater();
+        ViewGroup parentView = (ViewGroup) findViewById(R.id.info_bar_units_container);
+        List<UnitType> unitTypes = Arrays.asList(UnitType.values());
+
+        for (UnitType unitType : unitTypes) {
+            View view = layoutInflater.inflate(R.layout.info_bar_unit_item, null, false);
+            ImageView icon = (ImageView) view.findViewById(R.id.info_bar_units_item_icon);
+            NumTextView countTv = (NumTextView) view.findViewById(R.id.info_bar_units_item_count);
+            icon.setImageResource(unitType.getIconResourceId());
+            mUnitCountTvs.put(unitType, countTv);
+
+            parentView.addView(view);
+        }
     }
 
     @Override
@@ -536,7 +620,7 @@ public class MainActivity extends AppCompatActivity implements
         mLoggedUser = mUserUpdatesService.getUser();
         updateFriendRequestsCount();
         updateUnitCounts();
-        updateGold();
+        updateGoldAmount();
     }
 
     private void updateFriendRequestsCount() {
@@ -558,7 +642,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private void updateGold() {
+    private void updateGoldAmount() {
         mGoldTv.setText(String.valueOf(mLoggedUser.getGold()));
     }
 
@@ -572,15 +656,32 @@ public class MainActivity extends AppCompatActivity implements
         onOpenUserProfile(ownerUserId);
     }
 
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        UserUpdatesService.LocalBinder binder = (UserUpdatesService.LocalBinder) service;
-        mUserUpdatesService = binder.getService();
-        mUserUpdatesBound = true;
-    }
+    private ServiceConnection mUserUpdatesConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            UserUpdatesService.LocalBinder binder = (UserUpdatesService.LocalBinder) service;
+            mUserUpdatesService = binder.getService();
+            mUserUpdatesBound = true;
+        }
 
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-        mUserUpdatesBound = false;
-    }
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mUserUpdatesBound = false;
+        }
+    };
+
+    private ServiceConnection mUserLocationConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            ForegroundLocationService.LocalBinder binder = (ForegroundLocationService.LocalBinder) service;
+            mUserLocationService = binder.getService();
+            mUserLocationsBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mUserLocationsBound = false;
+        }
+    };
+
 }

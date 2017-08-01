@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.models.BarracksModel;
+import rs.elfak.jajac.geowarfare.models.CoordsModel;
 import rs.elfak.jajac.geowarfare.models.GoldMineModel;
 
 public class FirebaseProvider {
@@ -82,6 +83,11 @@ public class FirebaseProvider {
 
     public Task<Void> updateUserInfo(String userId, Map<String, Object> newUserValues) {
         return mUsersDbRef.child(userId).updateChildren(newUserValues);
+    }
+
+    public Task<Void> updateUserLocation(String userId, CoordsModel coords) {
+        mUsersGeoFire.setLocation(userId, new GeoLocation(coords.getLatitude(), coords.getLongitude()));
+        return mUsersDbRef.child(userId).child("coords").setValue(coords);
     }
 
     public DatabaseReference getReceivedFriendRequests(String toUserId) {

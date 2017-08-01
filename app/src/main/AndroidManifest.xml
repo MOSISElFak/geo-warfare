@@ -64,15 +64,14 @@
         </activity>
 
         <service android:name=".services.BackgroundLocationService"/>
-
         <service android:name=".services.UserUpdatesService"/>
+        <service android:name=".services.ForegroundLocationService"/>
 
         <receiver android:name=".receivers.BootCompletedReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-
         <receiver android:name=".receivers.LocationProvidersChangedReceiver">
             <intent-filter>
                 <action android:name="android.location.PROVIDERS_CHANGED"/>
@@ -83,6 +82,7 @@
             android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings">
         </activity>
+
     </application>
 
 </manifest>

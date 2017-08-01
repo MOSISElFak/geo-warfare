@@ -1,9 +1,11 @@
 package rs.elfak.jajac.geowarfare.fragments;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -18,6 +20,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
@@ -60,17 +63,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.models.CoordsModel;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
+import rs.elfak.jajac.geowarfare.services.ForegroundLocationService;
 
 public class MapFragment extends BaseFragment implements
         OnMapReadyCallback,
         GoogleMap.OnMarkerClickListener {
 
     public static final String FRAGMENT_TAG = "MapFragment";
-
-    public static final int REQUEST_LOCATION_PERMISSION = 1;
 
     private Context mContext;
     private FloatingActionButton mBuildButton;
@@ -84,16 +87,22 @@ public class MapFragment extends BaseFragment implements
     private double mRadius = 300;
     private Map<String, Marker> mMarkers = new HashMap<>();
     private Map<Marker, GoogleMap.OnMarkerClickListener> mMarkerListeners = new HashMap<>();
-    private Location mMyLocation;
+    private CoordsModel mMyLocation;
 
     private GoogleMap.OnMarkerClickListener mUserMarkerListener;
     private GoogleMap.OnMarkerClickListener mStructureMarkerListener;
 
-    private FusedLocationProviderClient mFusedLocationClient;
-    private LocationCallback mLocationCallback;
-
     private GeoQuery mUsersGeoQuery;
     private GeoQuery mStructuresGeoQuery;
+
+    private BroadcastReceiver mUserLocationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            double latitude = intent.getDoubleExtra("latitude", 0);
+            double longitude = intent.getDoubleExtra("longitude", 0);
+            onNewLocation(new CoordsModel(latitude, longitude));
+        }
+    };
 
     private OnFragmentInteractionListener mListener;
 
@@ -115,15 +124,6 @@ public class MapFragment extends BaseFragment implements
 
         mFirebaseProvider = FirebaseProvider.getInstance();
         mUser = mFirebaseProvider.getCurrentFirebaseUser();
-
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext);
-
-        mLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                onNewLocation(locationResult);
-            }
-        };
 
         mUserMarkerListener = new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -164,87 +164,21 @@ public class MapFragment extends BaseFragment implements
         mGoogleMap = googleMap;
         mGoogleMap.setMapStyle(new MapStyleOptions(getResources().getString(R.string.style_json)));
         mGoogleMap.setOnMarkerClickListener(this);
-        checkLocationPermission();
-    }
 
-    private void checkLocationPermission() {
-        final String locationPermission = Manifest.permission.ACCESS_FINE_LOCATION;
-        int userPermission = ContextCompat.checkSelfPermission(getContext(), locationPermission);
-        boolean permissionGranted = userPermission == PackageManager.PERMISSION_GRANTED;
-
-        if (!permissionGranted) {
-            // Explain the user why the app requires location permission and then ask for it
-            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), locationPermission)) {
-                new AlertDialog.Builder(getActivity())
-                        .setTitle(getString(R.string.location_permission_title))
-                        .setMessage(getString(R.string.location_permission_message))
-                        .setNeutralButton("Close", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                requestPermissions(new String[]{locationPermission}, REQUEST_LOCATION_PERMISSION);
-                            }
-                        }).create().show();
-            } else {
-                // User checked "never ask again", show explanation and switch to app settings
-                new AlertDialog.Builder(getActivity())
-                        .setTitle(getString(R.string.location_permission_title))
-                        .setMessage(getString(R.string.location_permission_message))
-                        .setNeutralButton("Close", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                Uri uri = Uri.fromParts("package", mContext.getPackageName(), null);
-                                intent.setData(uri);
-                                startActivity(intent);
-                            }
-                        }).create().show();
-            }
-        } else {
-            onLocationPermissionGranted();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_LOCATION_PERMISSION: {
-                // If request is granted, the results array won't be empty
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    onLocationPermissionGranted();
-                } else {
-                    onLocationPermissionDenied();
-                }
-                return;
-            }
-        }
-    }
-
-    private void onLocationPermissionGranted() {
-        LocationRequest locationRequest = new LocationRequest();
-        locationRequest.setInterval(5000);
-        locationRequest.setFastestInterval(1000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        // Get the latest location, center map on it, create and show circle and start receiving location updates
         try {
-            // Can only build structures if location settings and permissions are satisfied
-            mBuildButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onBuildClick();
-                }
-            });
-            mFusedLocationClient.requestLocationUpdates(locationRequest, mLocationCallback, null);
             mGoogleMap.setMyLocationEnabled(true);
         } catch (SecurityException e) {
-            // We're not handling the exception here because this won't be called without permission anyway.
+            // We're not handling the exception here because we receive locations from the service
+            // that will only be enabled if we have location permission
             e.printStackTrace();
         }
-    }
 
-    private void onLocationPermissionDenied() {
-        // TODO: Handle the map somehow when the user denies location access
+        mBuildButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBuildClick();
+            }
+        });
     }
 
     private void addUserGeoQueryEventListener() {
@@ -458,8 +392,7 @@ public class MapFragment extends BaseFragment implements
         }
     }
 
-    private void onNewLocation(LocationResult locationResult) {
-        Location loc = locationResult.getLastLocation();
+    private void onNewLocation(CoordsModel loc) {
         LatLng center = new LatLng(loc.getLatitude(), loc.getLongitude());
         GeoLocation geoLoc = new GeoLocation(loc.getLatitude(), loc.getLongitude());
 
@@ -491,9 +424,6 @@ public class MapFragment extends BaseFragment implements
             mStructuresGeoQuery.setCenter(geoLoc);
         }
 
-        // Send our new location to the server
-        usersGeoFire.setLocation(mUser.getUid(), geoLoc);
-
         mMyLocation = loc;
     }
 
@@ -507,12 +437,21 @@ public class MapFragment extends BaseFragment implements
     public void onResume() {
         super.onResume();
         mMapView.onResume();
+
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(mContext);
+        // Register a receiver for any changes in the user data (eg. from ForegroundLocationService)
+        localBroadcastManager.registerReceiver(mUserLocationReceiver,
+                new IntentFilter(ForegroundLocationService.USER_LOCATION_UPDATED_INTENT_ACTION));
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mMapView.onPause();
+
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(mContext);
+        // Unregister the receivers in onPause because we can guarantee its execution
+        localBroadcastManager.unregisterReceiver(mUserLocationReceiver);
     }
 
     @Override
@@ -527,15 +466,9 @@ public class MapFragment extends BaseFragment implements
             mCircle = null;
         }
 
-        stopLocationUpdates();
-
         if (mUsersGeoQuery != null) {
             mUsersGeoQuery.removeAllListeners();
         }
-    }
-
-    private void stopLocationUpdates() {
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
 
     @Override

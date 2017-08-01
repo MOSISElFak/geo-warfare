@@ -22,6 +22,7 @@ public class UserModel {
     private String fullName;
     private String phone;
     private String avatarUrl;
+    private CoordsModel coords;
     private Map<String, Boolean> friends = new HashMap<>();
     private Map<String, Boolean> friendRequests = new HashMap<>();
     private Map<String, Boolean> structures = new HashMap<>();
@@ -39,6 +40,7 @@ public class UserModel {
         this.fullName = fullName;
         this.phone = phone;
         this.avatarUrl = imgUrl;
+        this.coords = new CoordsModel(0, 0);
     }
 
     @Exclude
