@@ -60,7 +60,8 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
         public void onReceive(Context context, Intent intent) {
             double latitude = intent.getDoubleExtra("latitude", 0);
             double longitude = intent.getDoubleExtra("longitude", 0);
-            onNewLocation(new CoordsModel(latitude, longitude));
+            mOwner.setCoords(new CoordsModel(latitude, longitude));
+            updateIsUserNearby();
         }
     };
 
@@ -184,6 +185,7 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         mOwner = dataSnapshot.getValue(UserModel.class);
                                         mOwner.setId(dataSnapshot.getKey());
+                                        updateIsUserNearby();
                                         setupUIValues();
                                     }
 
@@ -259,6 +261,8 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
                 .beginTransaction()
                 .replace(R.id.fragment_structure_defense_container, defenseFrag, DefenseFragment.FRAGMENT_TAG)
                 .commit();
+
+        defenseFrag.updateIsUserNearby(mIsUserNearby);
     }
 
     @Override
@@ -286,10 +290,10 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
         }
     }
 
-    private void onNewLocation(CoordsModel coords) {
+    private void updateIsUserNearby() {
         Location userLocation = new Location("A");
-        userLocation.setLatitude(coords.getLatitude());
-        userLocation.setLongitude(coords.getLongitude());
+        userLocation.setLatitude(mOwner.getCoords().getLatitude());
+        userLocation.setLongitude(mOwner.getCoords().getLongitude());
 
         Location structureLocation = new Location("B");
         structureLocation.setLatitude(mStructure.getCoords().getLatitude());
@@ -298,6 +302,14 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
         float distance = userLocation.distanceTo(structureLocation);
 
         mIsUserNearby = distance <= Constants.MAX_INTERACT_DISTANCE;
+
+        FragmentManager childFragmentManager = getChildFragmentManager();
+        DefenseFragment defenseFrag = (DefenseFragment) childFragmentManager.
+                findFragmentByTag(DefenseFragment.FRAGMENT_TAG);
+
+        if (defenseFrag != null) {
+            defenseFrag.updateIsUserNearby(mIsUserNearby);
+        }
     }
 
     @Override

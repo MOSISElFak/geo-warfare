@@ -122,6 +122,12 @@ public class GoldMineFragment extends StructureFragment implements View.OnClickL
     }
 
     private void onCollectGold() {
+        // Exit if the user is far away
+        if (!mIsUserNearby) {
+            Toast.makeText(mContext, getString(R.string.structure_interact_too_far), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         GoldMineModel goldMine = (GoldMineModel) mStructure;
 
         if (goldMine.gold <= 0) {

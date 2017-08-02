@@ -40,6 +40,7 @@ public class DefenseFragment extends BaseFragment implements View.OnClickListene
     private String mUserId;
     private Map<String, Integer> mDefenseUnits;
     private Map<String, Integer> mUserUnits;
+    private boolean mIsUserNearby = false;
 
     private Map<UnitType, TextViewRichDrawable> mDefenseUnitsTvs = new HashMap<>();
     private Map<UnitType, EditText> mTransferUnitsEts = new HashMap<>();
@@ -166,6 +167,13 @@ public class DefenseFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void onTransfer(boolean isLeavingUnits) {
+        // Exit if the user is far away
+        if (!mIsUserNearby) {
+            Toast.makeText(mContext, getString(R.string.structure_interact_too_far), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Exit if user selected nothing for transfer
         if (isAllTransferEmpty()) {
             Toast.makeText(mContext, getString(R.string.structure_defense_transfer_empty),
                     Toast.LENGTH_SHORT).show();
@@ -249,6 +257,10 @@ public class DefenseFragment extends BaseFragment implements View.OnClickListene
             }
         }
         return true;
+    }
+
+    public void updateIsUserNearby(boolean isNearby) {
+        mIsUserNearby = isNearby;
     }
 
     @Override

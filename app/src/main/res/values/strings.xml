@@ -111,6 +111,8 @@
     <string name="structure_defense_transfer_take_btn">Take</string>
     <string name="structure_defense_transfer_success">Units successfully transferred.</string>
 
+    <string name="structure_interact_too_far">You\'re too far to interact.</string>
+
     <!-- GoldMineFragment -->
     <string name="gold_mine_collect_title">Collect gold</string>
     <string name="gold_mine_collect_label">Available:</string>

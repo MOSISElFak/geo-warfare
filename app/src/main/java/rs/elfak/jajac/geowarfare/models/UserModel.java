@@ -22,6 +22,7 @@ public class UserModel {
     private String fullName;
     private String phone;
     private String avatarUrl;
+
     private CoordsModel coords;
     private Map<String, Boolean> friends = new HashMap<>();
     private Map<String, Boolean> friendRequests = new HashMap<>();
@@ -168,6 +169,15 @@ public class UserModel {
 
     public void setGold(int gold) {
         this.gold = gold;
+    }
+
+
+    public CoordsModel getCoords() {
+        return coords;
+    }
+
+    public void setCoords(CoordsModel coords) {
+        this.coords = coords;
     }
 
 }

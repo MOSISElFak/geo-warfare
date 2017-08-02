@@ -192,6 +192,12 @@ public class BarracksFragment extends StructureFragment implements View.OnClickL
     }
 
     private void onPurchaseUnits() {
+        // Exit if the user is far away
+        if (!mIsUserNearby) {
+            Toast.makeText(mContext, getString(R.string.structure_interact_too_far), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         BarracksModel barracks = (BarracksModel) mStructure;
         if (mOwner.getGold() < mTotalPurchasePrice) {
             Toast.makeText(mContext, "You can't afford that", Toast.LENGTH_SHORT).show();
