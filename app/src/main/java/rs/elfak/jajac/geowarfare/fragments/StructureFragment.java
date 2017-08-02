@@ -1,9 +1,14 @@
 package rs.elfak.jajac.geowarfare.fragments;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,11 +22,13 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.lang.reflect.Constructor;
 
+import rs.elfak.jajac.Constants;
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.CoordsModel;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
 import rs.elfak.jajac.geowarfare.models.UserModel;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
+import rs.elfak.jajac.geowarfare.services.ForegroundLocationService;
 import rs.elfak.jajac.geowarfare.utils.Num2Str;
 
 public abstract class StructureFragment extends BaseFragment implements View.OnClickListener {
@@ -38,6 +45,7 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
 
     protected StructureModel mStructure;
     protected UserModel mOwner;
+    protected boolean mIsUserNearby = false;
 
     private Button mUpgradeButton;
 
@@ -46,6 +54,15 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
     public interface OnFragmentInteractionListener {
 
     }
+
+    private BroadcastReceiver mUserLocationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            double latitude = intent.getDoubleExtra("latitude", 0);
+            double longitude = intent.getDoubleExtra("longitude", 0);
+            onNewLocation(new CoordsModel(latitude, longitude));
+        }
+    };
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -128,6 +145,25 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
         }
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(mContext);
+        // Register a receiver for any changes in the user data (eg. from ForegroundLocationService)
+        localBroadcastManager.registerReceiver(mUserLocationReceiver,
+                new IntentFilter(ForegroundLocationService.USER_LOCATION_UPDATED_INTENT_ACTION));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(mContext);
+        // Unregister the receivers in onPause because we can guarantee its execution
+        localBroadcastManager.unregisterReceiver(mUserLocationReceiver);
     }
 
     abstract void drawStructureSpecificView(View fragmentView);
@@ -248,6 +284,20 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
                 }
             });
         }
+    }
+
+    private void onNewLocation(CoordsModel coords) {
+        Location userLocation = new Location("A");
+        userLocation.setLatitude(coords.getLatitude());
+        userLocation.setLongitude(coords.getLongitude());
+
+        Location structureLocation = new Location("B");
+        structureLocation.setLatitude(mStructure.getCoords().getLatitude());
+        structureLocation.setLongitude(mStructure.getCoords().getLongitude());
+
+        float distance = userLocation.distanceTo(structureLocation);
+
+        mIsUserNearby = distance <= Constants.MAX_INTERACT_DISTANCE;
     }
 
     @Override

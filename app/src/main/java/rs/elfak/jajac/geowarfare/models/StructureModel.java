@@ -12,6 +12,7 @@ public class StructureModel {
     protected StructureType type;
     protected int level = 1;
     protected Map<String, Integer> defenseUnits = new HashMap<>();
+
     protected CoordsModel coords;
 
     public StructureModel() {
@@ -107,6 +108,14 @@ public class StructureModel {
                 this.defenseUnits.put(typeName, defenseUnits.get(typeName));
             }
         }
+    }
+
+    public CoordsModel getCoords() {
+        return coords;
+    }
+
+    public void setCoords(CoordsModel coords) {
+        this.coords = coords;
     }
 
 }
