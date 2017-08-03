@@ -55,6 +55,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import rs.elfak.jajac.geowarfare.Constants;
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.fragments.BarracksFragment;
 import rs.elfak.jajac.geowarfare.fragments.BaseFragment;
@@ -168,9 +169,9 @@ public class MainActivity extends AppCompatActivity implements
     // Check if the user's location SETTINGS (not permissions) are satisfying for our LocationRequest
     private void checkLocationSettings() {
         LocationRequest locationRequest = new LocationRequest();
-        locationRequest.setInterval(5000);
-        locationRequest.setFastestInterval(1000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(Constants.LOCATION_REQUEST_INTERVAL);
+        locationRequest.setFastestInterval(Constants.LOCATION_REQUEST_FASTEST_INTERVAL);
+        locationRequest.setPriority(Constants.LOCATION_REQUEST_PRIORITY);
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(locationRequest);
@@ -332,9 +333,9 @@ public class MainActivity extends AppCompatActivity implements
 
     private void onLocationPermissionGranted() {
         LocationRequest locationRequest = new LocationRequest();
-        locationRequest.setInterval(5000);
-        locationRequest.setFastestInterval(1000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(Constants.LOCATION_REQUEST_INTERVAL);
+        locationRequest.setFastestInterval(Constants.LOCATION_REQUEST_FASTEST_INTERVAL);
+        locationRequest.setPriority(Constants.LOCATION_REQUEST_PRIORITY);
 
         Intent userLocationIntent = new Intent(this, ForegroundLocationService.class);
         bindService(userLocationIntent, mUserLocationConnection, Context.BIND_AUTO_CREATE);
@@ -348,7 +349,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void onLocationPermissionDenied() {
-        // TODO: Handle the map somehow when the user denies location access
+        // Treat denied location permission as if the device location is disabled
+        onOpenNoLocationScreen();
     }
 
     private void onLocationProvidersChanged(boolean isEnabled) {
@@ -570,28 +572,17 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
-        // First we have to get the current user location
-        firebaseProvider.getUsersGeoFire().getLocation(mLoggedUserId, new LocationCallback() {
-            @Override
-            public void onLocationResult(String key, GeoLocation location) {
-                buildStructure(structureType, location);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        // We can use the constantly-updated mLoggedUser to get the location for building
+        buildStructure(structureType, mLoggedUser.getCoords());
     }
 
-    private void buildStructure(StructureType structureType, GeoLocation location) {
+    private void buildStructure(StructureType structureType, CoordsModel coords) {
         FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
         int newUserGoldValue = mLoggedUser.getGold() - structureType.getBaseCost();
-        CoordsModel coords = new CoordsModel(location.latitude, location.longitude);
         switch (structureType) {
             case GOLD_MINE:
                 GoldMineModel newGoldMine = new GoldMineModel(structureType, mLoggedUserId, coords);
-                firebaseProvider.addGoldMine(newGoldMine, location, newUserGoldValue)
+                firebaseProvider.addGoldMine(newGoldMine, coords, newUserGoldValue)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
@@ -603,7 +594,7 @@ public class MainActivity extends AppCompatActivity implements
                 break;
             case BARRACKS:
                 BarracksModel newBarracks = new BarracksModel(structureType, mLoggedUserId, coords);
-                firebaseProvider.addBarracks(newBarracks, location, newUserGoldValue)
+                firebaseProvider.addBarracks(newBarracks, coords, newUserGoldValue)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {

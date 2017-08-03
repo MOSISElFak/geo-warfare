@@ -22,7 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.lang.reflect.Constructor;
 
-import rs.elfak.jajac.Constants;
+import rs.elfak.jajac.geowarfare.Constants;
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.CoordsModel;
 import rs.elfak.jajac.geowarfare.models.StructureModel;

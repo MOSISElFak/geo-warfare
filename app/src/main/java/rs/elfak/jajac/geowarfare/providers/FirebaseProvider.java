@@ -142,26 +142,30 @@ public class FirebaseProvider {
         return mStructuresDbRef.child(structureId);
     }
 
-    public Task<Void> addGoldMine(GoldMineModel goldMine, GeoLocation location, int newUserGoldValue) {
+    public Task<Void> addGoldMine(GoldMineModel goldMine, CoordsModel coords, int newUserGoldValue) {
         String newStructureKey = mStructuresDbRef.push().getKey();
 
         Map<String, Object> updates = new HashMap<>();
         updates.put("/structures/" + newStructureKey, goldMine);
         updates.put("/users/" + goldMine.getOwnerId() + "/structures/" + newStructureKey, true);
         updates.put("/users/" + goldMine.getOwnerId() + "/gold", newUserGoldValue);
-        mStructuresGeoFire.setLocation(newStructureKey, location);
+
+        GeoLocation geoLoc = new GeoLocation(coords.getLatitude(), coords.getLongitude());
+        mStructuresGeoFire.setLocation(newStructureKey, geoLoc);
 
         return mDbRef.updateChildren(updates);
     }
 
-    public Task<Void> addBarracks(BarracksModel barracks, GeoLocation location, int newUserGoldValue) {
+    public Task<Void> addBarracks(BarracksModel barracks, CoordsModel coords, int newUserGoldValue) {
         String newStructureKey = mStructuresDbRef.push().getKey();
 
         Map<String, Object> updates = new HashMap<>();
         updates.put("/structures/" + newStructureKey, barracks);
         updates.put("/users/" + barracks.getOwnerId() + "/structures/" + newStructureKey, true);
         updates.put("/users/" + barracks.getOwnerId() + "/gold", newUserGoldValue);
-        mStructuresGeoFire.setLocation(newStructureKey, location);
+
+        GeoLocation geoLoc = new GeoLocation(coords.getLatitude(), coords.getLongitude());
+        mStructuresGeoFire.setLocation(newStructureKey, geoLoc);
 
         return mDbRef.updateChildren(updates);
     }
