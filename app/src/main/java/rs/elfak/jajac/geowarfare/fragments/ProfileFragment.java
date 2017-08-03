@@ -98,18 +98,50 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void getUserDataAndSetupUI(String userId) {
+        final String loggedUserId = FirebaseProvider.getInstance().getCurrentFirebaseUser().getUid();
+
+        // Just once, get the data user of the profile we just opened
         FirebaseProvider.getInstance().getUserById(userId)
-                .addValueEventListener(new ValueEventListener() {
+                .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         mUser = dataSnapshot.getValue(UserModel.class);
                         mUser.setId(dataSnapshot.getKey());
-                        if (mStatus == STATUS_UNKNOWN) {
-                            setupUI();
-                            checkStatusAndSetupFriendRequestButton();
-                        } else {
-                            checkStatusAndSetupFriendRequestButton();
+                        setupUI();
+
+                        if (mUserId.equals(loggedUserId)) {
+                            mStatus = STATUS_MYSELF;
+                        } else if (mUser.getFriendRequests().containsKey(loggedUserId)) {
+                            mStatus = STATUS_REQUEST_SENT;
+                        } else if (mUser.getFriends().containsKey(loggedUserId)) {
+                            mStatus = STATUS_FRIEND;
                         }
+                        setupFriendRequestButton();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+        // Track logged user's data so we can update if we receive a request
+        FirebaseProvider.getInstance().getUserById(loggedUserId)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        UserModel loggedUser = dataSnapshot.getValue(UserModel.class);
+                        loggedUser.setId(dataSnapshot.getKey());
+
+                        if (loggedUser.getFriends().containsKey(mUserId)) {
+                            mStatus = STATUS_FRIEND;
+                        } else if (loggedUser.getFriendRequests().containsKey(mUserId)) {
+                            mStatus = STATUS_REQUEST_RECEIVED;
+                        } else if ((mStatus == STATUS_REQUEST_RECEIVED && !loggedUser.getFriendRequests().containsKey(mUserId))
+                                || (mStatus == STATUS_FRIEND && !loggedUser.getFriends().containsKey(mUserId))) {
+                            mStatus = STATUS_NOT_FRIEND;
+                        }
+                        setupFriendRequestButton();
                     }
 
                     @Override
@@ -127,40 +159,11 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         mFullName.setText(mUser.getFullName());
     }
 
-    private void checkStatusAndSetupFriendRequestButton() {
-        final String loggedUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        if (loggedUserId.equals(mUserId)) {
-            mStatus = STATUS_MYSELF;
-        } else {
-            if (mUser.getFriendRequests().containsKey(loggedUserId)) {
-                mStatus = STATUS_FRIEND;
-                setupFriendRequestButton();
-            } else {
-                FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
-                firebaseProvider.getReceivedFriendRequests(loggedUserId)
-                        .addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.hasChild(mUserId)) {
-                                    mStatus = STATUS_REQUEST_RECEIVED;
-                                } else if (mUser.getFriendRequests().containsKey(loggedUserId)) {
-                                    mStatus = STATUS_REQUEST_SENT;
-                                } else {
-                                    mStatus = STATUS_NOT_FRIEND;
-                                }
-                                setupFriendRequestButton();
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-            }
-        }
-    }
-
     private void setupFriendRequestButton() {
+        if (mStatus == STATUS_MYSELF) {
+            return;
+        }
+
         switch (mStatus) {
             case STATUS_FRIEND:
                 mFriendRequestBtn.setText(getString(R.string.profile_friend_request_button_unfriend));
@@ -192,7 +195,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 Drawable acceptIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_check_circle_24dp);
                 mFriendRequestBtn.setCompoundDrawablesWithIntrinsicBounds(acceptIcon, null, null, null);
                 break;
-            case STATUS_NOT_FRIEND:
+            default:
+                mStatus = STATUS_NOT_FRIEND;
                 mFriendRequestBtn.setText(getString(R.string.profile_friend_request_button_add));
                 mFriendRequestBtn.getBackground().setColorFilter(
                         ContextCompat.getColor(mContext, R.color.colorAccent),
@@ -228,7 +232,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                         break;
                 }
 
-                checkStatusAndSetupFriendRequestButton();
+//                checkStatusAndSetupFriendRequestButton();
                 break;
         }
     }
