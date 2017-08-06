@@ -108,7 +108,7 @@ public class MapFragment extends BaseFragment implements
 
     public interface OnFragmentInteractionListener {
         void onOpenUserProfile(String userId);
-        void onOpenStructure(StructureModel structureId);
+        void onOpenStructure(StructureModel structure);
     }
 
     @Override
@@ -384,11 +384,7 @@ public class MapFragment extends BaseFragment implements
     private void onStructureMarkerClick(Marker marker) {
         StructureModel structure = (StructureModel) marker.getTag();
         if (mListener != null) {
-            if (mUser.getUid().equals(structure.getOwnerId())) {
-                mListener.onOpenStructure(structure);
-            } else {
-                Toast.makeText(mContext, "Attack!", Toast.LENGTH_SHORT).show();
-            }
+            mListener.onOpenStructure(structure);
         }
     }
 

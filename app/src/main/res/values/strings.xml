@@ -126,4 +126,8 @@
 
     <string name="multiplication_sign">&#215;</string>
 
+    <!-- AttackFragment -->
+    <string name="attack_your_army_title">Your army</string>
+    <string name="attack_defense_army_title">Defense</string>
+    <string name="attack_button">Attack</string>
 </resources>

@@ -32,6 +32,7 @@
                 android:layout_height="wrap_content"/>
 
             <View
+                android:id="@+id/fragment_structure_specific_upgrade_divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="@dimen/structure_section_divider_top_margin"
@@ -39,6 +40,7 @@
 
             <!-- UPGRADE -->
             <TextView
+                android:id="@+id/fragment_structure_upgrade_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/structure_section_title_top_margin"
@@ -48,6 +50,7 @@
                 android:text="@string/structure_upgrade_title"/>
 
             <LinearLayout
+                android:id="@+id/fragment_structure_upgrade_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -120,6 +123,7 @@
             </LinearLayout>
 
             <View
+                android:id="@+id/fragment_structure_upgrade_defense_divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="@dimen/structure_section_divider_top_margin"

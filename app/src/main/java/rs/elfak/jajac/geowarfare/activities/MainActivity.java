@@ -57,6 +57,7 @@ import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.Constants;
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.fragments.AttackFragment;
 import rs.elfak.jajac.geowarfare.fragments.BarracksFragment;
 import rs.elfak.jajac.geowarfare.fragments.BaseFragment;
 import rs.elfak.jajac.geowarfare.fragments.BuildFragment;
@@ -95,7 +96,8 @@ public class MainActivity extends AppCompatActivity implements
         StructureInfoFragment.OnFragmentInteractionListener,
         DefenseFragment.OnFragmentInteractionListener,
         GoldMineFragment.OnFragmentInteractionListener,
-        BarracksFragment.OnFragmentInteractionListener {
+        BarracksFragment.OnFragmentInteractionListener,
+        AttackFragment.OnFragmentInteractionListener {
 
     public static final int REQUEST_CHECK_SETTINGS = 1;
     public static final int REQUEST_LOCATION_PERMISSION = 2;
@@ -526,7 +528,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void onOpenMyStructure(StructureModel structure) {
         String tag;
-        BaseFragment fragment;
+        StructureFragment fragment;
 
         switch (structure.getType()) {
             case GOLD_MINE:
@@ -559,7 +561,34 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void onOpenAttackStructure(StructureModel structure) {
-        Toast.makeText(this, "Attack not implemented yet.", Toast.LENGTH_SHORT).show();
+        String tag;
+        Class modelClass = null;
+
+        switch (structure.getType()) {
+            case GOLD_MINE:
+                modelClass = GoldMineModel.class;
+                tag = GoldMineFragment.FRAGMENT_TAG;
+                break;
+            case BARRACKS:
+                modelClass = BarracksModel.class;
+                tag = BarracksFragment.FRAGMENT_TAG;
+                break;
+            default:
+                // TODO: add some empty frag or something
+                tag = "";
+        }
+
+        AttackFragment fragment = AttackFragment.newInstance(
+                AttackFragment.class, R.layout.fragment_attack, modelClass, structure.getId()
+        );
+
+        fragment.setUnitCounts(mLoggedUser.getUnits());
+
+        mFragmentManager
+                .beginTransaction()
+                .replace(R.id.main_fragment_container, fragment, tag)
+                .addToBackStack(null)
+                .commit();
     }
 
     // This is called when a specific structure is chosen, not when the build FAB is clicked

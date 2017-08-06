@@ -240,12 +240,6 @@ public class BarracksFragment extends StructureFragment implements View.OnClickL
         ViewGroup upgradeNextContainer = (ViewGroup) fragmentView.findViewById(R.id
                 .fragment_structure_upgrade_next_container);
 
-        // We need these layout params and margin to set for each drawn text view with drawable
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-
         // This will return the value in pixels but based on pixel density
         int iconSize = (int) getResources().getDimension(R.dimen.structure_fragment_icon_size);
 

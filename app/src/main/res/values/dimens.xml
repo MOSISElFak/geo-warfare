@@ -61,4 +61,11 @@
     <dimen name="purchase_item_slash_horizontal_margin">4dp</dimen>
     <dimen name="purchase_item_multiply_horizontal_margin">12dp</dimen>
 
+    <dimen name="attack_army_title_text_size">22sp</dimen>
+    <dimen name="attack_army_title_vertical_margin">24dp</dimen>
+    <dimen name="attack_army_item_vertical_margin">12dp</dimen>
+    <dimen name="attack_army_icon_size">20dp</dimen>
+    <dimen name="attack_separator_top_padding">48dp</dimen>
+    <dimen name="attack_button_drawable_padding">8dp</dimen>
+
 </resources>

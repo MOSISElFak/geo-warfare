@@ -1,0 +1,88 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:context="rs.elfak.jajac.geowarfare.fragments.AttackFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/fragment_attack_army_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="@dimen/attack_army_title_vertical_margin"
+                android:layout_marginBottom="@dimen/attack_army_title_vertical_margin"
+                android:textSize="@dimen/attack_army_title_text_size"
+                android:text="@string/attack_your_army_title"/>
+
+            <!--<com.tolstykh.textviewrichdrawable.TextViewRichDrawable-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:gravity="right"-->
+                <!--app:drawableEndVector="@drawable/ic_sword"-->
+                <!--android:text="5"-->
+                <!--android:ems="4"/>-->
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:paddingTop="@dimen/attack_separator_top_padding">
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@color/colorDivider"/>
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/fragment_attack_defense_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="@dimen/attack_army_title_vertical_margin"
+                android:layout_marginBottom="@dimen/attack_army_title_vertical_margin"
+                android:textSize="@dimen/attack_army_title_text_size"
+                android:text="@string/attack_defense_army_title"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/fragment_attack_attack_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:drawableStart="@drawable/ic_sword"
+        android:drawablePadding="@dimen/attack_button_drawable_padding"
+        android:text="@string/attack_button"
+        android:theme="@style/AccentButton"/>
+
+</LinearLayout>
