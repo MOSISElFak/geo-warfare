@@ -21,7 +21,7 @@ import java.util.Map;
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.UnitType;
 
-public class AttackFragment extends StructureFragment {
+public class AttackFragment extends StructureFragment implements View.OnClickListener {
 
     public static final String FRAGMENT_TAG = "AttackFragment";
 
@@ -135,9 +135,18 @@ public class AttackFragment extends StructureFragment {
         }
     }
 
-    public static AttackFragment newInstance(String param1, String param2) {
-        AttackFragment fragment = new AttackFragment();
-        return fragment;
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fragment_attack_attack_btn:
+                onAttackClick();
+                break;
+        }
+        super.onClick(v);
+    }
+
+    private void onAttackClick() {
+
     }
 
     @Override

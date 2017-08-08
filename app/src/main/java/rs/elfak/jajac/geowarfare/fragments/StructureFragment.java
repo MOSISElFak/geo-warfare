@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import java.lang.reflect.Constructor;
@@ -46,6 +47,9 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
     protected StructureModel mStructure;
     protected UserModel mOwner;
     protected boolean mIsUserNearby = false;
+
+    private DatabaseReference mStructureDbRef;
+    private ValueEventListener mStructureListener;
 
     private Button mUpgradeButton;
 
@@ -173,33 +177,36 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
 
     private void getStructureDataAndSetupUI() {
         final FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
-        firebaseProvider.getStructureById(mStructureId)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        mStructure = dataSnapshot.getValue(mStructureClass);
-                        mStructure.setId(dataSnapshot.getKey());
-                        firebaseProvider.getUserById(mStructure.getOwnerId())
-                                .addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        mOwner = dataSnapshot.getValue(UserModel.class);
-                                        mOwner.setId(dataSnapshot.getKey());
-                                        updateIsUserNearby();
-                                        setupUIValues();
-                                    }
+        mStructureDbRef = firebaseProvider.getStructureById(mStructureId);
+        mStructureListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mStructure = dataSnapshot.getValue(mStructureClass);
+                mStructure.setId(dataSnapshot.getKey());
+                firebaseProvider.getUserById(mStructure.getOwnerId())
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                mOwner = dataSnapshot.getValue(UserModel.class);
+                                mOwner.setId(dataSnapshot.getKey());
+                                updateIsUserNearby();
+                                setupUIValues();
+                            }
 
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
 
-                                    }
-                                });
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                            }
+                        });
+            }
 
-                    }
-                });
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+
+        mStructureDbRef.addValueEventListener(mStructureListener);
     }
 
     private void setupUIValues() {
@@ -330,6 +337,10 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
         super.onDetach();
         mListener = null;
         mContext = null;
+
+        if (mStructureDbRef != null) {
+            mStructureDbRef.removeEventListener(mStructureListener);
+        }
     }
 
 }

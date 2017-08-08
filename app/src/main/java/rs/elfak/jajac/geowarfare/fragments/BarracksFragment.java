@@ -224,7 +224,7 @@ public class BarracksFragment extends StructureFragment implements View.OnClickL
                 newBarracksAvailableUnits.put(unitType.toString(), currentAvailableUnitCount - purchasedUnitCount);
             }
 
-            FirebaseProvider.getInstance().purchaseUnits(mOwner.getId(), newUserUnits,
+            FirebaseProvider.getInstance().purchaseUnits(mOwner.getId(), newUserUnits, subtractedGold,
                     barracks.getId(), newBarracksAvailableUnits).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {

@@ -3,6 +3,7 @@ package rs.elfak.jajac.geowarfare.fragments;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.tolstykh.textviewrichdrawable.TextViewRichDrawable;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -282,6 +284,5 @@ public class DefenseFragment extends BaseFragment implements View.OnClickListene
         mListener = null;
         mContext = null;
     }
-
 
 }

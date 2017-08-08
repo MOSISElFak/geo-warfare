@@ -203,12 +203,13 @@ public class FirebaseProvider {
         return mDbRef.updateChildren(updates);
     }
 
-    public Task<Void> purchaseUnits(String userId, Map<String, Integer> newUserUnits,
+    public Task<Void> purchaseUnits(String userId, Map<String, Integer> newUserUnits, int newUserGold,
                                     String barracksId, Map<String, Integer> newBarracksUnits)
     {
         Map<String, Object> updates = new HashMap<>();
 
         updates.put("/users/" + userId + "/units", newUserUnits);
+        updates.put("/users/" + userId + "/gold", newUserGold);
         updates.put("/structures/" + barracksId + "/availableUnits", newBarracksUnits);
 
         return mDbRef.updateChildren(updates);
