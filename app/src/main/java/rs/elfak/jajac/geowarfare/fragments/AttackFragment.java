@@ -2,9 +2,7 @@ package rs.elfak.jajac.geowarfare.fragments;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -12,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.tolstykh.textviewrichdrawable.TextViewRichDrawable;
 
@@ -20,6 +19,7 @@ import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.UnitType;
+import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
 
 public class AttackFragment extends StructureFragment implements View.OnClickListener {
 
@@ -34,7 +34,7 @@ public class AttackFragment extends StructureFragment implements View.OnClickLis
     private OnFragmentInteractionListener mListener;
 
     public interface OnFragmentInteractionListener {
-
+        void onAttackFinished();
     }
 
     public AttackFragment() {
@@ -133,6 +133,8 @@ public class AttackFragment extends StructureFragment implements View.OnClickLis
             }
             mDefenseArmyTvs.get(unitType).setText(String.valueOf(defenseArmyUnitCount));
         }
+
+        mAttackButton.setOnClickListener(this);
     }
 
     @Override
@@ -146,7 +148,67 @@ public class AttackFragment extends StructureFragment implements View.OnClickLis
     }
 
     private void onAttackClick() {
+        // Exit if the user is far away
+        if (!mIsUserNearby) {
+            Toast.makeText(mContext, getString(R.string.structure_interact_too_far), Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        // Disable the button
+        mAttackButton.setOnClickListener(null);
+
+        double myAttackPower = 0.0;
+        double structureDefensePower = 0.0;
+
+        for (UnitType unitType : UnitType.values()) {
+            int myUnitCount = (int) mUserUnits.get(unitType.toString());
+            myAttackPower += myUnitCount * unitType.getOffensePower();
+            int defenseUnitCount = mStructure.getDefenseUnits().get(unitType.toString());
+            structureDefensePower += defenseUnitCount * unitType.getDefensePower();
+        }
+
+        FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
+
+        if (myAttackPower > structureDefensePower) {
+            firebaseProvider.removeStructure(mStructure.getId(), mOwner.getId());
+
+            double percentStronger = 1.0 - structureDefensePower / myAttackPower;
+            for (UnitType unitType : UnitType.values()) {
+                int currentUnits = (int) mUserUnits.get(unitType.toString());
+                mUserUnits.put(unitType.toString(), (int)(Math.round(currentUnits * percentStronger)));
+            }
+
+            firebaseProvider.updateUserUnits(
+                    firebaseProvider.getCurrentFirebaseUser().getUid(),
+                    new HashMap<String, Object>(mUserUnits)
+            );
+
+            Toast.makeText(mContext, "You won!", Toast.LENGTH_SHORT).show();
+        } else {
+            for (String unitTypeName : mUserUnits.keySet()) {
+                mUserUnits.put(unitTypeName, 0);
+            }
+
+            double percentWeaker = 1.0 - myAttackPower / structureDefensePower;
+            for (UnitType unitType : UnitType.values()) {
+                int currentUnits = mUserUnits.get(unitType.toString());
+                mUserUnits.put(unitType.toString(), (int)(Math.round(currentUnits * percentWeaker)));
+            }
+
+            firebaseProvider.updateUserUnits(
+                    firebaseProvider.getCurrentFirebaseUser().getUid(),
+                    new HashMap<String, Object>(mUserUnits)
+            );
+
+            firebaseProvider.updateStructureDefenseUnits(
+                    mStructure.getId(),
+                    new HashMap<String, Object>(mStructure.getDefenseUnits())
+            );
+
+            Toast.makeText(mContext, "You lost!", Toast.LENGTH_SHORT).show();
+        }
+
+        mListener.onAttackFinished();
     }
 
     @Override

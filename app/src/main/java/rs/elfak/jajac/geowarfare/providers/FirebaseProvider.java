@@ -85,6 +85,10 @@ public class FirebaseProvider {
         return mUsersDbRef.child(userId).updateChildren(newUserValues);
     }
 
+    public Task<Void> updateUserUnits(String userId, Map<String, Object> units) {
+        return mUsersDbRef.child(userId).child("units").updateChildren(units);
+    }
+
     public Task<Void> updateUserLocation(String userId, CoordsModel coords) {
         mUsersGeoFire.setLocation(userId, new GeoLocation(coords.getLatitude(), coords.getLongitude()));
         return mUsersDbRef.child(userId).child("coords").setValue(coords);
@@ -193,6 +197,16 @@ public class FirebaseProvider {
         return mDbRef.updateChildren(updates);
     }
 
+    public void removeStructure(String structureId, String ownerId) {
+        Map<String, Object> updates = new HashMap<>();
+
+        updates.put("/users/" + ownerId + "/structures/" + structureId, null);
+        updates.put("/structuresGeoFire/" + structureId, null);
+        updates.put("/structures/" + structureId, null);
+
+        mDbRef.updateChildren(updates);
+    }
+
     public Task<Void> transferUnits(String structureId, Map<String, Integer> newStructureUnits,
                                     String userId, Map<String, Integer> newUserUnits) {
         Map<String, Object> updates = new HashMap<>();
@@ -213,6 +227,10 @@ public class FirebaseProvider {
         updates.put("/structures/" + barracksId + "/availableUnits", newBarracksUnits);
 
         return mDbRef.updateChildren(updates);
+    }
+
+    public void updateStructureDefenseUnits(String structureId, Map<String, Object> defenseUnits) {
+        mStructuresDbRef.child(structureId).child("defenseUnits").setValue(defenseUnits);
     }
 
 }

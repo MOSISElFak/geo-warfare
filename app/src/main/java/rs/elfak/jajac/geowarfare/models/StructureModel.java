@@ -44,15 +44,6 @@ public class StructureModel {
         }
     }
 
-    @Exclude
-    public int getDefenseUnitCount(UnitType type) {
-        if (this.defenseUnits.containsKey(type.toString())) {
-            return this.defenseUnits.get(type.toString());
-        } else {
-            return 0;
-        }
-    }
-
     public String getId() {
         return id;
     }

@@ -182,6 +182,9 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mStructure = dataSnapshot.getValue(mStructureClass);
+                if (mStructure == null) {
+                    return;
+                }
                 mStructure.setId(dataSnapshot.getKey());
                 firebaseProvider.getUserById(mStructure.getOwnerId())
                         .addListenerForSingleValueEvent(new ValueEventListener() {

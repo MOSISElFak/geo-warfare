@@ -704,4 +704,8 @@ public class MainActivity extends AppCompatActivity implements
         }
     };
 
+    @Override
+    public void onAttackFinished() {
+        mFragmentManager.popBackStack();
+    }
 }
