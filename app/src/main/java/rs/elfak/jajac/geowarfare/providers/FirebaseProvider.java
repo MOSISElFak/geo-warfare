@@ -124,8 +124,11 @@ public class FirebaseProvider {
         return mUsersDbRef.updateChildren(updates);
     }
 
-    public Task<Void> upgradeResearchSkill(String userId, String skillName, int newSkillLevel) {
-        return mUsersDbRef.child(userId).child("research").child(skillName).setValue(newSkillLevel);
+    public Task<Void> upgradeResearchSkill(String userId, int newUserGold, String skillName, int newSkillLevel) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(userId + "/gold", newUserGold);
+        updates.put(userId + "/research/" + skillName, newSkillLevel);
+        return mUsersDbRef.updateChildren(updates);
     }
 
     public DatabaseReference getFriendRequestsForUser(String userId) {

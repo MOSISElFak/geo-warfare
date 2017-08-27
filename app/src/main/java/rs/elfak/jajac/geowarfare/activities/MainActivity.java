@@ -712,7 +712,8 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         int newLevel = mLoggedUser.getResearch().get(skillType.toString()) + 1;
-        FirebaseProvider.getInstance().upgradeResearchSkill(mLoggedUserId, skillType.toString(), newLevel)
+        int newUserGold = mLoggedUser.getGold() - skillType.getUpgradeCost(newLevel - 1);
+        FirebaseProvider.getInstance().upgradeResearchSkill(mLoggedUserId, newUserGold, skillType.toString(), newLevel)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

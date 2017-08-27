@@ -5,8 +5,8 @@ import rs.elfak.jajac.geowarfare.R;
 public enum SkillType {
 
     SCOUTING("Scouting", "Defines how far you can see other players and structures.", R.drawable.ic_eye, 10000, 3),
-    DECEIT("Deceit", "Defines how accurately you can estimate foreign structure's defense army.", R.drawable.ic_mask,
-            15000, 3);
+    DECEIT("Deceit", "Defines how accurately you can estimate defense army size in foreign structures.",
+            R.drawable.ic_mask, 15000, 3);
 
     private String name;
     private String description;
