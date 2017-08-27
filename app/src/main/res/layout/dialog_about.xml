@@ -77,6 +77,12 @@
                 android:layout_marginStart="12dp"
                 android:src="@drawable/ic_barracks"/>
 
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:src="@drawable/ic_scroll"/>
+
         </LinearLayout>
 
         <TextView
@@ -107,6 +113,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:src="@drawable/ic_gold_cart"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_eye"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:src="@drawable/ic_mask"/>
 
         </LinearLayout>
 

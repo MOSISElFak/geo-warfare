@@ -124,6 +124,10 @@ public class FirebaseProvider {
         return mUsersDbRef.updateChildren(updates);
     }
 
+    public Task<Void> upgradeResearchSkill(String userId, String skillName, int newSkillLevel) {
+        return mUsersDbRef.child(userId).child("research").child(skillName).setValue(newSkillLevel);
+    }
+
     public DatabaseReference getFriendRequestsForUser(String userId) {
         return mUsersDbRef.child(userId).child("friendRequests");
     }

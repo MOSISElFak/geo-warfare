@@ -32,7 +32,6 @@ public class GoldMineFragment extends StructureFragment implements View.OnClickL
     private Button mCollectButton;
     private TextViewRichDrawable mCurrentLevelIncome;
     private TextViewRichDrawable mNextLevelIncome;
-    private Button mUpgradeButton;
 
     private OnFragmentInteractionListener mListener;
 

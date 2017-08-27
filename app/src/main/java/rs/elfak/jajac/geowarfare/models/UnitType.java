@@ -13,7 +13,7 @@ public enum UnitType {
     private int offensePower;
     private int defensePower;
 
-    private UnitType(String name, int iconResourceId, int baseCost, int attackPower, int defendPower) {
+    UnitType(String name, int iconResourceId, int baseCost, int attackPower, int defendPower) {
         this.name = name;
         this.iconResourceId = iconResourceId;
         this.baseCost = baseCost;

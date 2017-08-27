@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:minHeight="?android:attr/listPreferredItemHeight">
+
+    <ImageView
+        android:id="@+id/research_item_skill_icon"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginEnd="16dp"
+        android:tint="@color/colorPrimaryDark"
+        tools:src="@drawable/ic_scroll"/>
+
+    <LinearLayout
+        android:id="@+id/research_item_level_container"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:layout_toEndOf="@id/research_item_skill_icon"
+        android:orientation="horizontal">
+
+        <!-- We dynamically insert stars like the one here -->
+        <!--<ImageView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:tint="@color/colorAccent"-->
+            <!--android:src="@drawable/ic_star_24dp"/>-->
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/research_item_skill_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/research_item_skill_icon"
+        android:layout_below="@id/research_item_level_container"
+        android:textSize="18dp"
+        tools:text="Scouting"/>
+
+    <TextView
+        android:id="@+id/research_item_skill_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/research_item_skill_icon"
+        android:layout_toStartOf="@+id/research_item_skill_upgrade_btn"
+        android:layout_below="@id/research_item_skill_name"
+        android:textColor="@color/colorPrimaryLight"
+        tools:text="Increases visible area."/>
+
+    <Button
+        android:id="@+id/research_item_skill_upgrade_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerInParent="true"
+        android:layout_marginStart="8dp"
+        android:drawableStart="@drawable/ic_coin_stack"
+        android:theme="@style/AccentButton"
+        android:visibility="invisible"/>
+
+</RelativeLayout>

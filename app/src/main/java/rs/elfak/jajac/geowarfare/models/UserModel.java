@@ -28,6 +28,7 @@ public class UserModel {
     private Map<String, Boolean> friendRequests = new HashMap<>();
     private Map<String, Boolean> structures = new HashMap<>();
     private Map<String, Integer> units = new HashMap<>();
+    private Map<String, Integer> research = new HashMap<>();
     private int gold = 0;
 
     public UserModel() {
@@ -41,7 +42,11 @@ public class UserModel {
         this.fullName = fullName;
         this.phone = phone;
         this.avatarUrl = imgUrl;
+
         this.coords = new CoordsModel(0, 0);
+        for (SkillType skillType : SkillType.values()) {
+            this.research.put(skillType.toString(), 1);
+        }
     }
 
     @Exclude
@@ -178,6 +183,14 @@ public class UserModel {
 
     public void setCoords(CoordsModel coords) {
         this.coords = coords;
+    }
+
+    public Map<String, Integer> getResearch() {
+        return research;
+    }
+
+    public void setResearch(Map<String, Integer> research) {
+        this.research = research;
     }
 
 }

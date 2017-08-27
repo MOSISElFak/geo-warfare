@@ -22,4 +22,14 @@
         app:srcCompat="@drawable/ic_build_24dp"
         android:tint="@color/colorPrimaryDark"/>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/map_fragment_research_button"
+        android:layout_width="@dimen/fab_size"
+        android:layout_height="@dimen/fab_size"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="88dp"
+        android:layout_marginEnd="@dimen/fab_margin"
+        app:srcCompat="@drawable/ic_scroll"
+        android:tint="@color/colorPrimaryDark"/>
+
 </FrameLayout>

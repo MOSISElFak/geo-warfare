@@ -77,6 +77,7 @@ public class MapFragment extends BaseFragment implements
 
     private Context mContext;
     private FloatingActionButton mBuildButton;
+    private FloatingActionButton mResearchButton;
 
     private FirebaseProvider mFirebaseProvider;
     private FirebaseUser mUser;
@@ -109,6 +110,7 @@ public class MapFragment extends BaseFragment implements
     public interface OnFragmentInteractionListener {
         void onOpenUserProfile(String userId);
         void onOpenStructure(StructureModel structure);
+        void onResearchClick();
     }
 
     @Override
@@ -149,6 +151,7 @@ public class MapFragment extends BaseFragment implements
         View inflatedView = inflater.inflate(R.layout.fragment_map, container, false);
 
         mBuildButton = (FloatingActionButton) inflatedView.findViewById(R.id.map_fragment_build_button);
+        mResearchButton = (FloatingActionButton) inflatedView.findViewById(R.id.map_fragment_research_button);
 
         mMapView = (MapView) inflatedView.findViewById(R.id.map_fragment_map_view);
         mMapView.onCreate(savedInstanceState);
@@ -177,6 +180,12 @@ public class MapFragment extends BaseFragment implements
             @Override
             public void onClick(View v) {
                 onBuildClick();
+            }
+        });
+        mResearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onResearchClick();
             }
         });
     }
@@ -362,6 +371,10 @@ public class MapFragment extends BaseFragment implements
                 .replace(R.id.main_fragment_container, BuildFragment.newInstance(), BuildFragment.FRAGMENT_TAG)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    private void onResearchClick() {
+        mListener.onResearchClick();
     }
 
     private void canBuildOnLocation(Location location) {

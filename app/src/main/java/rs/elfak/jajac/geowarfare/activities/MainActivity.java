@@ -66,12 +66,14 @@ import rs.elfak.jajac.geowarfare.fragments.GoldMineFragment;
 import rs.elfak.jajac.geowarfare.fragments.MapFragment;
 import rs.elfak.jajac.geowarfare.fragments.NoLocationFragment;
 import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
+import rs.elfak.jajac.geowarfare.fragments.ResearchFragment;
 import rs.elfak.jajac.geowarfare.fragments.StructureFragment;
 import rs.elfak.jajac.geowarfare.fragments.StructureInfoFragment;
 import rs.elfak.jajac.geowarfare.models.BarracksModel;
 import rs.elfak.jajac.geowarfare.models.CoordsModel;
 import rs.elfak.jajac.geowarfare.models.FriendModel;
 import rs.elfak.jajac.geowarfare.models.GoldMineModel;
+import rs.elfak.jajac.geowarfare.models.SkillType;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
 import rs.elfak.jajac.geowarfare.models.StructureType;
 import rs.elfak.jajac.geowarfare.models.UnitType;
@@ -95,7 +97,8 @@ public class MainActivity extends AppCompatActivity implements
         DefenseFragment.OnFragmentInteractionListener,
         GoldMineFragment.OnFragmentInteractionListener,
         BarracksFragment.OnFragmentInteractionListener,
-        AttackFragment.OnFragmentInteractionListener {
+        AttackFragment.OnFragmentInteractionListener,
+        ResearchFragment.OnFragmentInteractionListener {
 
     public static final int REQUEST_CHECK_SETTINGS = 1;
     public static final int REQUEST_LOCATION_PERMISSION = 2;
@@ -528,6 +531,15 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    @Override
+    public void onResearchClick() {
+        mFragmentManager.beginTransaction()
+                .replace(R.id.main_fragment_container, ResearchFragment.newInstance(mLoggedUser.getResearch()),
+                        ResearchFragment.FRAGMENT_TAG)
+                .addToBackStack(null)
+                .commit();
+    }
+
     private void onOpenMyStructure(StructureModel structure) {
         String tag;
         StructureFragment fragment;
@@ -643,6 +655,7 @@ public class MainActivity extends AppCompatActivity implements
         updateFriendRequestsCount();
         updateUnitCounts();
         updateGoldAmount();
+        updateResearchLevels();
     }
 
     private void updateFriendRequestsCount() {
@@ -668,6 +681,14 @@ public class MainActivity extends AppCompatActivity implements
         mGoldTv.setText(String.valueOf(mLoggedUser.getGold()));
     }
 
+    private void updateResearchLevels() {
+        ResearchFragment researchFrag = (ResearchFragment) mFragmentManager.
+                findFragmentByTag(ResearchFragment.FRAGMENT_TAG);
+        if (researchFrag != null) {
+            researchFrag.updateUI(mLoggedUser.getResearch());
+        }
+    }
+
     @Override
     public void onNoLocationContinueClick() {
         checkLocationSettings();
@@ -676,6 +697,29 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onOwnerAvatarClick(String ownerUserId) {
         onOpenUserProfile(ownerUserId);
+    }
+
+    @Override
+    public void onAttackFinished() {
+        mFragmentManager.popBackStack();
+    }
+
+    @Override
+    public void onUpgradeSkill(final SkillType skillType, int upgradeCost) {
+        if (upgradeCost > mLoggedUser.getGold()) {
+            Toast.makeText(this, getString(R.string.structure_no_gold_message), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int newLevel = mLoggedUser.getResearch().get(skillType.toString()) + 1;
+        FirebaseProvider.getInstance().upgradeResearchSkill(mLoggedUserId, skillType.toString(), newLevel)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(MainActivity.this, skillType.getName() + " upgraded.",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private ServiceConnection mUserUpdatesConnection = new ServiceConnection() {
@@ -706,8 +750,4 @@ public class MainActivity extends AppCompatActivity implements
         }
     };
 
-    @Override
-    public void onAttackFinished() {
-        mFragmentManager.popBackStack();
-    }
 }
