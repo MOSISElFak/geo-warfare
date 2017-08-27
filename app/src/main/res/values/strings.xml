@@ -130,4 +130,15 @@
     <string name="attack_your_army_title">Your army</string>
     <string name="attack_defense_army_title">Defense</string>
     <string name="attack_button">Attack</string>
+
+    <!-- About -->
+    <string name="about_text">GeoWarfare is a never-ending geolocation-based conquest game for Android. Players move
+        around the real world map, build structures, collect gold and recruit armies in order to attack and defeat
+        other players.</string>
+    <string name="about_credits_title">Credits</string>
+    <string name="about_icons_1">designed by <b>Madebyoliver</b> from Flaticon.</string>
+    <string name="about_icons_2">designed by <b>Freepik</b> from Flaticon.</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

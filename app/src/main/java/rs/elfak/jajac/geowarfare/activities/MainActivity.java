@@ -18,6 +18,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -35,8 +36,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.geofire.GeoLocation;
-import com.firebase.geofire.LocationCallback;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -48,7 +47,6 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.DatabaseError;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,9 +55,9 @@ import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.Constants;
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.fragments.AboutDialogFragment;
 import rs.elfak.jajac.geowarfare.fragments.AttackFragment;
 import rs.elfak.jajac.geowarfare.fragments.BarracksFragment;
-import rs.elfak.jajac.geowarfare.fragments.BaseFragment;
 import rs.elfak.jajac.geowarfare.fragments.BuildFragment;
 import rs.elfak.jajac.geowarfare.fragments.DefenseFragment;
 import rs.elfak.jajac.geowarfare.fragments.EditUserInfoFragment;
@@ -421,6 +419,10 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.action_bar_settings_item:
                 Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(settingsIntent);
+                return true;
+            case R.id.action_bar_about_item:
+                DialogFragment aboutFragment = AboutDialogFragment.newInstance();
+                aboutFragment.show(mFragmentManager, "dialog");
                 return true;
             case R.id.action_bar_logout_item:
                 FirebaseProvider.getInstance().getAuthInstance().signOut();
