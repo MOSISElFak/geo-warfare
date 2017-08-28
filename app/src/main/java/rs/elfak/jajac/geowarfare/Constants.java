@@ -5,6 +5,7 @@ import com.google.android.gms.location.LocationRequest;
 public class Constants {
 
     public static final int MAX_INTERACT_DISTANCE = 50;
+    public static final int MIN_STRUCTURE_DISTANCE = 150;
 
     public static final int STARTING_GOLD = 3000;
 

@@ -59,6 +59,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,6 +91,8 @@ public class MapFragment extends BaseFragment implements
     private Map<String, Marker> mMarkers = new HashMap<>();
     private Map<Marker, GoogleMap.OnMarkerClickListener> mMarkerListeners = new HashMap<>();
     private CoordsModel mMyLocation;
+
+    private Map<String, StructureModel> mNearbyStructures = new HashMap<>();
 
     private GoogleMap.OnMarkerClickListener mUserMarkerListener;
     private GoogleMap.OnMarkerClickListener mStructureMarkerListener;
@@ -242,7 +245,13 @@ public class MapFragment extends BaseFragment implements
 
             @Override
             public void onKeyExited(String key) {
-
+                if (mGoogleMap != null) {
+                    Marker marker = mMarkers.get(key);
+                    mMarkers.remove(key);
+                    mNearbyStructures.remove(key);
+                    mMarkerListeners.remove(marker);
+                    marker.remove();
+                }
             }
 
             @Override
@@ -338,6 +347,7 @@ public class MapFragment extends BaseFragment implements
 
                 marker.setTag(structure);
 
+                mNearbyStructures.put(structureId, structure);
                 mMarkers.put(structure.getId(), marker);
                 mMarkerListeners.put(marker, mStructureMarkerListener);
 
@@ -378,8 +388,19 @@ public class MapFragment extends BaseFragment implements
         mListener.onResearchClick();
     }
 
-    private void canBuildOnLocation(Location location) {
+    public boolean canBuildOnLocation(Location location) {
+        for (StructureModel structure : mNearbyStructures.values()) {
+            Location structureLoc = new Location("dummyprovider");
+            structureLoc.setLatitude(structure.getCoords().getLatitude());
+            structureLoc.setLongitude(structure.getCoords().getLongitude());
 
+            // We exit if any nearby buildings are too close to this location
+            if (location.distanceTo(structureLoc) < Constants.MIN_STRUCTURE_DISTANCE) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override

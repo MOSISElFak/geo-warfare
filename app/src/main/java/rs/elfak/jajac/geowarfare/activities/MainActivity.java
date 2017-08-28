@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -610,9 +611,18 @@ public class MainActivity extends AppCompatActivity implements
     // This is called when a specific structure is chosen, not when the build FAB is clicked
     @Override
     public void onBuildStructureClick(final StructureType structureType) {
-
         if (mLoggedUser.getGold() < structureType.getBaseCost()) {
             Toast.makeText(this, getString(R.string.structure_no_gold_message), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Location userLocation = new Location("dummyprovider");
+        userLocation.setLatitude(mLoggedUser.getCoords().getLatitude());
+        userLocation.setLongitude(mLoggedUser.getCoords().getLongitude());
+
+        MapFragment mapFragment = (MapFragment) mFragmentManager.findFragmentByTag(MapFragment.FRAGMENT_TAG);
+        if (mapFragment == null || !mapFragment.canBuildOnLocation(userLocation)) {
+            Toast.makeText(this, "Can't build right here.", Toast.LENGTH_SHORT).show();
             return;
         }
 
