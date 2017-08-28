@@ -62,6 +62,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import rs.elfak.jajac.geowarfare.Constants;
 import rs.elfak.jajac.geowarfare.R;
 import rs.elfak.jajac.geowarfare.models.CoordsModel;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
@@ -85,7 +86,7 @@ public class MapFragment extends BaseFragment implements
     private GoogleMap mGoogleMap;
     private MapView mMapView;
     private Circle mCircle;
-    private double mRadius = 300;
+    private int mRadius = 0;
     private Map<String, Marker> mMarkers = new HashMap<>();
     private Map<Marker, GoogleMap.OnMarkerClickListener> mMarkerListeners = new HashMap<>();
     private CoordsModel mMyLocation;
@@ -412,7 +413,8 @@ public class MapFragment extends BaseFragment implements
         // We need to setup some things only when we receive location for the first time,
         // such as to move camera there, create the circle, starting querying the area...
         if (mMyLocation == null) {
-            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 16.0f));
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(center, 16.0f - 0.3f *
+                    mRadius / Constants.SCOUTING_BASE_LEVEL_RADIUS));
 
             mCircle = mGoogleMap.addCircle(new CircleOptions()
                     .center(new LatLng(loc.getLatitude(), loc.getLongitude()))
@@ -434,6 +436,10 @@ public class MapFragment extends BaseFragment implements
         }
 
         mMyLocation = loc;
+    }
+
+    public void updateRadius(int newRadius) {
+        mRadius = newRadius;
     }
 
     @Override

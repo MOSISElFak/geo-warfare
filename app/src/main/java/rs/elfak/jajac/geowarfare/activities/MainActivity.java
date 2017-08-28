@@ -656,6 +656,7 @@ public class MainActivity extends AppCompatActivity implements
         updateUnitCounts();
         updateGoldAmount();
         updateResearchLevels();
+        updateMapRadius();
     }
 
     private void updateFriendRequestsCount() {
@@ -685,7 +686,16 @@ public class MainActivity extends AppCompatActivity implements
         ResearchFragment researchFrag = (ResearchFragment) mFragmentManager.
                 findFragmentByTag(ResearchFragment.FRAGMENT_TAG);
         if (researchFrag != null) {
-            researchFrag.updateUI(mLoggedUser.getResearch());
+            researchFrag.updateResearchSkillLevels(mLoggedUser.getResearch());
+        }
+    }
+
+    private void updateMapRadius() {
+        MapFragment mapFragment = (MapFragment) mFragmentManager.
+                findFragmentByTag(MapFragment.FRAGMENT_TAG);
+        if (mapFragment != null) {
+            int currentLevel = mLoggedUser.getResearch().get(SkillType.SCOUTING.toString());
+            mapFragment.updateRadius(currentLevel * Constants.SCOUTING_BASE_LEVEL_RADIUS);
         }
     }
 

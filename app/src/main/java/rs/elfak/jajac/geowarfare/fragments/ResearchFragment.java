@@ -92,7 +92,7 @@ public class ResearchFragment extends BaseFragment implements
         mListener.onUpgradeSkill(skillType, upgradeCost);
     }
 
-    public void updateUI(Map<String, Integer> newSkillLevels) {
+    public void updateResearchSkillLevels(Map<String, Integer> newSkillLevels) {
         mSkillLevels = newSkillLevels;
         mSkillsAdapter = new ResearchSkillRecyclerViewAdapter(mSkillLevels, this);
         mSkillsRecyclerView.setAdapter(mSkillsAdapter);
