@@ -11,5 +11,6 @@ public class Constants {
     public static final int LOCATION_REQUEST_PRIORITY = LocationRequest.PRIORITY_HIGH_ACCURACY;
 
     public static final int SCOUTING_BASE_LEVEL_RADIUS = 250;
+    public static final int DECEIT_BASE_LEVEL_PERCENT = 25;
 
 }

@@ -17,7 +17,7 @@
             android:id="@+id/fragment_attack_army_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
+            android:layout_weight="10"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -58,7 +58,7 @@
             android:id="@+id/fragment_attack_defense_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
+            android:layout_weight="10"
             android:gravity="center"
             android:orientation="vertical">
 

@@ -550,7 +550,8 @@ public class MainActivity extends AppCompatActivity implements
                         GoldMineFragment.class,
                         R.layout.fragment_gold_mine,
                         GoldMineModel.class,
-                        structure.getId());
+                        structure.getId(),
+                        mLoggedUser.getResearch());
                 tag = GoldMineFragment.FRAGMENT_TAG;
                 break;
             case BARRACKS:
@@ -558,7 +559,8 @@ public class MainActivity extends AppCompatActivity implements
                         BarracksFragment.class,
                         R.layout.fragment_barracks,
                         BarracksModel.class,
-                        structure.getId());
+                        structure.getId(),
+                        mLoggedUser.getResearch());
                 tag = BarracksFragment.FRAGMENT_TAG;
                 break;
             default:
@@ -593,7 +595,7 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         AttackFragment fragment = AttackFragment.newInstance(
-                AttackFragment.class, R.layout.fragment_attack, modelClass, structure.getId()
+                AttackFragment.class, R.layout.fragment_attack, modelClass, structure.getId(), mLoggedUser.getResearch()
         );
 
         fragment.setUnitCounts(mLoggedUser.getUnits());

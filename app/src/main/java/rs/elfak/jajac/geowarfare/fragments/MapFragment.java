@@ -86,7 +86,7 @@ public class MapFragment extends BaseFragment implements
     private GoogleMap mGoogleMap;
     private MapView mMapView;
     private Circle mCircle;
-    private int mRadius = 0;
+    private float mRadius = 0;
     private Map<String, Marker> mMarkers = new HashMap<>();
     private Map<Marker, GoogleMap.OnMarkerClickListener> mMarkerListeners = new HashMap<>();
     private CoordsModel mMyLocation;
@@ -440,6 +440,15 @@ public class MapFragment extends BaseFragment implements
 
     public void updateRadius(int newRadius) {
         mRadius = newRadius;
+        if (mCircle != null) {
+            mCircle.setRadius(mRadius);
+        }
+        if (mUsersGeoQuery != null) {
+            mUsersGeoQuery.setRadius(mRadius / 1000);
+        }
+        if (mStructuresGeoQuery != null) {
+            mStructuresGeoQuery.setRadius(mRadius / 1000);
+        }
     }
 
     @Override

@@ -17,9 +17,12 @@ import com.tolstykh.textviewrichdrawable.TextViewRichDrawable;
 import java.util.HashMap;
 import java.util.Map;
 
+import rs.elfak.jajac.geowarfare.Constants;
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.models.SkillType;
 import rs.elfak.jajac.geowarfare.models.UnitType;
 import rs.elfak.jajac.geowarfare.providers.FirebaseProvider;
+import rs.elfak.jajac.geowarfare.utils.Num2Str;
 
 public class AttackFragment extends StructureFragment implements View.OnClickListener {
 
@@ -120,6 +123,7 @@ public class AttackFragment extends StructureFragment implements View.OnClickLis
     }
 
     private void setupUIValues() {
+        double estimationPercent = mUserResearchSkills.get(SkillType.DECEIT.toString()) * Constants.DECEIT_BASE_LEVEL_PERCENT;
         for (UnitType unitType : UnitType.values()) {
             int myArmyUnitCount = 0;
             if (mUserUnits.containsKey(unitType.toString())) {
@@ -131,7 +135,13 @@ public class AttackFragment extends StructureFragment implements View.OnClickLis
             if (mStructure.getDefenseUnits().containsKey(unitType.toString())) {
                 defenseArmyUnitCount = mStructure.getDefenseUnits().get(unitType.toString());
             }
-            mDefenseArmyTvs.get(unitType).setText(String.valueOf(defenseArmyUnitCount));
+            // Example: If there are 100 archers, and our estimation is at 75%
+            // we want to show "75-125 archers" to the user
+            int defenseArmyUnitCountLower = (int) (estimationPercent / 100.0 * defenseArmyUnitCount);
+            int defenseArmyUnitCountUpper = (int) ((200.0 - estimationPercent) / 100.0 * defenseArmyUnitCount);
+            String estimateString = Num2Str.convert(defenseArmyUnitCountLower) + " - " +
+                    Num2Str.convert(defenseArmyUnitCountUpper);
+            mDefenseArmyTvs.get(unitType).setText(estimateString);
         }
 
         mAttackButton.setOnClickListener(this);

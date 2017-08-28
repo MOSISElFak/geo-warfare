@@ -22,6 +22,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.Constants;
 import rs.elfak.jajac.geowarfare.R;
@@ -37,6 +39,7 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
     private static final String ARG_STRUCTURE_SPECIFIC_LAYOUT_RES_ID = "structure_specific_layout_res_id";
     private static final String ARG_STRUCTURE_CLASS = "structure_class";
     private static final String ARG_STRUCTURE_ID = "structure_id";
+    private static final String ARG_USER_RESEARCH_SKILLS = "research_skills";
 
     protected Context mContext;
 
@@ -46,6 +49,7 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
 
     protected StructureModel mStructure;
     protected UserModel mOwner;
+    protected Map<String, Integer> mUserResearchSkills;
     protected boolean mIsUserNearby = false;
 
     private DatabaseReference mStructureDbRef;
@@ -64,8 +68,10 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
         public void onReceive(Context context, Intent intent) {
             double latitude = intent.getDoubleExtra("latitude", 0);
             double longitude = intent.getDoubleExtra("longitude", 0);
-            mOwner.setCoords(new CoordsModel(latitude, longitude));
-            updateIsUserNearby();
+            if (mOwner != null) {
+                mOwner.setCoords(new CoordsModel(latitude, longitude));
+                updateIsUserNearby();
+            }
         }
     };
 
@@ -84,7 +90,8 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
             Class<T> fragmentClass,
             int specificLayoutResId,
             Class<? extends StructureModel> structureClass,
-            String structureId) {
+            String structureId,
+            Map<String, Integer> userResearchSkills) {
 
         Constructor<T> c = null;
         try {
@@ -104,6 +111,7 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
         args.putInt(ARG_STRUCTURE_SPECIFIC_LAYOUT_RES_ID, specificLayoutResId);
         args.putString(ARG_STRUCTURE_ID, structureId);
         args.putString(ARG_STRUCTURE_CLASS, structureClass.getCanonicalName());
+        args.putSerializable(ARG_USER_RESEARCH_SKILLS, (HashMap<String, Integer>) userResearchSkills);
         fragment.setArguments(args);
         return fragment;
     }
@@ -114,6 +122,7 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
         if (getArguments() != null) {
             mSpecificLayoutResId = getArguments().getInt(ARG_STRUCTURE_SPECIFIC_LAYOUT_RES_ID);
             mStructureId = getArguments().getString(ARG_STRUCTURE_ID);
+            mUserResearchSkills = (HashMap<String, Integer>) getArguments().getSerializable(ARG_USER_RESEARCH_SKILLS);
             try {
                 mStructureClass = (Class<? extends StructureModel>) Class.forName
                         (getArguments().getString(ARG_STRUCTURE_CLASS));
