@@ -22,6 +22,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import rs.elfak.jajac.geowarfare.R;
@@ -51,6 +53,9 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     TextView mFullName;
     LinearLayout mFriendRequestGroup;
     Button mFriendRequestBtn;
+
+    private ValueEventListener mLoggedUserListener;
+    private DatabaseReference mLoggedUserDbRef;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -100,7 +105,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     private void getUserDataAndSetupUI(String userId) {
         final String loggedUserId = FirebaseProvider.getInstance().getCurrentFirebaseUser().getUid();
 
-        // Just once, get the data user of the profile we just opened
+        // Just once, get the user's profile data
         FirebaseProvider.getInstance().getUserById(userId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -126,29 +131,31 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 });
 
         // Track logged user's data so we can update if we receive a request
-        FirebaseProvider.getInstance().getUserById(loggedUserId)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        UserModel loggedUser = dataSnapshot.getValue(UserModel.class);
-                        loggedUser.setId(dataSnapshot.getKey());
+        mLoggedUserListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                UserModel loggedUser = dataSnapshot.getValue(UserModel.class);
+                loggedUser.setId(dataSnapshot.getKey());
 
-                        if (loggedUser.getFriends().containsKey(mUserId)) {
-                            mStatus = STATUS_FRIEND;
-                        } else if (loggedUser.getFriendRequests().containsKey(mUserId)) {
-                            mStatus = STATUS_REQUEST_RECEIVED;
-                        } else if ((mStatus == STATUS_REQUEST_RECEIVED && !loggedUser.getFriendRequests().containsKey(mUserId))
-                                || (mStatus == STATUS_FRIEND && !loggedUser.getFriends().containsKey(mUserId))) {
-                            mStatus = STATUS_NOT_FRIEND;
-                        }
-                        setupFriendRequestButton();
-                    }
+                if (loggedUser.getFriends().containsKey(mUserId)) {
+                    mStatus = STATUS_FRIEND;
+                } else if (loggedUser.getFriendRequests().containsKey(mUserId)) {
+                    mStatus = STATUS_REQUEST_RECEIVED;
+                } else if ((mStatus == STATUS_REQUEST_RECEIVED && !loggedUser.getFriendRequests().containsKey(mUserId))
+                        || (mStatus == STATUS_FRIEND && !loggedUser.getFriends().containsKey(mUserId))) {
+                    mStatus = STATUS_NOT_FRIEND;
+                }
+                setupFriendRequestButton();
+            }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
-                    }
-                });
+            }
+        };
+
+        mLoggedUserDbRef = FirebaseProvider.getInstance().getUserById(loggedUserId);
+        mLoggedUserDbRef.addValueEventListener(mLoggedUserListener);
     }
 
     private void setupUI() {
@@ -336,6 +343,10 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     public void onDetach() {
         super.onDetach();
         mContext = null;
+
+        if (mLoggedUserDbRef != null) {
+            mLoggedUserDbRef.removeEventListener(mLoggedUserListener);
+        }
     }
 
 }

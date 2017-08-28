@@ -6,6 +6,8 @@ import com.google.firebase.database.IgnoreExtraProperties;
 import java.util.HashMap;
 import java.util.Map;
 
+import rs.elfak.jajac.geowarfare.Constants;
+
 @IgnoreExtraProperties
 public class UserModel {
 
@@ -29,7 +31,7 @@ public class UserModel {
     private Map<String, Boolean> structures = new HashMap<>();
     private Map<String, Integer> units = new HashMap<>();
     private Map<String, Integer> research = new HashMap<>();
-    private int gold = 0;
+    private int gold = Constants.STARTING_GOLD;
 
     public UserModel() {
         // Default constructor required for calls to DataSnapshot.getValue(UserModel.class)
