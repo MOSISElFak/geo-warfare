@@ -27,6 +27,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -65,6 +66,7 @@ import java.util.Map;
 
 import rs.elfak.jajac.geowarfare.Constants;
 import rs.elfak.jajac.geowarfare.R;
+import rs.elfak.jajac.geowarfare.activities.MainActivity;
 import rs.elfak.jajac.geowarfare.models.CoordsModel;
 import rs.elfak.jajac.geowarfare.models.StructureModel;
 import rs.elfak.jajac.geowarfare.models.UserModel;
@@ -92,6 +94,7 @@ public class MapFragment extends BaseFragment implements
     private Map<Marker, GoogleMap.OnMarkerClickListener> mMarkerListeners = new HashMap<>();
     private CoordsModel mMyLocation;
 
+    private Map<String, UserModel> mNearbyUsers = new HashMap<>();
     private Map<String, StructureModel> mNearbyStructures = new HashMap<>();
 
     private GoogleMap.OnMarkerClickListener mUserMarkerListener;
@@ -209,6 +212,7 @@ public class MapFragment extends BaseFragment implements
                 if (mGoogleMap != null && !key.equals(mUser.getUid())) {
                     Marker marker = mMarkers.get(key);
                     mMarkers.remove(key);
+                    mNearbyUsers.remove(key);
                     mMarkerListeners.remove(marker);
                     marker.remove();
                 }
@@ -271,7 +275,7 @@ public class MapFragment extends BaseFragment implements
         });
     }
 
-    private void addUserMarker(String userId, final GeoLocation location) {
+    private void addUserMarker(final String userId, final GeoLocation location) {
         // Create a (temporary) invisible marker
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(new LatLng(location.latitude, location.longitude));
@@ -289,6 +293,7 @@ public class MapFragment extends BaseFragment implements
 
                 marker.setTag(user);
 
+                mNearbyUsers.put(userId, user);
                 mMarkers.put(user.getId(), marker);
                 mMarkerListeners.put(marker, mUserMarkerListener);
 
@@ -401,6 +406,43 @@ public class MapFragment extends BaseFragment implements
         }
 
         return true;
+    }
+
+    public void onFilterChanged(int position, UserModel mLoggedUser) {
+        switch (position) {
+            case MainActivity.FILTER_ALL:
+                for (UserModel user : mNearbyUsers.values()) {
+                    Marker marker = mMarkers.get(user.getId());
+                    marker.setVisible(true);
+                }
+                for (StructureModel structure : mNearbyStructures.values()) {
+                    Marker marker = mMarkers.get(structure.getId());
+                    marker.setVisible(true);
+                }
+                break;
+            case MainActivity.FILTER_FRIENDS:
+                for (UserModel user : mNearbyUsers.values()) {
+                    Marker marker = mMarkers.get(user.getId());
+                    marker.setVisible(mLoggedUser.getFriends().containsKey(user.getId()));
+                }
+                for (StructureModel structure : mNearbyStructures.values()) {
+                    Marker marker = mMarkers.get(structure.getId());
+                    boolean isMyStructure = mLoggedUser.getStructures().containsKey(structure.getId());
+                    marker.setVisible(isMyStructure || mLoggedUser.getFriends().containsKey(structure.getOwnerId()));
+                }
+                break;
+            case MainActivity.FILTER_OTHERS:
+                for (UserModel user : mNearbyUsers.values()) {
+                    Marker marker = mMarkers.get(user.getId());
+                    marker.setVisible(!mLoggedUser.getFriends().containsKey(user.getId()));
+                }
+                for (StructureModel structure : mNearbyStructures.values()) {
+                    Marker marker = mMarkers.get(structure.getId());
+                    boolean isMyStructure = mLoggedUser.getStructures().containsKey(structure.getId());
+                    marker.setVisible(isMyStructure || !mLoggedUser.getFriends().containsKey(structure.getOwnerId()));
+                }
+                break;
+        }
     }
 
     @Override

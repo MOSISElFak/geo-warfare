@@ -31,6 +31,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -103,6 +104,10 @@ public class MainActivity extends AppCompatActivity implements
 
     public static final int REQUEST_CHECK_SETTINGS = 1;
     public static final int REQUEST_LOCATION_PERMISSION = 2;
+
+    public static final int FILTER_ALL = 0;
+    public static final int FILTER_FRIENDS = 1;
+    public static final int FILTER_OTHERS = 2;
 
     private FragmentManager mFragmentManager;
 
@@ -237,6 +242,21 @@ public class MainActivity extends AppCompatActivity implements
     protected void onStart() {
         super.onStart();
         checkLocationSettings();
+
+        mFilterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                MapFragment mapFragment = (MapFragment) mFragmentManager.findFragmentByTag(MapFragment.FRAGMENT_TAG);
+                if (mapFragment != null) {
+                    mapFragment.onFilterChanged(position, mLoggedUser);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     @Override
