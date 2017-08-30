@@ -203,7 +203,8 @@ public class BarracksFragment extends StructureFragment implements View.OnClickL
             Toast.makeText(mContext, "You can't afford that", Toast.LENGTH_SHORT).show();
         } else {
             mPurchaseButton.setOnClickListener(null);
-            int subtractedGold = mOwner.getGold() - mTotalPurchasePrice;
+            int newUserGold = mOwner.getGold() - mTotalPurchasePrice;
+            int newUserPoints = mOwner.getPoints() + (mOwner.getGold() - newUserGold);
 
             Map<String, Integer> newUserUnits = mOwner.getUnits();
             Map<String, Integer> newBarracksAvailableUnits = barracks.getAvailableUnits();
@@ -224,7 +225,7 @@ public class BarracksFragment extends StructureFragment implements View.OnClickL
                 newBarracksAvailableUnits.put(unitType.toString(), currentAvailableUnitCount - purchasedUnitCount);
             }
 
-            FirebaseProvider.getInstance().purchaseUnits(mOwner.getId(), newUserUnits, subtractedGold,
+            FirebaseProvider.getInstance().purchaseUnits(mOwner.getId(), newUserUnits, newUserGold, newUserPoints,
                     barracks.getId(), newBarracksAvailableUnits).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {

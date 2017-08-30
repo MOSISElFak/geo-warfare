@@ -298,8 +298,9 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
         if (mOwner.getGold() < upgradeCost) {
             Toast.makeText(mContext, "Not enough gold", Toast.LENGTH_SHORT).show();
         } else {
-            int subtractedGold = mOwner.getGold() - upgradeCost;
-            FirebaseProvider.getInstance().upgradeStructureLevel(mOwner.getId(), subtractedGold,
+            int newUserGold = mOwner.getGold() - upgradeCost;
+            int newUserPoints = mOwner.getPoints() + (mOwner.getGold() - newUserGold);
+            FirebaseProvider.getInstance().upgradeStructureLevel(mOwner.getId(), newUserGold, newUserPoints,
                     mStructure.getId(), mStructure.getLevel() + 1).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {

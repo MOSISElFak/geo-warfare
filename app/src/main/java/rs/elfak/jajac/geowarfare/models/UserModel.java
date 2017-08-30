@@ -32,6 +32,7 @@ public class UserModel {
     private Map<String, Integer> units = new HashMap<>();
     private Map<String, Integer> research = new HashMap<>();
     private int gold = Constants.STARTING_GOLD;
+    private int points = 0;
 
     public UserModel() {
         // Default constructor required for calls to DataSnapshot.getValue(UserModel.class)
@@ -193,6 +194,14 @@ public class UserModel {
 
     public void setResearch(Map<String, Integer> research) {
         this.research = research;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
     }
 
 }

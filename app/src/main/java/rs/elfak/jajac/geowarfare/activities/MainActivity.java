@@ -654,10 +654,11 @@ public class MainActivity extends AppCompatActivity implements
     private void buildStructure(StructureType structureType, CoordsModel coords) {
         FirebaseProvider firebaseProvider = FirebaseProvider.getInstance();
         int newUserGoldValue = mLoggedUser.getGold() - structureType.getBaseCost();
+        int newUserPoints = mLoggedUser.getPoints() + (mLoggedUser.getGold() - newUserGoldValue);
         switch (structureType) {
             case GOLD_MINE:
                 GoldMineModel newGoldMine = new GoldMineModel(structureType, mLoggedUserId, coords);
-                firebaseProvider.addGoldMine(newGoldMine, coords, newUserGoldValue)
+                firebaseProvider.addGoldMine(newGoldMine, coords, newUserGoldValue, newUserPoints)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
@@ -669,7 +670,7 @@ public class MainActivity extends AppCompatActivity implements
                 break;
             case BARRACKS:
                 BarracksModel newBarracks = new BarracksModel(structureType, mLoggedUserId, coords);
-                firebaseProvider.addBarracks(newBarracks, coords, newUserGoldValue)
+                firebaseProvider.addBarracks(newBarracks, coords, newUserGoldValue, newUserPoints)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
@@ -755,7 +756,9 @@ public class MainActivity extends AppCompatActivity implements
 
         int newLevel = mLoggedUser.getResearch().get(skillType.toString()) + 1;
         int newUserGold = mLoggedUser.getGold() - skillType.getUpgradeCost(newLevel - 1);
-        FirebaseProvider.getInstance().upgradeResearchSkill(mLoggedUserId, newUserGold, skillType.toString(), newLevel)
+        int newUserPoints = mLoggedUser.getPoints() + (mLoggedUser.getGold() - newUserGold);
+        FirebaseProvider.getInstance().upgradeResearchSkill(
+                mLoggedUserId, newUserGold, newUserPoints, skillType.toString(), newLevel)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

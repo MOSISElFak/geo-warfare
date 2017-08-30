@@ -124,9 +124,11 @@ public class FirebaseProvider {
         return mUsersDbRef.updateChildren(updates);
     }
 
-    public Task<Void> upgradeResearchSkill(String userId, int newUserGold, String skillName, int newSkillLevel) {
+    public Task<Void> upgradeResearchSkill(String userId, int newUserGold, int newUserPoints,
+                                           String skillName, int newSkillLevel) {
         Map<String, Object> updates = new HashMap<>();
         updates.put(userId + "/gold", newUserGold);
+        updates.put(userId + "/points", newUserPoints);
         updates.put(userId + "/research/" + skillName, newSkillLevel);
         return mUsersDbRef.updateChildren(updates);
     }
@@ -153,13 +155,14 @@ public class FirebaseProvider {
         return mStructuresDbRef.child(structureId);
     }
 
-    public Task<Void> addGoldMine(GoldMineModel goldMine, CoordsModel coords, int newUserGoldValue) {
+    public Task<Void> addGoldMine(GoldMineModel goldMine, CoordsModel coords, int newUserGoldValue, int newUserPoints) {
         String newStructureKey = mStructuresDbRef.push().getKey();
 
         Map<String, Object> updates = new HashMap<>();
         updates.put("/structures/" + newStructureKey, goldMine);
         updates.put("/users/" + goldMine.getOwnerId() + "/structures/" + newStructureKey, true);
         updates.put("/users/" + goldMine.getOwnerId() + "/gold", newUserGoldValue);
+        updates.put("/users/" + goldMine.getOwnerId() + "/points", newUserPoints);
 
         GeoLocation geoLoc = new GeoLocation(coords.getLatitude(), coords.getLongitude());
         mStructuresGeoFire.setLocation(newStructureKey, geoLoc);
@@ -167,13 +170,14 @@ public class FirebaseProvider {
         return mDbRef.updateChildren(updates);
     }
 
-    public Task<Void> addBarracks(BarracksModel barracks, CoordsModel coords, int newUserGoldValue) {
+    public Task<Void> addBarracks(BarracksModel barracks, CoordsModel coords, int newUserGoldValue, int newUserPoints) {
         String newStructureKey = mStructuresDbRef.push().getKey();
 
         Map<String, Object> updates = new HashMap<>();
         updates.put("/structures/" + newStructureKey, barracks);
         updates.put("/users/" + barracks.getOwnerId() + "/structures/" + newStructureKey, true);
         updates.put("/users/" + barracks.getOwnerId() + "/gold", newUserGoldValue);
+        updates.put("/users/" + barracks.getOwnerId() + "/points", newUserPoints);
 
         GeoLocation geoLoc = new GeoLocation(coords.getLatitude(), coords.getLongitude());
         mStructuresGeoFire.setLocation(newStructureKey, geoLoc);
@@ -194,12 +198,13 @@ public class FirebaseProvider {
         return mDbRef.updateChildren(updates);
     }
 
-    public Task<Void> upgradeStructureLevel(String userId, int newGoldAmount,
+    public Task<Void> upgradeStructureLevel(String userId, int newGoldAmount, int newUserPoints,
                                             String structureId, int newStructureLevel) {
         Map<String, Object> updates = new HashMap<>();
 
         updates.put("/structures/" + structureId + "/level", newStructureLevel);
         updates.put("/users/" + userId + "/gold", newGoldAmount);
+        updates.put("/users/" + userId + "/points", newUserPoints);
 
         return mDbRef.updateChildren(updates);
     }
@@ -224,13 +229,14 @@ public class FirebaseProvider {
         return mDbRef.updateChildren(updates);
     }
 
-    public Task<Void> purchaseUnits(String userId, Map<String, Integer> newUserUnits, int newUserGold,
-                                    String barracksId, Map<String, Integer> newBarracksUnits)
+    public Task<Void> purchaseUnits(String userId, Map<String, Integer> newUserUnits, int newUserGold, int
+            newUserPoints, String barracksId, Map<String, Integer> newBarracksUnits)
     {
         Map<String, Object> updates = new HashMap<>();
 
         updates.put("/users/" + userId + "/units", newUserUnits);
         updates.put("/users/" + userId + "/gold", newUserGold);
+        updates.put("/users/" + userId + "/points", newUserPoints);
         updates.put("/structures/" + barracksId + "/availableUnits", newBarracksUnits);
 
         return mDbRef.updateChildren(updates);
