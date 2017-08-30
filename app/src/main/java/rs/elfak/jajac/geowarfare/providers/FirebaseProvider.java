@@ -61,6 +61,10 @@ public class FirebaseProvider {
         return mAuth.getCurrentUser();
     }
 
+    public DatabaseReference getAllUsers() {
+        return mUsersDbRef;
+    }
+
     public DatabaseReference getUserById(String userId) {
         return mUsersDbRef.child(userId);
     }

@@ -52,6 +52,7 @@
 
     <!-- Action bar -->
     <string name="action_bar_profile">Profile</string>
+    <string name="action_bar_leaderboard">Leaderboard</string>
     <string name="action_bar_about">About</string>
     <string name="action_bar_friends">Friends</string>
     <string name="action_bar_research">Research</string>

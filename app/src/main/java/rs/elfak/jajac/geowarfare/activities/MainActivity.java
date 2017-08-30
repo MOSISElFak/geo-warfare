@@ -65,6 +65,7 @@ import rs.elfak.jajac.geowarfare.fragments.DefenseFragment;
 import rs.elfak.jajac.geowarfare.fragments.EditUserInfoFragment;
 import rs.elfak.jajac.geowarfare.fragments.FriendsFragment;
 import rs.elfak.jajac.geowarfare.fragments.GoldMineFragment;
+import rs.elfak.jajac.geowarfare.fragments.LeaderboardFragment;
 import rs.elfak.jajac.geowarfare.fragments.MapFragment;
 import rs.elfak.jajac.geowarfare.fragments.NoLocationFragment;
 import rs.elfak.jajac.geowarfare.fragments.ProfileFragment;
@@ -100,7 +101,8 @@ public class MainActivity extends AppCompatActivity implements
         GoldMineFragment.OnFragmentInteractionListener,
         BarracksFragment.OnFragmentInteractionListener,
         AttackFragment.OnFragmentInteractionListener,
-        ResearchFragment.OnFragmentInteractionListener {
+        ResearchFragment.OnFragmentInteractionListener,
+        LeaderboardFragment.OnListFragmentInteractionListener {
 
     public static final int REQUEST_CHECK_SETTINGS = 1;
     public static final int REQUEST_LOCATION_PERMISSION = 2;
@@ -440,6 +442,9 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.action_bar_profile_item:
                 onOpenUserProfile(mLoggedUserId);
                 return true;
+            case R.id.action_bar_leaderboard_item:
+                onOpenLeaderboard();
+                return true;
             case R.id.action_bar_settings_item:
                 Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(settingsIntent);
@@ -525,6 +530,16 @@ public class MainActivity extends AppCompatActivity implements
                 .beginTransaction()
                 .replace(R.id.main_fragment_container, NoLocationFragment.newInstance(),
                         NoLocationFragment.FRAGMENT_TAG)
+                .commit();
+    }
+
+    private void onOpenLeaderboard() {
+        mFragmentManager
+                .beginTransaction()
+                .replace(R.id.main_fragment_container,
+                        LeaderboardFragment.newInstance(mLoggedUserId, mLoggedUser.getFriends()),
+                        LeaderboardFragment.FRAGMENT_TAG)
+                .addToBackStack(null)
                 .commit();
     }
 
@@ -766,6 +781,11 @@ public class MainActivity extends AppCompatActivity implements
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    @Override
+    public void onLeaderboardItemClick(String userId) {
+        onOpenUserProfile(userId);
     }
 
     private ServiceConnection mUserUpdatesConnection = new ServiceConnection() {

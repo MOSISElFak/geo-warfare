@@ -64,7 +64,7 @@ public class FriendsFragment extends BaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        setActionBarTitle(null);
+        setActionBarTitle("Social");
         getActivity().findViewById(R.id.toolbar_filter_spinner).setVisibility(View.INVISIBLE);
     }
 
