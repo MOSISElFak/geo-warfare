@@ -59,6 +59,7 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
     private static final String ARG_SHOULD_INJECT_OWN_MENU = "should_inject_own_menu";
 
     private Context mContext;
+    private boolean storagePermissionRationaleShown = false;
 
     // Passed in arguments
     private String mDisplayName;
@@ -216,31 +217,7 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
         boolean permissionGranted = userPermission == PackageManager.PERMISSION_GRANTED;
 
         if (!permissionGranted) {
-            // Explain the user why the app requires the storage permission and ask for it
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, storagePermission)) {
-                new AlertDialog.Builder(activity)
-                        .setTitle(getString(R.string.register_storage_permission_title))
-                        .setMessage(getString(R.string.register_storage_permission_message))
-                        .setNeutralButton("Close", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                requestPermissions(
-                                        new String[]{storagePermission},
-                                        REQUEST_STORAGE_PERMISSION);
-                            }
-                        }).create().show();
-            } else {
-                // User checked "never ask again", explain why gallery isn't available and run camera
-                new AlertDialog.Builder(activity)
-                        .setTitle(getString(R.string.register_storage_permission_title))
-                        .setMessage(getString(R.string.register_storage_permission_message_no_ask))
-                        .setNeutralButton("Close", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                onStoragePermissionDenied();
-                            }
-                        }).create().show();
-            }
+            requestPermissions(new String[]{storagePermission}, REQUEST_STORAGE_PERMISSION);
         } else {
             onStoragePermissionGranted();
         }
@@ -255,7 +232,26 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     onStoragePermissionGranted();
                 } else {
-                    onStoragePermissionDenied();
+                    final Activity activity = getActivity();
+                    final String storagePermission = Manifest.permission.READ_EXTERNAL_STORAGE;
+                    // Explain the user why the app requires the storage permission and ask for it
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(activity, storagePermission)
+                            && !storagePermissionRationaleShown) {
+                        storagePermissionRationaleShown = true;
+                        new AlertDialog.Builder(activity)
+                                .setTitle(getString(R.string.register_storage_permission_title))
+                                .setMessage(getString(R.string.register_storage_permission_message))
+                                .setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        requestPermissions(
+                                                new String[]{storagePermission},
+                                                REQUEST_STORAGE_PERMISSION);
+                                    }
+                                }).create().show();
+                    } else {
+                        onStoragePermissionDenied();
+                    }
                 }
                 return;
             }

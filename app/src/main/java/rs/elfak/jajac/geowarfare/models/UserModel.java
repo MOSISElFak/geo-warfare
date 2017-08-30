@@ -17,6 +17,9 @@ public class UserModel {
     public static final String KEY_USER_FULL_NAME = "fullName";
     public static final String KEY_USER_PHONE = "phone";
     public static final String KEY_USER_AVATAR_URL = "avatarUrl";
+    public static final String KEY_USER_RESEARCH = "research";
+    public static final String KEY_USER_GOLD = "gold";
+    public static final String KEY_USER_POINTS = "points";
 
     private String id;
     private String email;
@@ -61,6 +64,9 @@ public class UserModel {
         result.put(KEY_USER_FULL_NAME, fullName);
         result.put(KEY_USER_PHONE, phone);
         result.put(KEY_USER_AVATAR_URL, avatarUrl);
+        result.put(KEY_USER_RESEARCH, research);
+        result.put(KEY_USER_GOLD, gold);
+        result.put(KEY_USER_POINTS, points);
 
         return result;
     }
