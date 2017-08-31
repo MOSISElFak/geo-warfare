@@ -93,6 +93,7 @@ public class MapFragment extends BaseFragment implements
     private Map<String, Marker> mMarkers = new HashMap<>();
     private Map<Marker, GoogleMap.OnMarkerClickListener> mMarkerListeners = new HashMap<>();
     private CoordsModel mMyLocation;
+    private CoordsModel mMyLastKnownLocation;
 
     private Map<String, UserModel> mNearbyUsers = new HashMap<>();
     private Map<String, StructureModel> mNearbyStructures = new HashMap<>();
@@ -195,6 +196,10 @@ public class MapFragment extends BaseFragment implements
                 onResearchClick();
             }
         });
+
+        if (mMyLastKnownLocation != null && mMyLocation == null) {
+            onNewLocation(mMyLastKnownLocation);
+        }
     }
 
     private void addUserGeoQueryEventListener() {
@@ -499,6 +504,10 @@ public class MapFragment extends BaseFragment implements
         }
 
         mMyLocation = loc;
+
+        if (mMyLastKnownLocation != null) {
+            mMyLastKnownLocation = null;
+        }
     }
 
     public void updateRadius(int newRadius) {
@@ -546,6 +555,7 @@ public class MapFragment extends BaseFragment implements
         super.onStop();
         mMapView.onStop();
 
+        mMyLastKnownLocation = mMyLocation;
         mMyLocation = null;
 
         if (mCircle != null) {
