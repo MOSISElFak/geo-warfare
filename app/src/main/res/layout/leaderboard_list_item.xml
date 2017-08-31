@@ -57,7 +57,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        tools:src="@drawable/ic_person_add_24dp"
+        android:src="@drawable/ic_people_24dp"
         android:visibility="invisible"/>
 
 </LinearLayout>

@@ -125,7 +125,7 @@ public class LeaderboardFragment extends BaseFragment {
                 Collections.sort(mUsers, new Comparator<UserModel>() {
                     @Override
                     public int compare(UserModel o1, UserModel o2) {
-                        return o1.getPoints() - o2.getPoints();
+                        return o2.getPoints() - o1.getPoints();
                     }
                 });
 
@@ -139,6 +139,12 @@ public class LeaderboardFragment extends BaseFragment {
         });
 
         mRanksProgressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mUsers.clear();
     }
 
     @Override
