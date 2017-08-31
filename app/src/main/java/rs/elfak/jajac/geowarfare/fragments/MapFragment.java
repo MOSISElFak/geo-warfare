@@ -256,6 +256,13 @@ public class MapFragment extends BaseFragment implements
             public void onKeyExited(String key) {
                 if (mGoogleMap != null) {
                     Marker marker = mMarkers.get(key);
+
+                    // onKeyExited gets called twice for some reason
+                    // so we need to avoid executing this twice
+                    if (marker == null) {
+                        return;
+                    }
+
                     mMarkers.remove(key);
                     mNearbyStructures.remove(key);
                     mMarkerListeners.remove(marker);
