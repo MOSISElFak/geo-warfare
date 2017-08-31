@@ -50,16 +50,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnFocusChan
                 case R.id.login_email_text:
                     Validator.validateEmail(editText);
                     break;
-                case R.id.login_password_text:
-                    Validator.validatePassword(editText);
-                    break;
             }
         }
     }
 
     private boolean allFieldsValid() {
         Validator.validateEmail(mEmail);
-        Validator.validatePassword(mPassword);
         return mEmail.length() > 0 && mEmail.getError() == null &&
                 mPassword.length() > 0 && mPassword.getError() == null;
     }
