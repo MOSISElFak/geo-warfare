@@ -309,34 +309,8 @@ public class MainActivity extends AppCompatActivity implements
         boolean permissionGranted = userPermission == PackageManager.PERMISSION_GRANTED;
 
         if (!permissionGranted) {
-            // Explain the user why the app requires location permission and then ask for it
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, locationPermission)) {
-                new AlertDialog.Builder(this)
-                        .setTitle(getString(R.string.location_permission_title))
-                        .setMessage(getString(R.string.location_permission_message))
-                        .setNeutralButton("Close", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                ActivityCompat.requestPermissions(MainActivity.this, new String[]{locationPermission},
-                                REQUEST_LOCATION_PERMISSION);
-                            }
-                        }).create().show();
-            } else {
-                // User checked "never ask again", show explanation and switch to app settings
-                new AlertDialog.Builder(this)
-                        .setTitle(getString(R.string.location_permission_title))
-                        .setMessage(getString(R.string.location_permission_message))
-                        .setNeutralButton("Close", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                Uri uri = Uri.fromParts("package", MainActivity.this.getPackageName(), null);
-                                intent.setData(uri);
-                                startActivity(intent);
-                            }
-                        }).create().show();
-            }
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{locationPermission}, REQUEST_LOCATION_PERMISSION);
         } else {
             onLocationPermissionGranted();
         }
@@ -345,12 +319,42 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case REQUEST_LOCATION_PERMISSION: {
                 // If request is granted, the results array won't be empty
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     onLocationPermissionGranted();
                 } else {
+                    final String locationPermission = Manifest.permission.ACCESS_FINE_LOCATION;
+                    // Explain the user why the app requires location permission and then ask for it
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, locationPermission)) {
+                        new AlertDialog.Builder(this)
+                                .setTitle(getString(R.string.location_permission_title))
+                                .setMessage(getString(R.string.location_permission_message))
+                                .setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{locationPermission},
+                                                REQUEST_LOCATION_PERMISSION);
+                                    }
+                                }).create().show();
+                    } else {
+                        // User checked "never ask again", show explanation and switch to app settings
+                        new AlertDialog.Builder(this)
+                                .setTitle(getString(R.string.location_permission_title))
+                                .setMessage(getString(R.string.location_permission_message))
+                                .setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        Uri uri = Uri.fromParts("package", MainActivity.this.getPackageName(), null);
+                                        intent.setData(uri);
+                                        startActivity(intent);
+                                    }
+                                }).create().show();
+                    }
                     onLocationPermissionDenied();
                 }
             }
@@ -519,9 +523,14 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void onOpenMap() {
+        MapFragment mapFragment = (MapFragment) mFragmentManager.findFragmentByTag(MapFragment.FRAGMENT_TAG);
+        if (mapFragment == null) {
+            mapFragment = new MapFragment();
+        }
+        updateMapRadius();
         mFragmentManager
                 .beginTransaction()
-                .replace(R.id.main_fragment_container, new MapFragment(), MapFragment.FRAGMENT_TAG)
+                .replace(R.id.main_fragment_container, mapFragment, MapFragment.FRAGMENT_TAG)
                 .commit();
     }
 

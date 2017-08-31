@@ -253,7 +253,6 @@ public class EditUserInfoFragment extends BaseFragment implements View.OnFocusCh
                         onStoragePermissionDenied();
                     }
                 }
-                return;
             }
         }
     }
