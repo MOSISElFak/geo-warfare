@@ -50,6 +50,8 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
     protected StructureModel mStructure;
     protected UserModel mOwner;
     protected Map<String, Integer> mUserResearchSkills;
+
+    protected CoordsModel mUserLocation = new CoordsModel();
     protected boolean mIsUserNearby = false;
 
     private DatabaseReference mStructureDbRef;
@@ -68,10 +70,9 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
         public void onReceive(Context context, Intent intent) {
             double latitude = intent.getDoubleExtra("latitude", 0);
             double longitude = intent.getDoubleExtra("longitude", 0);
-            if (mOwner != null) {
-                mOwner.setCoords(new CoordsModel(latitude, longitude));
-                updateIsUserNearby();
-            }
+            mUserLocation.setLatitude(latitude);
+            mUserLocation.setLongitude(longitude);
+            updateIsUserNearby();
         }
     };
 
@@ -312,8 +313,8 @@ public abstract class StructureFragment extends BaseFragment implements View.OnC
 
     private void updateIsUserNearby() {
         Location userLocation = new Location("A");
-        userLocation.setLatitude(mOwner.getCoords().getLatitude());
-        userLocation.setLongitude(mOwner.getCoords().getLongitude());
+        userLocation.setLatitude(mUserLocation.getLatitude());
+        userLocation.setLongitude(mUserLocation.getLongitude());
 
         Location structureLocation = new Location("B");
         structureLocation.setLatitude(mStructure.getCoords().getLatitude());
