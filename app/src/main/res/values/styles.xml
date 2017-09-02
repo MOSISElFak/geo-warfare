@@ -68,7 +68,8 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:drawablePadding">@dimen/structure_unit_icon_padding</item>
         <!--<item name="android:gravity">start|center_vertical</item>-->
-        <item name="android:ems">6</item>
+        <item name="android:minEms">4</item>
+        <item name="android:maxEms">6</item>
         <!-- These compoundDrawableWidth/Height and drawableTint (without android: prefix)
              are from the custom TextViewRichDrawable view -->
         <item name="compoundDrawableWidth">@dimen/structure_fragment_icon_size</item>
